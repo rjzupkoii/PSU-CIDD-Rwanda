@@ -73,9 +73,6 @@ raster_db:
   pr_treatment_under5: "rwa_treatment.asc"
   pr_treatment_over5: "rwa_treatment.asc" 
 
-  # Raster file containing the calibrated beta value
-  beta_raster: "rwa_beta.asc"
-  
   # Set the cell size used by raster, in sq.km
   cell_size: 5
 
