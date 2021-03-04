@@ -21,28 +21,21 @@ cache = {}
 ZONE = 0
 POPULATION_BINS = [2125, 5640, 8989, 12108, 15577, 20289, 27629, 49378, 95262, 286928]
 
-def beta_expfit(filename, population, treatment, pfpr):
-    # Check the cache
+
+def beta_exp2fit(filename, population, treatment, pfpr):
+    # Check the cache, fit the curve if we don't already have the coefficients
     key = "{}:{}".format(population, treatment)
     if key not in cache:
         logging.debug("Fitting population {}, treatment {} (PfPR: {})".format(population, treatment, pfpr))
 
-        # Load the data, filter by the population and treatment
-        calibration = np.loadtxt(filename, delimiter=',', skiprows=1)
-        calibration = calibration[calibration[:, 2] == population]
-        calibration = calibration[calibration[:, 3] == treatment]
-
-        # Extract the beta and PfPR columns
-        calibrationPfpr = calibration[:, 6]     # x-data
-        calibrationBeta = calibration[:, 4]     # y-data
-        
-        # Curve fit the function
+        # Starting point for the fitting, these were arbitrarily selected
         p0 = (0.5, 0.5, 0.5, 0.5)
-        popt, _ = scipy.optimize.curve_fit(exp2, calibrationPfpr, calibrationBeta, p0, maxfev=10000)
-        
-        cache[key] = popt
 
-    # Load the coefficients and return the beta
+        x, y = load(filename, population, treatment)
+        coefficients, _ = scipy.optimize.curve_fit(exp2, x, y, p0, maxfev=10000)
+        cache[key] = coefficients
+
+    # Load the coefficients, return the beta
     coefficients = cache[key]
     return exp2(pfpr, coefficients[0], coefficients[1], coefficients[2], coefficients[3])
 
@@ -52,33 +45,36 @@ def exp2(x, a, b, c, d):
 
 
 def beta_polyfit(filename, population, treatment, pfpr):
-    # Check the cache
+    # Check the cache, fit the curve if we don't already have the coefficients
     key = "{}:{}".format(population, treatment)
     if key not in cache:
-        print("Fitting population {}, treatment {}".format(population, treatment))
+        logging.debug("Fitting population {}, treatment {} (PfPR: {})".format(population, treatment, pfpr))
 
-        # Load the data, filter by the population and treatment
-        calibration = np.loadtxt(filename, delimiter=',', skiprows=1)
-        calibration = calibration[calibration[:, 2] == population]
-        calibration = calibration[calibration[:, 3] == treatment]
-
-        # Extract the beta and PfPR columns
-        calibrationBeta = calibration[:, 4]
-        calibrationPfpr = calibration[:, 6]
-
-        # Curve fit the function
-        coefficients = np.polyfit(calibrationPfpr, calibrationBeta, 2)
+        x, y = load(filename, population, treatment)
+        coefficients = np.polyfit(x, y, 2)
         cache[key] = coefficients
 
-    # Load the coefficients
+    # Load the coefficients, return the beta
     coefficients = cache[key]
-    
-    # Find the beta
-    beta = coefficients[0] * pfpr ** 2 + coefficients[1] * pfpr + coefficients[2]
-    return round(beta, 8)
+    return (coefficients[0] * pfpr ** 2 + coefficients[1] * pfpr + coefficients[2])
     
 
-def main():
+# Load the calibration data, returned the filtered pfpr (x-values) and beta (y-values)
+def load(filename, population, treatment):
+    # Load the data, filter by the population and treatment
+    calibration = np.loadtxt(filename, delimiter=',', skiprows=1)
+    calibration = calibration[calibration[:, 2] == population]
+    calibration = calibration[calibration[:, 3] == treatment]
+
+    # Extract the beta and PfPR columns
+    calibrationPfpr = calibration[:, 6]     # x-data
+    calibrationBeta = calibration[:, 4]     # y-data
+
+    # Return the values
+    return calibrationPfpr, calibrationBeta
+
+
+def main(method, filename):
     # Load the relevent ASC data
     [ascHeader, pfpr] = load_asc("../../GIS/rwa_pfpr2to10.asc")
     [_, population] = load_asc("../../GIS/rwa_population.asc")
@@ -101,14 +97,11 @@ def main():
 
             # Get the population bin, find the beta for the cell
             popBin = get_bin(population[row][col], POPULATION_BINS)
-#            result = beta_polyfit("data/calibration.csv", popBin, treatments[row][col], pfpr[row][col] * 100.0)
             target = round(pfpr[row][col] * 100.0, 8)
-            result = beta_expfit("data/calibration.csv", popBin, treatments[row][col], target)
+            result = method("data/calibration.csv", popBin, treatments[row][col], target)
             beta[row].append(result)
 
     # Save the calculated beta values
-    filename = "out/exp2_beta.asc"
-#    filename = "out/poly2_beta.asc"
     print("Saving {}".format(filename))
     write_asc(ascHeader, beta, filename)
 
@@ -122,4 +115,10 @@ if __name__ == "__main__":
     if not os.path.isdir('out'):
         os.mkdir('out')
 
-    main()
+    method = beta_exp2fit
+    filename = "out/exp2_beta.asc"
+
+    # method = beta_polyfit
+    # filename = "out/poly2_beta.asc"
+
+    main(method, filename)
