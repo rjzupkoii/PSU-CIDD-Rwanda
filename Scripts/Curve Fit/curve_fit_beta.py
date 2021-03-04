@@ -9,11 +9,13 @@ import math
 import numpy as np
 import scipy.optimize
 import sys
+import warnings
 
 # Import our libraries
 sys.path.append("../Calibration/include")
 from ascFile import load_asc, write_asc
 from calibrationLib import get_bin
+from utility import progressBar
 
 cache = {}
 
@@ -74,7 +76,7 @@ def load(filename, population, treatment):
     return calibrationPfpr, calibrationBeta
 
 
-def main(method, filename):
+def main(method, filename, progress=True):
     # Load the relevent ASC data
     [ascHeader, pfpr] = load_asc("../../GIS/rwa_pfpr2to10.asc")
     [_, population] = load_asc("../../GIS/rwa_population.asc")
@@ -101,24 +103,42 @@ def main(method, filename):
             result = method("data/calibration.csv", popBin, treatments[row][col], target)
             beta[row].append(result)
 
+        # Note the progress
+        if progress:
+            progressBar(row + 1, ascHeader['nrows'])            
+
     # Save the calculated beta values
     print("Saving {}".format(filename))
     write_asc(ascHeader, beta, filename)
 
 
 if __name__ == "__main__":
+    if len(sys.argv) not in (2, 3):
+        print("Usage: ./curve_fit_beta.py [function]")
+        print("function - exp2 or poly2")
+        exit(0)
 
-    # Enable logging statements if desired
-    logging.basicConfig(level=logging.DEBUG)
+    # Set the function to be used for fitting
+    if sys.argv[1] == 'exp2':
+        print("Fitting using exponential, f(x) = a * exp(b * x) + c * exp(d * x)")
+        method = beta_exp2fit
+        filename = "out/exp2_beta.asc"
+    elif sys.argv[1] == 'poly2':
+        print("Fitting using second-order polynomial, f(x) = a * x ** 2 + b * x + c")
+        method = beta_polyfit
+        filename = "out/poly2_beta.asc"
+    else:
+        print("Unknown function: {}".format(sys.argv[1]))
+        exit(1)
 
     # Create the output directory if need be
     if not os.path.isdir('out'):
         os.mkdir('out')
 
-    method = beta_exp2fit
-    filename = "out/exp2_beta.asc"
-
-    # method = beta_polyfit
-    # filename = "out/poly2_beta.asc"
-
-    main(method, filename)
+    # Enable / disable debug operations
+    if len(sys.argv) == 3 and sys.argv[2] == 'debug':
+        logging.basicConfig(level=logging.DEBUG)
+        main(method, filename, False)
+    else:
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
+        main(method, filename)

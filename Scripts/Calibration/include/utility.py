@@ -1,7 +1,6 @@
 # utility.py
 #
 # Various utility functions for Python
-
 import sys
 
 # Progress bar for console applications
@@ -16,6 +15,6 @@ def progressBar(current, total, barLength = 20):
         sys.stdout.write("\rProgress: [{0}] {1}%".format(arrow + spaces, int(round(percent * 100))))
         sys.stdout.flush()
     else:
-        print "\rProgress: [{0}] {1}%".format('-' * barLength, int(round(percent * 100)))
+        print ("\rProgress: [{0}] {1}%".format('-' * barLength, int(round(percent * 100))))
 
     
