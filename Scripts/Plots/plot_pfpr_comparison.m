@@ -2,7 +2,7 @@
 %
 % Plot the refernece versus simulated PfPR data.
 
-FILENAME = "data/27227-verification-data.csv";
+FILENAME = "data/FILENAME";
 REFERENCE = "data/weighted_pfpr.csv";
 
 plotSimuatedVsReferencePfPR(FILENAME, REFERENCE);
@@ -15,7 +15,8 @@ function [] = plotSimuatedVsReferencePfPR(simulatedFile, referenceFile)
 
     % Load and trim the evaluation data to post-burn-in
     data = csvread(simulatedFile, 1, 0);
-    data = data(data(:, 1) >= (11 * 365), :);
+    data = data(data(:, 1) >= (11 * 365), :);       % Start of comparsion, 2020
+    data = data(data(:, 1) <= (16 * 365), :);       % End of comparsion, 2025
     districts = unique(data(:, 2));
 
     % Prepare the color map
@@ -27,7 +28,8 @@ function [] = plotSimuatedVsReferencePfPR(simulatedFile, referenceFile)
         pfpr = data(data(:, 2) == district, 6); 
 
         % We want the seasonal maxima, filter out the local maxima, once
-        % this is done we should only have six points left
+        % this is done we should only have about 10 points left (five
+        % years, with two peaks per year)
         maxima = pfpr(pfpr > mean(pfpr));
         maxima = maxima(maxima > maxima - std(maxima));
         maxima = findpeaks(maxima);
@@ -35,7 +37,7 @@ function [] = plotSimuatedVsReferencePfPR(simulatedFile, referenceFile)
         pfpr = pfpr .* -1;
         minima = pfpr(pfpr > mean(pfpr));
         minima = minima(minima > minima - std(minima));
-        minima = findpeaks(minima);
+        minima = findpeaks(minima);        
 
         % Plot from the maxima to the minima, connected by a line
         line([expected expected], [mean(maxima) abs(mean(minima))], 'LineStyle', '--', 'LineWidth', 1.5, 'Color', 'black');
@@ -51,14 +53,19 @@ function [] = plotSimuatedVsReferencePfPR(simulatedFile, referenceFile)
     
     % Plot the reference error lines
     data = get(gca, 'YLim');
+    line([data(1) data(2)], [data(1)*1.05 data(2)*1.20], 'Color', [0.5 0.5 0.5], 'LineStyle', '-.');
+    line([data(1) data(2)], [data(1)*1.05 data(2)*1.15], 'Color', [0.5 0.5 0.5], 'LineStyle', '-.');
     line([data(1) data(2)], [data(1)*1.05 data(2)*1.1], 'Color', [0.5 0.5 0.5], 'LineStyle', '-.');
-    % text(data(2) * 0.9, data(2) + 0.5, '+10%', 'FontSize', 16);
     line([data(1) data(2)], [data(1)*1.05 data(2)*1.05], 'Color', [0.5 0.5 0.5], 'LineStyle', '-.');
-    % text(data(2)* 0.95, data(2) + 0.5, '+5%', 'FontSize', 16);
+    
     line([data(1) data(2)], [data(1)*0.95 data(2)*0.95], 'Color', [0.5 0.5 0.5], 'LineStyle', '-.');
     text(data(2), data(2) * 0.95, '-5%', 'FontSize', 16);
     line([data(1) data(2)], [data(1)*0.95 data(2)*0.9], 'Color', [0.5 0.5 0.5], 'LineStyle', '-.');
     text(data(2), data(2) * 0.9, '-10%', 'FontSize', 16);
+    line([data(1) data(2)], [data(1)*0.95 data(2)*0.85], 'Color', [0.5 0.5 0.5], 'LineStyle', '-.');
+    text(data(2), data(2) * 0.85, '-15%', 'FontSize', 16);
+    line([data(1) data(2)], [data(1)*0.95 data(2)*0.80], 'Color', [0.5 0.5 0.5], 'LineStyle', '-.');
+    text(data(2), data(2) * 0.8, '-20%', 'FontSize', 16);
     
     % Plot the reference center line
     line([data(1) data(2)], [data(1) data(2)], 'Color', 'black', 'LineStyle', '-.');
