@@ -21,7 +21,7 @@ cache = {}
 
 # RWA constants
 ZONE = 0
-POPULATION_BINS = [2125, 5640, 8989, 12108, 15577, 20289, 27629, 49378, 95262, 286928]
+POPULATION_BINS = [4973, 10818, 16518, 24639, 38186, 65194, 95262, 211246, 286928]
 
 
 def beta_exp2fit(filename, population, treatment, pfpr):
@@ -33,7 +33,12 @@ def beta_exp2fit(filename, population, treatment, pfpr):
         # Starting point for the fitting, these were arbitrarily selected
         p0 = (0.5, 0.5, 0.5, 0.5)
 
+        # Load the data press on with an error if the values aren't present
         x, y = load(filename, population, treatment)
+        if len(x) == 0 or len(y) == 0:
+            sys.stderr.write("Missing or incomplete data, skipping population {} and treatment of {}\n".format(population, treatment))
+            return None
+
         coefficients, _ = scipy.optimize.curve_fit(exp2, x, y, p0, maxfev=10000)
         cache[key] = coefficients
 
@@ -52,7 +57,12 @@ def beta_polyfit(filename, population, treatment, pfpr):
     if key not in cache:
         logging.debug("Fitting population {}, treatment {} (PfPR: {})".format(population, treatment, pfpr))
 
+        # Load the data press on with an error if the values aren't present
         x, y = load(filename, population, treatment)
+        if len(x) == 0 or len(y) == 0:
+            sys.stderr.write("\nMissing or incomplete data, skipping population {} and treatment of {}\n".format(population, treatment))
+            return None
+
         coefficients = np.polyfit(x, y, 2)
         cache[key] = coefficients
 
@@ -101,6 +111,11 @@ def main(method, filename, progress=True):
             popBin = get_bin(population[row][col], POPULATION_BINS)
             target = round(pfpr[row][col] * 100.0, 8)
             result = method("data/calibration.csv", popBin, treatments[row][col], target)
+
+            # Check for errors before updating the array
+            if result is None:
+                sys.stderr.write("Null value returned for beta, exiting\n")
+                sys.exit(1)
             beta[row].append(result)
 
         # Note the progress
