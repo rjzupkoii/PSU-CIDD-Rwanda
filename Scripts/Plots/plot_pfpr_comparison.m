@@ -28,20 +28,20 @@ function [] = plotSimuatedVsReferencePfPR(simulatedFile, referenceFile)
         pfpr = data(data(:, 2) == district, 6); 
 
         % We want the seasonal maxima, filter out the local maxima, once
-        % this is done we should only have about 10 points left (five
-        % years, with two peaks per year)
+        % this is done we should only have six points left
         maxima = pfpr(pfpr > mean(pfpr));
         maxima = maxima(maxima > maxima - std(maxima));
         maxima = findpeaks(maxima);
-
-        pfpr = pfpr .* -1;
-        minima = pfpr(pfpr > mean(pfpr));
+        
+        % Repeat the same process for the minima as the maxima
+        minima = pfpr(pfpr < mean(pfpr)) .* -1;
         minima = minima(minima > minima - std(minima));
-        minima = findpeaks(minima);        
+        minima = findpeaks(minima);       
 
         % Plot from the maxima to the minima, connected by a line
         line([expected expected], [mean(maxima) abs(mean(minima))], 'LineStyle', '--', 'LineWidth', 1.5, 'Color', 'black');
-        scatter(expected, mean(maxima), 100, colors(district, :), 'filled', 'MarkerEdgeColor', 'black');
+        scatter(expected, mean(maxima), 100, [99 99 99] / 255, 'filled', 'MarkerEdgeColor', 'black');
+        scatter(expected, mean(pfpr), 100, colors(district, :), 'filled', 'MarkerEdgeColor', 'black');
         scatter(expected, abs(mean(minima)), 75, [99 99 99] / 255, 'filled', 'MarkerEdgeColor', 'black');
     end
     hold off;
