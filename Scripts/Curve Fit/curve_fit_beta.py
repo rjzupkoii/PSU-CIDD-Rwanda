@@ -36,11 +36,12 @@ def beta_exp2fit(filename, population, treatment, pfpr):
         # Load the data press on with an error if the values aren't present
         x, y = load(filename, population, treatment)
         if len(x) == 0 or len(y) == 0:
-            sys.stderr.write("Missing or incomplete data, skipping population {} and treatment of {}\n".format(population, treatment))
+            sys.stderr.write("\nMissing or incomplete data, skipping population {} and treatment of {}\n".format(population, treatment))
             return None
 
         coefficients, _ = scipy.optimize.curve_fit(exp2, x, y, p0, maxfev=10000)
         cache[key] = coefficients
+        logging.debug("coefficients: {}".format(coefficients))
 
     # Load the coefficients, return the beta
     coefficients = cache[key]
@@ -65,6 +66,7 @@ def beta_polyfit(filename, population, treatment, pfpr):
 
         coefficients = np.polyfit(x, y, 2)
         cache[key] = coefficients
+        logging.debug("coefficients: {}".format(coefficients))
 
     # Load the coefficients, return the beta
     coefficients = cache[key]
@@ -116,6 +118,11 @@ def main(method, filename, progress=True):
             if result is None:
                 sys.stderr.write("Null value returned for beta, exiting\n")
                 sys.exit(1)
+            if result < 0:
+                sys.stderr.write("Projected beta {} is less than zero, exiting\n".format(result))
+                # Only exit if the debug flag isn't set
+                if progress:
+                    sys.exit(1)
             beta[row].append(result)
 
         # Note the progress
