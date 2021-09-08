@@ -34,11 +34,11 @@ starting_date: 2009/1/1
 # 2020 is the target calibration year
 start_of_comparison_period: 2020/1/1
 
-# Ending date is start of recording period plus 20 years
-ending_date: 2040/1/1
+# Only project out about 10 years into the future
+ending_date: 2031/1/1
 
 # Discard the first five years worth of data
-start_collect_data_day: 1825 
+start_collect_data_day: 1826 
 
 # Number of days to keep track total number of parasites in population
 number_of_tracking_days: 11
@@ -150,9 +150,8 @@ immune_system_information:
   # (per year) age-dependent faster acquisition of immunity from age 1 to age 10
   immune_inflation_rate: 0.01
 
-  # mix and max probabilities of experiencing symptoms as a result of a new infection
+  # Max probabilities of experiencing symptoms as a result of a new infection
   # the actual probability will depend on the host's immunity
-  min_clinical_probability: 0.05
   max_clinical_probability: 0.99
 
   # slope of sigmoidal prob-v-immunity function (parameter z in supplement of 2015 LGH paper) 
@@ -163,6 +162,9 @@ immune_system_information:
 
   # parameter kappa in supplement of 2015 LGH paper
   factor_effect_age_mature_immunity: 1
+
+  # Adjust the infliction point in the curve
+  midpoint: 0.4
 
 # Settings that determine how long an individual stays in a given location
 circulation_info:
@@ -210,6 +212,10 @@ events:
   - name: turn_off_mutation
     info:
       - day: 2009/1/1
+  - name: annual_coverage_update_event
+    info:
+      - day: 2021/1/1
+        rate: 0.03      
   - name: turn_on_mutation
     info:
       # Artemisinin
