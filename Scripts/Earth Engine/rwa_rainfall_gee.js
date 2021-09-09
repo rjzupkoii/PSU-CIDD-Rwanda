@@ -9,7 +9,8 @@
 var era5 = ee.ImageCollection("ECMWF/ERA5/MONTHLY");
 
 // Define an area of interest
-var aoi = ee.Geometry.Rectangle([28.8482, -2.8581,  30.9158, -1.0466], null, false);
+var country = ee.FeatureCollection("FAO/GAUL/2015/level0").filter(ee.Filter.eq('ADM0_NAME', 'Rwanda'));
+var aoi = ee.Feature(country.first().set('geo_type', 'Polygon')).geometry();
 
 // Define the filter for the distinct months
 var distinctYear = era5.distinct('month');
@@ -40,8 +41,8 @@ var rainfall = collection.map(function(image) {
 });
 
 // Add the AOI bounds as a quality check
-Map.centerObject(aoi, 8);
-Map.addLayer(aoi, null, 'Area of Interest');
+Map.centerObject(aoi, 6);
+Map.addLayer(aoi, {}, 'Country Boundaries');
 
 // Generate the rainfall chart
 print(ui.Chart.feature.byFeature({
