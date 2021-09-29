@@ -1,5 +1,5 @@
 /*
- * rwa_rainfall_gee.js
+ * rwa_era5_rainfall.js
  *
  * Google Earth Engine script that uses the ERA5 monthly aggregates to calculate 
  * the mean rainfall for each month in the area of interest.
@@ -17,8 +17,9 @@ var distinctYear = era5.distinct('month');
 var filter = ee.Filter.equals({leftField: 'month', rightField: 'month'});
 var join = ee.Join.saveAll('sameMonth');
 
-// Generate a collection with labeled months
+// Generate a collection with labeled months for the given time period
 var collection = ee.ImageCollection(join.apply(distinctYear, era5, filter));
+collection = collection.filter(ee.Filter.and(ee.Filter.gte('year', 2009), ee.Filter.lte('year', 2019)));
 collection = collection.map(function(image) {
   var year = ee.ImageCollection.fromImages(image.get('sameMonth'));
   return year.mean().set('Month', image.get('month'));
