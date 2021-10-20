@@ -109,8 +109,8 @@ spatial_model:
     beta: 0.14319618
     gamma: 0.83741484
 
-# Crude Birth Rate: 32.6
-birth_rate: 0.0326
+# Crude Birth Rate: 28.8 (Rwanda Vital Statistics Report, 2020)
+birth_rate: 0.0288
 
 # Malaria adjusted, all-causes death rate for Rwanda
 death_rate_by_age_class: [ 0.02641, 0.01727, 0.01155, 0.00867, 0.00682, 0.00029, 0.0003, 0.0003, 0.00031, 0.00034, 0.00035, 0.0049, 0.00638, 0.00906, 0.05348 ]
@@ -276,7 +276,7 @@ events:
 drug_db:
   # Rwanda treatments
   0:
-    name: "ART"       # Artemisinin
+    name: "ART"       # Artemisinin, with 561H EC50 setting
     half_life: 0.0
     maximum_parasite_killing_rate: 0.999
     n: 25
@@ -287,7 +287,7 @@ drug_db:
     k: 4
     EC50:
       ..0..: 0.75
-      ..1..: 1.2
+      ..1..: 0.80
   1:
     name: "LUM"       # Lumefantrine
     half_life: 4.5

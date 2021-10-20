@@ -13,7 +13,7 @@ var country = ee.FeatureCollection("FAO/GAUL/2015/level0")
   .filter(ee.Filter.eq('ADM0_NAME', 'Rwanda'));
 var aoi = ee.Feature(country.first().set('geo_type', 'Polygon')).geometry();
 
-// Filter to the years that we are interested in, drop leap days to keep things consisent
+// Filter to the years that we are interested in, drop leap days to keep things consistent
 var collection = ee.ImageCollection(
   era5.filterDate('2009-01-01', '2019-12-31')
     .filter(ee.Filter.and(ee.Filter.eq('month', 2), ee.Filter.eq('day', 29)).not()));
