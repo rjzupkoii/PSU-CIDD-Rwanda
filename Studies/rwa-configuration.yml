@@ -93,11 +93,10 @@ raster_db:
 # Seasonality of malaria in Rwanda
 seasonal_info:
   enable: true
-  raster: false
-  base: [ 0.75 ]
-  a:    [ 0.25 ]
-  b:    [ 3.8 ]
-  phi:  [ 105 ]
+  mode: rainfall
+  rainfall:
+    filename: "rwa_adjustment.csv"
+    period: 365
 
 # Country specific movement model and calibration  
 # TODO Generic movement model that needs to be updated for Rwanda at some point
