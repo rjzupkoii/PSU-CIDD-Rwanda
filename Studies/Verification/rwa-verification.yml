@@ -38,7 +38,7 @@ start_of_comparison_period: 2020/1/1
 ending_date: 2025/1/1
 
 # Discard the first five years worth of data
-start_collect_data_day: 1825 
+start_collect_data_day: 1826
 
 # Number of days to keep track total number of parasites in population
 number_of_tracking_days: 11
@@ -67,7 +67,6 @@ raster_db:
     
   # Raster files defining the country
   district_raster: "rwa_district.asc"
-  travel_raster: "rwa_travel.asc"
   
   # Raster files defining treatments
   pr_treatment_under5: "rwa_treatment.asc"
@@ -93,11 +92,10 @@ raster_db:
 # Seasonality of malaria in Rwanda
 seasonal_info:
   enable: true
-  raster: false
-  base: [ 0.75 ]
-  a:    [ 0.25 ]
-  b:    [ 3.8 ]
-  phi:  [ 105 ]
+  mode: rainfall
+  rainfall:
+    filename: "rwa_adjustment.csv"
+    period: 365
 
 # Country specific movement model and calibration  
 # TODO Generic movement model that needs to be updated for Rwanda at some point
@@ -109,8 +107,8 @@ spatial_model:
     beta: 0.14319618
     gamma: 0.83741484
 
-# Crude Birth Rate: 32.6
-birth_rate: 0.0326
+# Crude Birth Rate: 28.8 (Rwanda Vital Statistics Report, 2020)
+birth_rate: 0.0288
 
 # Malaria adjusted, all-causes death rate for Rwanda
 death_rate_by_age_class: [ 0.02641, 0.01727, 0.01155, 0.00867, 0.00682, 0.00029, 0.0003, 0.0003, 0.00031, 0.00034, 0.00035, 0.0049, 0.00638, 0.00906, 0.05348 ]
@@ -150,9 +148,8 @@ immune_system_information:
   # (per year) age-dependent faster acquisition of immunity from age 1 to age 10
   immune_inflation_rate: 0.01
 
-  # mix and max probabilities of experiencing symptoms as a result of a new infection
+  # Max probabilities of experiencing symptoms as a result of a new infection
   # the actual probability will depend on the host's immunity
-  min_clinical_probability: 0.05
   max_clinical_probability: 0.99
 
   # slope of sigmoidal prob-v-immunity function (parameter z in supplement of 2015 LGH paper) 
@@ -163,6 +160,9 @@ immune_system_information:
 
   # parameter kappa in supplement of 2015 LGH paper
   factor_effect_age_mature_immunity: 1
+
+  # Adjust the infliction point in the curve
+  midpoint: 0.4
 
 # Settings that determine how long an individual stays in a given location
 circulation_info:
@@ -205,7 +205,7 @@ initial_parasite_info:
         prevalence: 0.05
         
 # Events for Rwanda
-# TODO Determine the correct date to turn on the mutatoin for 
+# TODO Determine the correct date to turn on the mutation for 
 events:
   - name: turn_off_mutation
     info:
@@ -236,7 +236,7 @@ events:
 drug_db:
   # Rwanda treatments
   0:
-    name: "ART"       # Artemisinin
+    name: "ART"       # Artemisinin, with 561H EC50 setting
     half_life: 0.0
     maximum_parasite_killing_rate: 0.999
     n: 25
@@ -247,7 +247,7 @@ drug_db:
     k: 4
     EC50:
       ..0..: 0.75
-      ..1..: 1.2
+      ..1..: 0.80
   1:
     name: "LUM"       # Lumefantrine
     half_life: 4.5

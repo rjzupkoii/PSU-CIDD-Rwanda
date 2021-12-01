@@ -72,8 +72,8 @@ raster_db:
   age_distribution_by_location: [[0.0378, 0.0378, 0.0378, 0.0378, 0.0282, 0.0282, 0.0282, 0.0282, 0.0282,  0.029,  0.029,  0.029,  0.029,  0.029,  0.169,  0.134,  0.106,  0.066,  0.053,  0.035, 0.0]]
 
   # Probability that an infected an symptomatic person receives treatment, set by calibration script
-  p_treatment_for_less_than_5_by_location: [#ACCESS#]
-  p_treatment_for_more_than_5_by_location: [#ACCESS#]
+  p_treatment_for_less_than_5_by_location: [#ACCESSU5#]
+  p_treatment_for_more_than_5_by_location: [#ACCESSO5#]
 
   # Transmission intensity, set by calibration script
   beta_by_location: [#BETA#]
