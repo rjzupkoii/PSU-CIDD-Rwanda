@@ -285,7 +285,7 @@ drug_db:
     k: 4
     EC50:
       ..0..: 0.75
-      ..1..: 0.80
+      ..1..: 1.2
   1:
     name: "LUM"       # Lumefantrine
     half_life: 4.5
