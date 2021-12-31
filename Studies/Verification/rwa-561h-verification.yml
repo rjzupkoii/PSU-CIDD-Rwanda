@@ -2,7 +2,8 @@
 #
 # Boni Lab
 #
-# Baseline RWANDA model configuration, used for verification.
+# Baseline RWANDA model configuration, used for verification of 
+# 561H spiking of the population.
 #
 # ---------------------------------------------------------------
 
@@ -31,7 +32,7 @@ report_frequency: 30
 # Starting date is calibration year minus 11 years of burn-in
 starting_date: 2009/1/1
 
-# 2020 is the target calibration year
+# 2020 is the target calibration year, last mutation is induced in 2019
 start_of_comparison_period: 2020/1/1
 
 # Ending date is start of recording period plus 20 years
@@ -54,8 +55,8 @@ age_structure: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 20, 60, 100]
 # Age structure used when initializing the model at T-0
 initial_age_structure: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 25, 35, 45, 55, 65, 100]
 
-# Scaling of the population in the model
-artificial_rescaling_of_population_size: 0.2
+# Scaling of the population in the model (based on BFA)
+artificial_rescaling_of_population_size: 0.25
 
 # ---------------------------------------------------------------
 # Rasters to be used in conjunction with the location_db, note 
@@ -205,11 +206,64 @@ initial_parasite_info:
         prevalence: 0.05
         
 # Events for Rwanda
-# TODO Determine the correct date to turn on the mutation for 
 events:
   - name: turn_off_mutation
     info:
       - day: 2009/1/1
+  - name: introduce_mutant_event
+    info:
+      # Uwimana et al. 2020 
+      - day: 2014/12/31
+        district: 8         # Gasabo
+        fraction: 0.12069
+        locus: 2
+        mutant_allele: 1      
+      - day: 2015/12/31
+        district: 3         # Kayonza
+        fraction: 0.00746
+        locus: 2
+        mutant_allele: 1
+      - day: 2015/12/31
+        district: 8         # Gasabo
+        fraction: 0.0603
+        locus: 2
+        mutant_allele: 1
+
+      # Uwimana et al. 2021
+      - day: 2018/12/31
+        district: 8         # Gasabo
+        fraction: 0.19608
+        locus: 2
+        mutant_allele: 1
+      - day: 2018/12/31
+        district: 3         # Kayonza
+        fraction: 0.09756
+        locus: 2
+        mutant_allele: 1         
+
+      # Straimer et al. 2021
+      - day: 2019/12/31
+        district: 8         # Gasabo
+        fraction: 0.21918
+        locus: 2
+        mutant_allele: 1      
+      - day: 2019/12/31
+        district: 9         # Kicukiro
+        fraction: 0.21918
+        locus: 2
+        mutant_allele: 1      
+      - day: 2019/12/31
+        district: 10        # Nyarugenge
+        fraction: 0.21918
+        locus: 2
+        mutant_allele: 1 
+
+      # Bergmann et al. 2021    
+      - day: 2019/1/1
+        district: 17        # Hyue
+        fraction: 0.12121
+        locus: 2
+        mutant_allele: 1  
 
 # Drug Information
 #
@@ -236,7 +290,7 @@ events:
 drug_db:
   # Rwanda treatments
   0:
-    name: "ART"       # Artemisinin, with 561H EC50 setting
+    name: "ART"       # Artemisinin
     half_life: 0.0
     maximum_parasite_killing_rate: 0.999
     n: 25
