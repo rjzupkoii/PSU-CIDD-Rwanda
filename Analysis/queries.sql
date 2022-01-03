@@ -1,22 +1,23 @@
--- General aggergation query for 561H replicates
-select sd.replicateid,
-  filename,
-  sd.dayselapsed, 
+-- General aggergation query for 561H replicates at the district level
+select c.id as configurationid,
+  sd.replicateid,
+  sd.dayselapsed,
+  sd.district,
   infectedindividuals, 
   clinicalepisodes, 
   case when gd.clinicaloccurrences is null then 0 else gd.clinicaloccurrences end as clinicaloccurrences,
   case when gd.weightedoccurrences is null then 0 else gd.weightedoccurrences end as weightedoccurrences
 from (
-  select md.replicateid, md.dayselapsed, 
+  select md.replicateid, md.dayselapsed, msd.location as district,
     sum(msd.infectedindividuals) as infectedindividuals, 
     sum(msd.clinicalepisodes) as clinicalepisodes
   from sim.monthlydata md
     inner join sim.monthlysitedata msd on msd.monthlydataid = md.id
   where md.replicateid in (select replicateid from v_561h_replicates)
     and md.dayselapsed > (11 * 365)
-  group by md.replicateid, md.dayselapsed) sd
+  group by md.replicateid, md.dayselapsed, msd.location) sd
 left join (
-  select md.replicateid, md.dayselapsed, 
+  select md.replicateid, md.dayselapsed, mgd.location as district,
     sum(mgd.clinicaloccurrences) as clinicaloccurrences,
     sum(mgd.weightedoccurrences) as weightedoccurrences
   from sim.monthlydata md
@@ -25,10 +26,14 @@ left join (
   where md.replicateid in (select replicateid from v_561h_replicates)
     and md.dayselapsed > (11 * 365)
     and g.name ~ '^.....H.'
-  group by md.replicateid, md.dayselapsed) gd on (gd.replicateid = sd.replicateid and gd.dayselapsed = sd.dayselapsed)
+  group by md.replicateid, md.dayselapsed, mgd.location) gd 
+  	on (gd.replicateid = sd.replicateid 
+	  and gd.dayselapsed = sd.dayselapsed
+	  and gd.district = sd.district)
 inner join sim.replicate r on r.id = sd.replicateid
 inner join sim.configuration c on c.id = r.configurationid
 where r.endtime is not null
+  and c.studyid = 4
 order by replicateid, dayselapsed
 
 -- View to select 561H replicates and configurations from
