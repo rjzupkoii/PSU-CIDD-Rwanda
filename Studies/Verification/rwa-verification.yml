@@ -29,9 +29,9 @@ report_frequency: 30
 # Items controlling the behavior of the model
 # ---------------------------------------------------------------
 # Starting date is calibration year minus 11 years of burn-in
-starting_date: 2009/1/1
+starting_date: 2003/1/1
 
-# 2020 is the target calibration year
+# 2020 is the target calibration year, but mutations start in 2014
 start_of_comparison_period: 2020/1/1
 
 # Ending date is start of recording period plus 20 years
@@ -209,7 +209,7 @@ initial_parasite_info:
 events:
   - name: turn_off_mutation
     info:
-      - day: 2009/1/1
+      - day: 2003/1/1
 
 # Drug Information
 #
@@ -236,7 +236,7 @@ events:
 drug_db:
   # Rwanda treatments
   0:
-    name: "ART"       # Artemisinin, with 561H EC50 setting
+    name: "ART"       # Artemisinin
     half_life: 0.0
     maximum_parasite_killing_rate: 0.999
     n: 25

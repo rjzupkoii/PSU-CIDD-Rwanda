@@ -30,7 +30,7 @@ report_frequency: 30
 # Items controlling the behavior of the model
 # ---------------------------------------------------------------
 # Starting date is calibration year minus 11 years of burn-in
-starting_date: 2009/1/1
+starting_date: 2003/1/1
 
 # 2020 is the target calibration year, last mutation is induced in 2019
 start_of_comparison_period: 2020/1/1
@@ -209,7 +209,7 @@ initial_parasite_info:
 events:
   - name: turn_off_mutation
     info:
-      - day: 2009/1/1
+      - day: 2003/1/1
   - name: annual_beta_update_event
     info:
       - day: 2021/1/1
