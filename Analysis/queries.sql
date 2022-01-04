@@ -9,6 +9,20 @@ where r.endtime is null
 group by c.id, filename, replicateid, starttime
 order by modeldays desc
 
+-- Status of all replicates
+select configurationid, studyid, filename, 
+  sum(complete) as complete,
+  count(id) as total
+from (
+select c.id as configurationid, c.studyid, c.filename,
+  r.id,
+  case when r.endtime is null then 0 else 1 end as complete
+from sim.configuration c
+  inner join sim.replicate r on r.configurationid = c.id
+where c.studyid > 2) iq
+group by configurationid, studyid, filename
+order by studyid, filename
+
 -- General aggergation query for 561H replicates at the district level
 select c.id as configurationid,
   sd.replicateid,
@@ -82,7 +96,7 @@ left join (
 inner join sim.replicate r on r.id = sd.replicateid
 inner join sim.configuration c on c.id = r.configurationid
 where r.endtime is not null
-  and c.id = 4023
+  and c.id = 4029
 order by replicateid, dayselapsed
 
 -- View to select 561H replicates and configurations from
