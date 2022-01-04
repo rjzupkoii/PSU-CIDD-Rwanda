@@ -1,3 +1,14 @@
+-- Basic monitoring query
+select c.id as configurationid, filename, replicateid, 
+  starttime, now() - starttime as runningtime, 
+  max(dayselapsed) as modeldays
+from sim.replicate r
+  inner join sim.configuration c on c.id = r.configurationid
+  inner join sim.monthlydata md on md.replicateid = r.id
+where r.endtime is null
+group by c.id, filename, replicateid, starttime
+order by modeldays desc
+
 -- General aggergation query for 561H replicates at the district level
 select c.id as configurationid,
   sd.replicateid,
@@ -71,7 +82,7 @@ left join (
 inner join sim.replicate r on r.id = sd.replicateid
 inner join sim.configuration c on c.id = r.configurationid
 where r.endtime is not null
-  and c.id = 4020
+  and c.id = 4023
 order by replicateid, dayselapsed
 
 -- View to select 561H replicates and configurations from
