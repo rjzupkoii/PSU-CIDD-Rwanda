@@ -205,7 +205,6 @@ initial_parasite_info:
         prevalence: 0.05
         
 # Events for Rwanda
-# TODO Determine the correct date to turn on the mutation for 
 events:
   - name: turn_off_mutation
     info:
@@ -247,7 +246,7 @@ drug_db:
     k: 4
     EC50:
       ..0..: 0.75
-      ..1..: 0.80
+      ..1..: 1.2
   1:
     name: "LUM"       # Lumefantrine
     half_life: 4.5

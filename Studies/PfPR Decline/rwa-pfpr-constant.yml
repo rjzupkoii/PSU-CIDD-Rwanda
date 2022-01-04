@@ -32,7 +32,7 @@ report_frequency: 30
 # Starting date is calibration year minus 11 years of burn-in
 starting_date: 2003/1/1
 
-# 2020 is the target calibration year, last mutation is induced in 2019
+# 2020 is the target calibration year, but mutations start in 2014
 start_of_comparison_period: 2020/1/1
 
 # Ending date is start of recording period plus 20 years
@@ -213,53 +213,53 @@ events:
   - name: introduce_mutant_event
     info:
       # Uwimana et al. 2020 
-      - day: 2014/12/31
+      - day: 2014/09/30
         district: 8         # Gasabo
         fraction: 0.12069
         locus: 2
         mutant_allele: 1      
-      - day: 2015/12/31
+      - day: 2015/09/30
         district: 3         # Kayonza
         fraction: 0.00746
         locus: 2
         mutant_allele: 1
-      - day: 2015/12/31
+      - day: 2015/09/30
         district: 8         # Gasabo
         fraction: 0.0603
         locus: 2
         mutant_allele: 1
 
       # Uwimana et al. 2021
-      - day: 2018/12/31
+      - day: 2018/09/30
         district: 8         # Gasabo
         fraction: 0.19608
         locus: 2
         mutant_allele: 1
-      - day: 2018/12/31
+      - day: 2018/09/30
         district: 3         # Kayonza
         fraction: 0.09756
         locus: 2
         mutant_allele: 1         
 
       # Straimer et al. 2021
-      - day: 2019/12/31
+      - day: 2019/09/30
         district: 8         # Gasabo
         fraction: 0.21918
         locus: 2
         mutant_allele: 1      
-      - day: 2019/12/31
+      - day: 2019/09/30
         district: 9         # Kicukiro
         fraction: 0.21918
         locus: 2
         mutant_allele: 1      
-      - day: 2019/12/31
+      - day: 2019/09/30
         district: 10        # Nyarugenge
         fraction: 0.21918
         locus: 2
         mutant_allele: 1 
 
       # Bergmann et al. 2021    
-      - day: 2019/1/1
+      - day: 2019/09/30
         district: 17        # Hyue
         fraction: 0.12121
         locus: 2
@@ -301,7 +301,7 @@ drug_db:
     k: 4
     EC50:
       ..0..: 0.75
-      ..1..: 0.80
+      ..1..: 1.2
   1:
     name: "LUM"       # Lumefantrine
     half_life: 4.5

@@ -29,16 +29,16 @@ report_frequency: 30
 # Items controlling the behavior of the model
 # ---------------------------------------------------------------
 # Starting date is calibration year minus 11 years of burn-in
-starting_date: 2009/1/1
+starting_date: 2003/1/1
 
-# 2020 is the target calibration year
+# 2020 is the target calibration year, but mutations start in 2014
 start_of_comparison_period: 2020/1/1
 
-# Only project out about 10 years into the future
-ending_date: 2031/1/1
+# Ending date is start of recording period plus 20 years
+ending_date: 2025/1/1
 
 # Discard the first five years worth of data
-start_collect_data_day: 1826 
+start_collect_data_day: 1826
 
 # Number of days to keep track total number of parasites in population
 number_of_tracking_days: 11
@@ -205,49 +205,64 @@ initial_parasite_info:
         prevalence: 0.05
         
 # Events for Rwanda
-# TODO Determine the correct date to turn on the mutation for 
 events:
   - name: turn_off_mutation
     info:
-      - day: 2009/1/1
-  - name: annual_coverage_update_event
+      - day: 2003/1/1
+  - name: introduce_mutant_event
     info:
-      - day: 2021/1/1
-        rate: 0.03      
-  - name: turn_on_mutation
-    info:
-      # Artemisinin
-      - day: 2015/1/1
-        drug_id: 0
-        mutation_probability: 0.001983
-      # Amodiaquine
-      - day: 2015/1/1
-        drug_id: 1
-        mutation_probability: 0.001983
-      # Sulfadoxine/pyrimethamine
-      - day: 2015/1/1
-        drug_id: 2
-        mutation_probability: 0.0
-      # Chloroquine
-      - day: 2015/1/1
-        drug_id: 3
-        mutation_probability: 0.001983
-      # Lumefantrine
-      - day: 2015/1/1
-        drug_id: 4
-        mutation_probability: 0.001983
-      # Piperaquine
-      - day: 2015/1/1
-        drug_id: 5
-        mutation_probability: 0.001983
-      # Mefloquine
-      - day: 2015/1/1
-        drug_id: 6
-        mutation_probability: 0.001983
-      # Quinine
-      - day: 2015/1/1
-        drug_id: 7
-        mutation_probability: 0.0                 
+      # Uwimana et al. 2020 
+      - day: 2014/09/30
+        district: 8         # Gasabo
+        fraction: 0.12069
+        locus: 2
+        mutant_allele: 1      
+      - day: 2015/09/30
+        district: 3         # Kayonza
+        fraction: 0.00746
+        locus: 2
+        mutant_allele: 1
+      - day: 2015/09/30
+        district: 8         # Gasabo
+        fraction: 0.0603
+        locus: 2
+        mutant_allele: 1
+
+      # Uwimana et al. 2021
+      - day: 2018/09/30
+        district: 8         # Gasabo
+        fraction: 0.19608
+        locus: 2
+        mutant_allele: 1
+      - day: 2018/09/30
+        district: 3         # Kayonza
+        fraction: 0.09756
+        locus: 2
+        mutant_allele: 1         
+
+      # Straimer et al. 2021
+      - day: 2019/09/30
+        district: 8         # Gasabo
+        fraction: 0.21918
+        locus: 2
+        mutant_allele: 1      
+      - day: 2019/09/30
+        district: 9         # Kicukiro
+        fraction: 0.21918
+        locus: 2
+        mutant_allele: 1      
+      - day: 2019/09/30
+        district: 10        # Nyarugenge
+        fraction: 0.21918
+        locus: 2
+        mutant_allele: 1 
+
+      # Bergmann et al. 2021    
+      - day: 2019/09/30
+        district: 17        # Hyue
+        fraction: 0.12121
+        locus: 2
+        mutant_allele: 1  
 
 # Drug Information
 #
@@ -274,7 +289,7 @@ events:
 drug_db:
   # Rwanda treatments
   0:
-    name: "ART"       # Artemisinin, with 561H EC50 setting
+    name: "ART"       # Artemisinin
     half_life: 0.0
     maximum_parasite_killing_rate: 0.999
     n: 25
