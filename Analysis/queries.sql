@@ -96,7 +96,7 @@ left join (
 inner join sim.replicate r on r.id = sd.replicateid
 inner join sim.configuration c on c.id = r.configurationid
 where r.endtime is not null
-  and c.id = 4029
+  and c.id = 4025
 order by replicateid, dayselapsed
 
 -- View to select 561H replicates and configurations from

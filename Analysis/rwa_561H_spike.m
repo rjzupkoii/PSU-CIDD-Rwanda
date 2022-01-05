@@ -4,22 +4,23 @@
 % 2% decline in the cell PfPR for Rwanda.
 clear;
 
-startdate = '2009-01-01';
+startdate = '2003-01-01';
 
 % [status quo, 0.01 decline, 0.02 decline]
-configuration = [4019 4017 4016];
+configuration = {
+    'data/rwa-pfpr-constant-4027.csv'
+    'data/rwa-pfpr-decline-0.01-4026.csv'
+    'data/rwa-pfpr-decline-0.02-4028.csv'
+    };
 labels = {'Status Quo' '1% PfPR Decline' '2% PfPR Decline'};
 
 gasabo = 8;         % District ID for Gasabo
 kayonza = 3;        % District ID for Kayonza
 
-% Load the data
-raw = readmatrix('data/rwa-national-561h.csv');
-
 % Generate the plots
-for ndx = 1:size(configuration, 2)
-    % Filter the data for this intervention
-    data = raw(raw(:, 1) == configuration(ndx), :);
+for ndx = 1:size(configuration, 1)
+    % Load the data for this intervention
+    data = readmatrix(configuration{ndx});
     
     % Plot the national data
     subplot(3, 3, (ndx - 1) * 3 + 1);
