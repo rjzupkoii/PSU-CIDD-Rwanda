@@ -2,7 +2,8 @@
 #
 # Boni Lab
 #
-# Artesunate extension scenario, AL for five days.
+# Artesunate extension scenario, AL for three days, one skipped
+# day, and one final dose (3-1-1)
 #
 # ---------------------------------------------------------------
 
@@ -209,6 +210,10 @@ events:
   - name: turn_off_mutation
     info:
       - day: 2003/1/1
+  - name: change_treatment_strategy
+    info:
+      - day: 2023/1/1
+        strategy_id: 1      
   - name: introduce_mutant_event
     info:
       # Uwimana et al. 2020 
@@ -371,7 +376,7 @@ therapy_db:
   # ACT - artemether–lumefantrine (AL) / first line therapy
   0:
     drug_id: [0, 1]
-    dosing_days: [5]
+    dosing_days: [4]
   # MONO - Artesunate (AS) / severe treatment
   1:
     drug_id: [0]
@@ -381,6 +386,11 @@ therapy_db:
     drug_id: [2]
     dosing_days: [7]
   
+  # Complex therapy, AL (3-1-1)
+  3:
+    therapy_ids: [0, 0]
+    regimen: [1, 2, 3, 5]
+  
 # Drug-deployment strategy - baseline represents the survey data for Rwanda
 # 
 # NOTE severe treatments are not included in the strategy
@@ -389,6 +399,11 @@ strategy_db:
     name: Rwanda-Baseline
     type: MFT
     therapy_ids: [ 0 ]
+    distribution: [ 1 ]
+  1:
+    name: Rwanda-MACTherapy
+    type: MFT
+    therapy_ids: [ 3 ]
     distribution: [ 1 ]
 initial_strategy_id: 0
 
