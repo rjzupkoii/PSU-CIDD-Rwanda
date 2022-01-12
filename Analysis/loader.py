@@ -5,6 +5,7 @@
 # Load the relevent data for the study from the database.
 import csv
 import os
+import pandas as pd
 import sys
 
 sys.path.insert(1, '../../PSU-CIDD-MaSim-Support/Python/include')
@@ -15,8 +16,9 @@ from utility import progressBar
 # Connection string for the database
 CONNECTION = 'host=masimdb.vmhost.psu.edu dbname=rwanda user=sim password=sim connect_timeout=60'
 
-# Path for the replicate data
-DATA_DIRECTORY = 'data/replicates'
+# Path for the replicate data and data sets
+REPLICATE_DIRECTORY = 'data/replicates'
+DATASET_DIRECTORY = 'data/datasets'
 
 # Path for the replicates list
 REPLICATES_LIST = 'data/rwa-replicates.csv'
@@ -39,6 +41,7 @@ def get_replicates():
         AND c.studyid > 2
       ORDER BY c.studyid, c.filename, r.id"""
   return select(CONNECTION, sql, None)
+
 
 def get_replicate(replicateId):
   sql = """
@@ -77,6 +80,34 @@ def get_replicate(replicateId):
       ORDER BY replicateid, dayselapsed"""
   return select(CONNECTION, sql, {'replicateId':replicateId})  
 
+
+def merge_data(replicates, outfile):
+  # Read the first file so we have something to append to
+  infile = os.path.join(REPLICATE_DIRECTORY, "{}.csv".format(replicates[0]))
+  data = pd.read_csv(infile, header=None)
+
+  for replicate in replicates[1:]:
+    infile = os.path.join(REPLICATE_DIRECTORY, "{}.csv".format(replicate))
+    data.append(pd.read_csv(infile, header=None))
+
+  data.to_csv(outfile, header=None)
+    
+
+def process_datasets():
+  print("Preparing data sets...")
+  replicates = pd.read_csv(REPLICATES_LIST, header=None)
+  configurations = replicates[2].unique()
+
+  count = 0
+  progressBar(count, len(configurations))
+  for configuration in configurations:
+    data = replicates[replicates[2] == configuration]
+    filename = os.path.join(DATASET_DIRECTORY, configuration.replace('yml', 'csv'))
+    merge_data(data[-50:][3].to_numpy(), filename)
+    count = count + 1
+    progressBar(count, len(configurations))
+
+
 def process_replicates():
 # Process the replicates to make sure we have all of the data we need locally
 
@@ -89,7 +120,7 @@ def process_replicates():
   progressBar(count, len(replicates))
   for row in replicates:
     # Check to see if we already have the data
-    filename = os.path.join(DATA_DIRECTORY, "{}.csv".format(row[3]))
+    filename = os.path.join(REPLICATE_DIRECTORY, "{}.csv".format(row[3]))
     if os.path.exists(filename): continue
 
     # Query and store the data
@@ -102,6 +133,7 @@ def process_replicates():
 
   if count != len(replicates): progressBar(len(replicates), len(replicates))
 
+
 def save_csv(filename, data):
   with open(filename, 'w') as csvfile:
     writer = csv.writer(csvfile)
@@ -110,15 +142,15 @@ def save_csv(filename, data):
 
 
 def main():
-  if not os.path.exists(DATA_DIRECTORY): os.makedirs(DATA_DIRECTORY)
+  if not os.path.exists(REPLICATE_DIRECTORY): os.makedirs(REPLICATE_DIRECTORY)
+  if not os.path.exists(DATASET_DIRECTORY): os.makedirs(DATASET_DIRECTORY)
 
-  process_replicates()
-
-  # Now that we have all of the replicate data locally, we need to pull the 
+  # Download all of the replicate data locally, then we need to pull the 
   # relevent replicates to the side as the data set for plotting. Since the 
   # project is iterating quickly this will save on needing to clean-up the 
   # database.
-
+  process_replicates()
+  process_datasets()
 
 
 if __name__ == '__main__':
