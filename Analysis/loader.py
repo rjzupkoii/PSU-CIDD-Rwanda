@@ -88,9 +88,10 @@ def merge_data(replicates, outfile):
 
   for replicate in replicates[1:]:
     infile = os.path.join(REPLICATE_DIRECTORY, "{}.csv".format(replicate))
-    data.append(pd.read_csv(infile, header=None))
+    working = pd.read_csv(infile, header=None)
+    data = data.append(working)
 
-  data.to_csv(outfile, header=None)
+  data.to_csv(outfile, header=None, index=False)
     
 
 def process_datasets():
