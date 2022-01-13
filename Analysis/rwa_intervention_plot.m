@@ -1,15 +1,7 @@
-% rwa_summary_plot.m
-%
 % Generate a summary plot of the treatment interventions.
-clear;
-
-STARTDATE = '2003-01-01';
-
-[result, frequencies] = process('data/datasets/rwa-ae-al-3-1-1.csv', 'AL 3-1-1', STARTDATE, '2023-01-01');
-
-function [result, frequencies] = process(filename, intervention, startDate, interventionDate)
+function [result, frequencies] = rwa_intervention_plot(dataFilename, intervention, startDate, interventionDate, imageFilename)
     % Load the data and the unique datas
-    raw = readmatrix(filename);
+    raw = readmatrix(dataFilename);
     dates = unique(raw(:, 3));
     replicates = unique(raw(:, 2));
     
@@ -27,17 +19,29 @@ function [result, frequencies] = process(filename, intervention, startDate, inte
     result = sprintf("%s: %.3f (IQR %.3f - %.3f)", intervention, iqr(1), iqr(2), iqr(3));
     
     % Plot the intervention data
+    fig = figure;
+    set(fig, 'Visible', 'off');
     hold on;
     dates = dates + datenum(startDate);
     plot(dates, quantile(frequencies, 0.75), 'LineStyle', ':', 'color', [99 99 99] / 256.0);
     plot(dates, median(frequencies), 'black');
     plot(dates, quantile(frequencies, 0.25), 'LineStyle', ':', 'color', [99 99 99] / 256.0);
-    xline(datenum(interventionDate), '-', 'AL 3-1-1 Introduction');
+    if interventionDate ~= ""
+        xline(datenum(interventionDate), '-', 'AL 3-1-1 Introduction');
+    end
     
-    % Finish the plot
+    % Format the plot
     title(result);
     xlabel('Model Year');
     ylabel('561H Frequency');
     datetick('x', 'yyyy');
+    graphic = gca;
+    graphic.FontSize = 18;
+
+    % Save and close the plot
+    set(gcf, 'Position',  [0, 0, 2560, 1440]);
+    print('-dpng', '-r150', imageFilename);
+    clf;
+    close;
 end
 

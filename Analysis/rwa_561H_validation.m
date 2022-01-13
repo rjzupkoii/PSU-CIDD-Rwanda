@@ -9,7 +9,7 @@ gasabo = 8;         % District ID for Gasabo
 kayonza = 3;        % District ID for Kayonza
 
 % Load the data
-data = readmatrix('data/rwa-validation-561h.csv');
+data = readmatrix('data/datasets/rwa-561h-verification.csv');
 
 % Plot the national data
 subplot(3, 1, 1);
@@ -44,7 +44,7 @@ function [] = plot_district(data, startdate, district, name)
     filtered = data(data(:, 4) == district, :);
     for replicate = transpose(unique(filtered(:, 2)))
         plot(unique(filtered(filtered(:, 2) == replicate, 3)) + datenum(startdate), ...
-            filtered(filtered(:, 2) == replicate, 8) ./ filtered(filtered(:, 2) == replicate, 5));
+            filtered(filtered(:, 2) == replicate, 9) ./ filtered(filtered(:, 2) == replicate, 5));
     end
 
     title(name);
@@ -59,7 +59,7 @@ function [] = plot_national(data, startdate)
         frequency = zeros(size(months, 1), 1);
         filtered = data(data(:, 2) == replicate, :);
         for ndx = 1:size(months, 1)
-            frequency(ndx) = sum(filtered(filtered(:, 3) == months(ndx), 8)) / sum(filtered(filtered(:, 3) == months(ndx), 5));
+            frequency(ndx) = sum(filtered(filtered(:, 3) == months(ndx), 9)) / sum(filtered(filtered(:, 3) == months(ndx), 5));
         end
         plot(months + datenum(startdate), frequency);
     end

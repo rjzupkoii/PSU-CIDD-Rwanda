@@ -10,5 +10,8 @@
 # Ignore data directories
 /**/data
 
+# Ignore plot directories
+/**/plots
+
 # Ignore Matlab temporary files
 /**/*.asv
