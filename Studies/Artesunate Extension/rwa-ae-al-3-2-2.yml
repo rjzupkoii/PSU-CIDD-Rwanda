@@ -386,13 +386,13 @@ therapy_db:
     drug_id: [2]
     dosing_days: [7]  
   
-  # Complex therapy, AL (3-1-2)
+  # Complex therapy, AL (3-2-2)
   3: 
     drug_id: [0, 1]
     dosing_days: [2]
   4:
     therapy_ids: [0, 3]
-    regimen: [1, 5]
+    regimen: [1, 6]
   
 # Drug-deployment strategy - baseline represents the survey data for Rwanda
 # 

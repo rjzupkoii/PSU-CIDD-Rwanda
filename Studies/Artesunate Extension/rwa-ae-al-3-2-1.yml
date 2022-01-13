@@ -391,7 +391,7 @@ therapy_db:
     drug_id: [0, 1]
     dosing_days: [1]
   4:
-    therapy_ids: [0, 0]
+    therapy_ids: [0, 3]
     regimen: [1, 6]
   
 # Drug-deployment strategy - baseline represents the survey data for Rwanda
