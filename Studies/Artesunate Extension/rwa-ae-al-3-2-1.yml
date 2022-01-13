@@ -2,7 +2,8 @@
 #
 # Boni Lab
 #
-# Artesunate extension scenario, AL for four days.
+# Artesunate extension scenario, AL for three days, two skipped
+# days, and one final dose (3-2-1)
 #
 # ---------------------------------------------------------------
 
@@ -383,12 +384,15 @@ therapy_db:
   # MONO - Quinine (QUIN) / severe treatment
   2:
     drug_id: [2]
-    dosing_days: [7]
-
-  # AL, four day regime
-  3:
+    dosing_days: [7]  
+  
+  # Complex therapy, AL (3-2-1)
+  3: 
     drug_id: [0, 1]
-    dosing_days: [4]
+    dosing_days: [1]
+  4:
+    therapy_ids: [0, 0]
+    regimen: [1, 6]
   
 # Drug-deployment strategy - baseline represents the survey data for Rwanda
 # 
@@ -400,10 +404,10 @@ strategy_db:
     therapy_ids: [ 0 ]
     distribution: [ 1 ]
   1:
-    name: Rwanda-ArtExtension
+    name: Rwanda-MACTherapy
     type: MFT
-    therapy_ids: [ 3 ]
-    distribution: [ 1 ]    
+    therapy_ids: [ 4 ]
+    distribution: [ 1 ]
 initial_strategy_id: 0
 
 # Days from end of liver-stage infection to appearance of symptoms

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#PBS -A mfb9_b_g_sc_default
+#PBS -l pmem=16gb
+#PBS -l nodes=1:ppn=1:rhel7:stmem
+#PBS -l walltime=8:00:00
+
+
+cd $PBS_O_WORKDIR
+./MaSim -i rwa-ae-al-3-2-1.yml -s 7 -r DbReporterDistrict --v=1
