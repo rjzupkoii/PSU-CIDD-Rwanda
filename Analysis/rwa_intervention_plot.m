@@ -16,7 +16,7 @@ function [result, frequencies] = rwa_intervention_plot(dataFilename, interventio
     
     % Note the median and IQR of the last month
     iqr = prctile(frequencies(:, end), [25 50 70]);
-    result = sprintf("%s: %.3f (IQR %.3f - %.3f)", intervention, iqr(1), iqr(2), iqr(3));
+    result = sprintf("%s: %.3f (IQR %.3f - %.3f)", intervention, iqr(2), iqr(1), iqr(3));
     
     % Plot the intervention data
     fig = figure;
@@ -27,7 +27,7 @@ function [result, frequencies] = rwa_intervention_plot(dataFilename, interventio
     plot(dates, median(frequencies), 'black');
     plot(dates, quantile(frequencies, 0.25), 'LineStyle', ':', 'color', [99 99 99] / 256.0);
     if interventionDate ~= ""
-        xline(datenum(interventionDate), '-', 'AL 3-1-1 Introduction');
+        xline(datenum(interventionDate), '-', intervention);
     end
     
     % Format the plot
