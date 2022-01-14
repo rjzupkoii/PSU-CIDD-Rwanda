@@ -20,16 +20,29 @@ STUDIES = {
 
     % Multiple First-line Therapies
     5, 'data/datasets/rwa-mft-asaq-dhappq.csv', 'MFT ASAQ + DHA-PPQ', '2023-01-01', 'plots/rwa-mft-asaq-dhappq.png';
+    6, 'data/datasets/rwa-mft-asaq-dhappq-0.25.csv', 'MFT ASAQ (75%) + DHA-PPQ (25%)', '2023-01-01', 'plots/rwa-mft-asaq-dhappq-0.25.png';
+    7, 'data/datasets/rwa-mft-asaq-dhappq-0.75.csv', 'MFT ASAQ (25%) + DHA-PPQ (75%)', '2023-01-01', 'plots/rwa-mft-asaq-dhappq-0.75.png';
+
+    9, 'data/datasets/rwa-mft-al-asaq.csv', 'MFT AL + ASAQ', '2023-01-01', 'plots/rwa-mft-al-asaq.png';
+    10, 'data/datasets/rwa-mft-al-asaq-0.25.csv', 'MFT AL (75%) + ASAQ (25%)', '2023-01-01', 'plots/rwa-mft-al-asaq-0.25.png';
+    11, 'data/datasets/rwa-mft-al-asaq-0.75.csv', 'MFT AL (25%) + ASAQ (75%)', '2023-01-01', 'plots/rwa-mft-al-asaq-0.75.png';
+
+    13, 'data/datasets/rwa-mft-al-dhappq.csv', 'MFT AL + DHA-PPQ', '2023-01-01', 'plots/rwa-mft-al-dhappq.png';
+    14, 'data/datasets/rwa-mft-al-dhappq-0.25.csv', 'MFT AL (75%) + DHA-PPQ (25%)', '2023-01-01', 'plots/rwa-mft-al-dhappq-0.25.png';
+    15, 'data/datasets/rwa-mft-al-dhappq-0.75.csv', 'MFT AL (25%) + DHA-PPQ (75%)', '2023-01-01', 'plots/rwa-mft-al-dhappq-0.75.png';
 
     % Artesunate Extension
-    9, 'data/datasets/rwa-ae-al-3-1-1.csv', 'AL 3-1-1', '2023-01-01', 'plots/rwa-ae-al-3-1-1.png';
-    10, 'data/datasets/rwa-ae-al-3-1-2.csv', 'AL 3-1-2', '2023-01-01', 'plots/rwa-ae-al-3-1-2.png';
-    11, 'data/datasets/rwa-ae-al-3-2-1.csv', 'AL 3-2-1', '2023-01-01', 'plots/rwa-ae-al-3-2-1.png';
-    12, 'data/datasets/rwa-ae-al-3-2-2.csv', 'AL 3-2-2', '2023-01-01', 'plots/rwa-ae-al-3-2-2.png';
+    17, 'data/datasets/rwa-ae-al-3-1-1.csv', 'AL 3-1-1', '2023-01-01', 'plots/rwa-ae-al-3-1-1.png';
+    18, 'data/datasets/rwa-ae-al-3-2-1.csv', 'AL 3-2-1', '2023-01-01', 'plots/rwa-ae-al-3-2-1.png';
+    19, 'data/datasets/rwa-ae-al-3-1-2.csv', 'AL 3-1-2', '2023-01-01', 'plots/rwa-ae-al-3-1-2.png';
+    20, 'data/datasets/rwa-ae-al-3-2-2.csv', 'AL 3-2-2', '2023-01-01', 'plots/rwa-ae-al-3-2-2.png';
     
-    13, 'data/datasets/rwa-ae-al-4.csv', 'AL (Four Days)', '2023-01-01', 'plots/rwa-ae-al-4.png';
-    14, 'data/datasets/rwa-ae-al-5.csv', 'AL (Five Days)', '2023-01-01', 'plots/rwa-ae-al-5.png';
+    21, 'data/datasets/rwa-ae-al-4.csv', 'AL (Four Days)', '2023-01-01', 'plots/rwa-ae-al-4.png';
+    23, 'data/datasets/rwa-ae-al-5.csv', 'AL (Five Days)', '2023-01-01', 'plots/rwa-ae-al-5.png';
 };
+
+% Generate a single 561H validation plot with IQR
+rwa_intervention_plot('data/datasets/rwa-561h-verification.csv', '561H Verification', STARTDATE, '', 'plots/rwa-561h-verification.png');
 
 % Generate the single plots and store the values returned in cell arrays
 results = {};
@@ -55,7 +68,7 @@ for ndx = 1:size(STUDIES, 1)
     ylimit = max(ylimit, max(values));
 
     % Add the subplot
-    subplot(4, 4, STUDIES{ndx, 1});
+    subplot(6, 4, STUDIES{ndx, 1});
     hold on;
     title(results{ndx});
     plot(dates, values, 'LineStyle', ':', 'color', [99 99 99] / 256.0);
@@ -65,7 +78,7 @@ end
 
 % Wrap up the formatting of the subplots
 for ndx = 1:size(STUDIES, 1)
-    subplot(4, 4, STUDIES{ndx, 1});
+    subplot(6, 4, STUDIES{ndx, 1});
     axis tight;
     ylim([0 ylimit]);
     xticks(dates(12:12:end));
