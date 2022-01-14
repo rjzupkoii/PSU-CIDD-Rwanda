@@ -7,4 +7,4 @@
 
 
 cd $PBS_O_WORKDIR
-./MaSim -i rwa-mft-asaq-dhappq.yml -s 6 -r DbReporterDistrict
+./MaSim -i rwa-mft-al-dhappq.yml -s 6 -r DbReporterDistrict
