@@ -210,6 +210,13 @@ events:
   - name: turn_off_mutation
     info:
       - day: 2003/1/1
+  - name: turn_on_mutation
+    info:
+      # Lumefantrine (all configurations)
+      - day: 2014/1/1
+        drug_id: 1
+        mutation_probability: 0.001983 
+              
   - name: annual_beta_update_event
     info:
       - day: 2021/1/1

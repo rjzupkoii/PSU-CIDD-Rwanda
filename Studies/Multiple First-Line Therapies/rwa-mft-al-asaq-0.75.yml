@@ -2,8 +2,7 @@
 #
 # Boni Lab
 #
-# Artesunate extension scenario, AL for three days, two skipped
-# days, and one final dose (3-2-1)
+# Multiple first-line therapies scenario, ASAQ and DHA-PPQ
 #
 # ---------------------------------------------------------------
 
@@ -215,12 +214,20 @@ events:
       # Lumefantrine (all configurations)
       - day: 2014/1/1
         drug_id: 1
+        mutation_probability: 0.001983 
+      # Amodiaquine (MFT configurations)
+      - day: 2014/1/1
+        drug_id: 3
+        mutation_probability: 0.001983 
+      # Piperaquine (MFT configurations)
+      - day: 2014/1/1
+        drug_id: 4
         mutation_probability: 0.001983
               
   - name: change_treatment_strategy
     info:
       - day: 2023/1/1
-        strategy_id: 1      
+        strategy_id: 1
   - name: introduce_mutant_event
     info:
       # Uwimana et al. 2020 
@@ -371,6 +378,65 @@ drug_db:
       0....: 1.41
       # T----
       1....: 1.41
+
+  # MFT Additions
+  3:
+    name: "ADQ"       # Amodiaquine
+    half_life: 9.0
+    maximum_parasite_killing_rate: 0.95
+    n: 19
+    age_specific_drug_concentration_sd: [0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4]
+    mutation_probability: 0.005
+    affecting_loci: [0,1]
+    selecting_alleles: [[1],[0,1,3,4,5,7]]
+    k: 4
+    EC50:
+      #KNY--
+      00...: 0.62
+      #KYY--
+      01...: 0.85
+      #KNF--
+      02...: 0.5
+      #KYF--
+      03...: 0.775
+      #KNYNY
+      04...: 0.62
+      #KYYYY
+      05...: 0.85
+      #KNFNF
+      06...: 0.5
+      #KYFYF
+      07...: 0.775
+      #TNY--
+      10...: 0.7
+      #TYY--
+      11...: 0.9
+      #TNF--
+      12...: 0.65
+      #TYF--
+      13...: 0.82
+      #TNYNY
+      14...: 0.7
+      #TYYYY
+      15...: 0.9
+      #TNFNF
+      16...: 0.65
+      #TYFYF
+      17...: 0.82  
+  4:
+    name: "PQ"        # Piperaquine
+    half_life: 28.0
+    maximum_parasite_killing_rate: 0.9
+    n: 15
+    age_specific_drug_concentration_sd: [0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4]
+    mutation_probability: 0.005
+    affecting_loci: [3]
+    selecting_alleles: [[1]]
+    resistant_factor: [[1]]
+    k: 4
+    EC50:
+      ...0.: 0.58
+      ...1.: 1.4      
          
 # Drug IDs for the model
 artemisinin_drug_id: 0
@@ -383,7 +449,7 @@ therapy_db:
   # ACT - artemether–lumefantrine (AL) / first line therapy
   0:
     drug_id: [0, 1]
-    dosing_days: [3]
+    dosing_days: [4]
   # MONO - Artesunate (AS) / severe treatment
   1:
     drug_id: [0]
@@ -391,15 +457,12 @@ therapy_db:
   # MONO - Quinine (QUIN) / severe treatment
   2:
     drug_id: [2]
-    dosing_days: [7]  
-  
-  # Complex therapy, AL (3-2-1)
-  3: 
-    drug_id: [0, 1]
-    dosing_days: [1]
-  4:
-    therapy_ids: [0, 3]
-    regimen: [1, 6]
+    dosing_days: [7]
+
+  # ACT - artesunate–amodiaquine (ASAQ)
+  3:
+    drug_id: [0, 3]
+    dosing_days: [3]     
   
 # Drug-deployment strategy - baseline represents the survey data for Rwanda
 # 
@@ -411,10 +474,10 @@ strategy_db:
     therapy_ids: [ 0 ]
     distribution: [ 1 ]
   1:
-    name: Rwanda-MACTherapy
+    name: Rwanda-AL-ASAQ
     type: MFT
-    therapy_ids: [ 4 ]
-    distribution: [ 1 ]
+    therapy_ids: [ 0, 3 ]    
+    distribution: [ 0.25, 0.75 ]
 initial_strategy_id: 0
 
 # Days from end of liver-stage infection to appearance of symptoms

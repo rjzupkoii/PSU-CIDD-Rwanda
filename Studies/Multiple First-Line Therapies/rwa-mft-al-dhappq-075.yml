@@ -2,7 +2,7 @@
 #
 # Boni Lab
 #
-# Baseline RWANDA model configuration.
+# Multiple first-line therapies scenario, ASAQ and DHA-PPQ
 #
 # ---------------------------------------------------------------
 
@@ -29,16 +29,16 @@ report_frequency: 30
 # Items controlling the behavior of the model
 # ---------------------------------------------------------------
 # Starting date is calibration year minus 11 years of burn-in
-starting_date: 2009/1/1
+starting_date: 2003/1/1
 
-# 2020 is the target calibration year
+# 2020 is the target calibration year, but mutations start in 2014
 start_of_comparison_period: 2020/1/1
 
 # Ending date is start of recording period plus 20 years
-ending_date: 2040/1/1
+ending_date: 2032/1/1
 
 # Discard the first five years worth of data
-start_collect_data_day: 1825 
+start_collect_data_day: 1826
 
 # Number of days to keep track total number of parasites in population
 number_of_tracking_days: 11
@@ -67,7 +67,6 @@ raster_db:
     
   # Raster files defining the country
   district_raster: "rwa_district.asc"
-  travel_raster: "rwa_travel.asc"
   
   # Raster files defining treatments
   pr_treatment_under5: "rwa_treatment.asc"
@@ -93,11 +92,10 @@ raster_db:
 # Seasonality of malaria in Rwanda
 seasonal_info:
   enable: true
-  raster: false
-  base: [ 0.75 ]
-  a:    [ 0.25 ]
-  b:    [ 3.8 ]
-  phi:  [ 105 ]
+  mode: rainfall
+  rainfall:
+    filename: "rwa_adjustment.csv"
+    period: 365
 
 # Country specific movement model and calibration  
 # TODO Generic movement model that needs to be updated for Rwanda at some point
@@ -109,11 +107,11 @@ spatial_model:
     beta: 0.14319618
     gamma: 0.83741484
 
-# Crude Birth Rate: 32.6
-birth_rate: 0.0326
+# Crude Birth Rate: 28.8 (Rwanda Vital Statistics Report, 2020)
+birth_rate: 0.0288
 
 # Malaria adjusted, all-causes death rate for Rwanda
-death_rate_by_age_class: [ 0.02641, 0.01727, 0.01155, 0.00867, 0.00682, 0.00029, 0.0003, 0.0003, 0.00031, 0.00034, 0.00035, 0.0049, 0.00638, 0.00906, 0.05348 ]
+death_rate_by_age_class: [ 0.02641, 0.00202, 0.00202, 0.00202, 0.00198, 0.00247, 0.00247, 0.00247, 0.00247, 0.00247, 0.00247, 0.00247, 0.00455, 0.00455, 0.05348 ]
 
 # probability of death for patients who are not treated or patients who experience a treatment failure (due to drug resistance, or otherwise)
 # when received treatment, this rate drop by factor of 10 in code
@@ -150,9 +148,8 @@ immune_system_information:
   # (per year) age-dependent faster acquisition of immunity from age 1 to age 10
   immune_inflation_rate: 0.01
 
-  # mix and max probabilities of experiencing symptoms as a result of a new infection
+  # Max probabilities of experiencing symptoms as a result of a new infection
   # the actual probability will depend on the host's immunity
-  min_clinical_probability: 0.05
   max_clinical_probability: 0.99
 
   # slope of sigmoidal prob-v-immunity function (parameter z in supplement of 2015 LGH paper) 
@@ -163,6 +160,9 @@ immune_system_information:
 
   # parameter kappa in supplement of 2015 LGH paper
   factor_effect_age_mature_immunity: 1
+
+  # Adjust the infliction point in the curve
+  midpoint: 0.4
 
 # Settings that determine how long an individual stays in a given location
 circulation_info:
@@ -205,27 +205,83 @@ initial_parasite_info:
         prevalence: 0.05
         
 # Events for Rwanda
-# TODO The date for when mutation starts needs to be dialed in, 
-#      right now we are giving just a bit of run up to when we
-#      start collecting data for the mutation to take place
 events:
   - name: turn_off_mutation
     info:
-      - day: 2009/1/1
+      - day: 2003/1/1
   - name: turn_on_mutation
     info:
-      # Artemisinin
-      - day: 2015/1/1
-        drug_id: 0
-        mutation_probability: 0.001983
-      # Lumefantrine
-      - day: 2015/1/1
+      # Lumefantrine (all configurations)
+      - day: 2014/1/1
+        drug_id: 1
+        mutation_probability: 0.001983 
+      # Amodiaquine (MFT configurations)
+      - day: 2014/1/1
+        drug_id: 3
+        mutation_probability: 0.001983 
+      # Piperaquine (MFT configurations)
+      - day: 2014/1/1
         drug_id: 4
         mutation_probability: 0.001983
-      # Quinine
-      - day: 2015/1/1
-        drug_id: 7
-        mutation_probability: 0.0              
+              
+  - name: change_treatment_strategy
+    info:
+      - day: 2023/1/1
+        strategy_id: 1
+  - name: introduce_mutant_event
+    info:
+      # Uwimana et al. 2020 
+      - day: 2014/09/30
+        district: 8         # Gasabo
+        fraction: 0.12069
+        locus: 2
+        mutant_allele: 1      
+      - day: 2015/09/30
+        district: 3         # Kayonza
+        fraction: 0.00746
+        locus: 2
+        mutant_allele: 1
+      - day: 2015/09/30
+        district: 8         # Gasabo
+        fraction: 0.0603
+        locus: 2
+        mutant_allele: 1
+
+      # Uwimana et al. 2021
+      - day: 2018/09/30
+        district: 8         # Gasabo
+        fraction: 0.19608
+        locus: 2
+        mutant_allele: 1
+      - day: 2018/09/30
+        district: 3         # Kayonza
+        fraction: 0.09756
+        locus: 2
+        mutant_allele: 1         
+
+      # Straimer et al. 2021
+      - day: 2019/09/30
+        district: 8         # Gasabo
+        fraction: 0.21918
+        locus: 2
+        mutant_allele: 1      
+      - day: 2019/09/30
+        district: 9         # Kicukiro
+        fraction: 0.21918
+        locus: 2
+        mutant_allele: 1      
+      - day: 2019/09/30
+        district: 10        # Nyarugenge
+        fraction: 0.21918
+        locus: 2
+        mutant_allele: 1 
+
+      # Bergmann et al. 2021    
+      - day: 2019/09/30
+        district: 17        # Hyue
+        fraction: 0.12121
+        locus: 2
+        mutant_allele: 1  
 
 # Drug Information
 #
@@ -322,6 +378,65 @@ drug_db:
       0....: 1.41
       # T----
       1....: 1.41
+
+  # MFT Additions
+  3:
+    name: "ADQ"       # Amodiaquine
+    half_life: 9.0
+    maximum_parasite_killing_rate: 0.95
+    n: 19
+    age_specific_drug_concentration_sd: [0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4]
+    mutation_probability: 0.005
+    affecting_loci: [0,1]
+    selecting_alleles: [[1],[0,1,3,4,5,7]]
+    k: 4
+    EC50:
+      #KNY--
+      00...: 0.62
+      #KYY--
+      01...: 0.85
+      #KNF--
+      02...: 0.5
+      #KYF--
+      03...: 0.775
+      #KNYNY
+      04...: 0.62
+      #KYYYY
+      05...: 0.85
+      #KNFNF
+      06...: 0.5
+      #KYFYF
+      07...: 0.775
+      #TNY--
+      10...: 0.7
+      #TYY--
+      11...: 0.9
+      #TNF--
+      12...: 0.65
+      #TYF--
+      13...: 0.82
+      #TNYNY
+      14...: 0.7
+      #TYYYY
+      15...: 0.9
+      #TNFNF
+      16...: 0.65
+      #TYFYF
+      17...: 0.82  
+  4:
+    name: "PQ"        # Piperaquine
+    half_life: 28.0
+    maximum_parasite_killing_rate: 0.9
+    n: 15
+    age_specific_drug_concentration_sd: [0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4]
+    mutation_probability: 0.005
+    affecting_loci: [3]
+    selecting_alleles: [[1]]
+    resistant_factor: [[1]]
+    k: 4
+    EC50:
+      ...0.: 0.58
+      ...1.: 1.4      
          
 # Drug IDs for the model
 artemisinin_drug_id: 0
@@ -334,7 +449,7 @@ therapy_db:
   # ACT - artemether–lumefantrine (AL) / first line therapy
   0:
     drug_id: [0, 1]
-    dosing_days: [3]
+    dosing_days: [4]
   # MONO - Artesunate (AS) / severe treatment
   1:
     drug_id: [0]
@@ -343,6 +458,11 @@ therapy_db:
   2:
     drug_id: [2]
     dosing_days: [7]
+
+  # ACT - Dihydroartemisinin-piperaquine (DHA-PPQ)
+  3:
+    drug_id: [0, 4]
+    dosing_days: [3]    
   
 # Drug-deployment strategy - baseline represents the survey data for Rwanda
 # 
@@ -353,6 +473,11 @@ strategy_db:
     type: MFT
     therapy_ids: [ 0 ]
     distribution: [ 1 ]
+  1:
+    name: Rwanda-AL-DHAPPQ
+    type: MFT
+    therapy_ids: [ 0, 3 ]    
+    distribution: [ 0.25, 0.75 ]
 initial_strategy_id: 0
 
 # Days from end of liver-stage infection to appearance of symptoms

@@ -209,6 +209,21 @@ events:
   - name: turn_off_mutation
     info:
       - day: 2003/1/1
+  - name: turn_on_mutation
+    info:
+      # Lumefantrine (all configurations)
+      - day: 2014/1/1
+        drug_id: 1
+        mutation_probability: 0.001983 
+      # Amodiaquine (MFT configurations)
+      - day: 2014/1/1
+        drug_id: 3
+        mutation_probability: 0.001983 
+      # Piperaquine (MFT configurations)
+      - day: 2014/1/1
+        drug_id: 4
+        mutation_probability: 0.001983
+              
   - name: change_treatment_strategy
     info:
       - day: 2023/1/1

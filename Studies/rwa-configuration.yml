@@ -2,8 +2,12 @@
 #
 # Boni Lab
 #
-# Baseline RWANDA model configuration.
+# Reference RWANDA model configuration data
 #
+# WARNING This configuration is not intended to be run by the 
+# simulation, but to be used as an aggregate of reference data
+# for the various configuration parameter. The configuration in
+# PfPR Decline/rwa-pfpr-constant.yml is the canonical baseline.
 # ---------------------------------------------------------------
 
 # ---------------------------------------------------------------
@@ -209,6 +213,22 @@ events:
   - name: turn_off_mutation
     info:
       - day: 2003/1/1
+
+  - name: turn_on_mutation
+    info:
+      # Lumefantrine (all configurations)
+      - day: 2014/1/1
+        drug_id: 1
+        mutation_probability: 0.001983 
+      # Amodiaquine (MFT configurations)
+      - day: 2014/1/1
+        drug_id: 3
+        mutation_probability: 0.001983 
+      # Piperaquine (MFT configurations)
+      - day: 2014/1/1
+        drug_id: 4
+        mutation_probability: 0.001983         
+
   - name: introduce_mutant_event
     info:
       # Uwimana et al. 2020 
