@@ -17,6 +17,7 @@ STARTDATE = '2003-01-01';
 STUDIES = {
     % Status quo
     1, 'data/datasets/rwa-pfpr-constant.csv', 'Status Quo', '', 'plots/rwa-pfpr-constant.png';
+    3, 'data/datasets/rwa-replacement-asaq.csv', '100% ASAQ Deployment', '2023-01-01', 'plots/rwa-replacement.asaq.png';
 
     % Multiple First-line Therapies
     5, 'data/datasets/rwa-mft-asaq-dhappq.csv', 'MFT ASAQ + DHA-PPQ', '2023-01-01', 'plots/rwa-mft-asaq-dhappq.png';
