@@ -1,29 +1,34 @@
-function [] = rwa_frequency_plots(startDate, studies)
+function [] = generate_rwa_plots(type, startDate, studies)
     % Generate all of the 561H frequency plots for Rwanda, and summary plot.
     
     % Generate the single plots and store the values returned in cell arrays
-    disp('Generating 561H frequency plots...')
+    fprintf('Generating %s plots...\n', type);
     results = {};
-    frequencies = {};
+    dataset = {};
     for ndx = 1:size(studies, 1)
-        [results{end + 1}, frequencies{end + 1}] = rwa_intervention_plot(studies{ndx, 2}, studies{ndx, 3}, startDate, studies{ndx, 4}, studies{ndx, 5});
+        [results{end + 1}, dataset{end + 1}] = rwa_data_plot(type, studies{ndx, 2}, studies{ndx, 3}, startDate, studies{ndx, 4}, studies{ndx, 5});
     end
     
     % Write the summary results to the out file
-    writecell(transpose(results), 'out/rwa-iqrs.txt', 'Delimiter', 'space');
+    writecell(transpose(results), sprintf('out/rwa-%s.txt', type), 'Delimiter', 'space');
     
     % Load the dates, these should all be the same throughout the data sets
     raw = readmatrix(studies{1, 2});
     dates = unique(raw(:, 3)) + datenum(startDate);
     dates = dates(end - 119:end);
     
+    % Hide the plot during generation
+    fig = figure;
+    set(fig, 'Visible', 'off');
+
     % Generate the summary plot with the data sets
-    ylimit = 0;
+    ylimit = [9999 0];
     for ndx = 1:size(studies, 1)
         % Find the 75th percentile and the y-limit
-        data = frequencies{ndx}(:, end - 119:end);
+        data = dataset{ndx}(:, end - 119:end);
         values = quantile(data, 0.75);
-        ylimit = max(ylimit, max(values));
+        ylimit(1) = min(ylimit(1), min(values));
+        ylimit(2) = max(ylimit(2), max(values));
     
         % Add the subplot
         subplot(6, 4, studies{ndx, 1});
@@ -38,11 +43,19 @@ function [] = rwa_frequency_plots(startDate, studies)
     for ndx = 1:size(studies, 1)
         subplot(6, 4, studies{ndx, 1});
         axis tight;
-        ylim([0 ylimit]);
+        ylim(ylimit);
         xticks(dates(12:12:end));
         datetick('x', 'yyyy', 'keepticks', 'keeplimits');
     end
+
+    % Format the common elements
+    [~, label] = parse_type(type);
+    handle = axes(fig, 'visible', 'off'); 
+    handle.XLabel.Visible='on';
+    handle.YLabel.Visible='on';
+    ylabel(handle, label);
+    xlabel(handle, 'Model Year');
     
     % Save and close the plot
-    save_plot('plots/summary/rwa-561h-summary.png');
+    save_plot(sprintf('plots/summary/rwa-%s-summary.png', type));
 end

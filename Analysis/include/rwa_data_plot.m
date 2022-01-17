@@ -1,19 +1,5 @@
 function [result, data] = rwa_data_plot(type, dataFilename, intervention, startDate, interventionDate, imageFilename)
     % Generate a single data plot for an intervention.
-   
-    % Parse out the type of intervention we are looking at
-    if strcmp(type, 'infections')
-        column = 5;
-        label = 'P. falciparum infected indivdiuals (log_{10})';
-    elseif strcmp(type, 'occurrences')
-        column = 7;
-        label = '561H Occurrences (log_{10})';
-    elseif strcmp(type, 'treatmentfailure')
-        column = 10;
-        label = 'Treatment Failures (log_{10})';
-    else
-        error('Unknown data type: %s', type);
-    end
     
     % Load the data and the unique datas
     raw = readmatrix(dataFilename);
@@ -21,14 +7,21 @@ function [result, data] = rwa_data_plot(type, dataFilename, intervention, startD
     replicates = unique(raw(:, 2));
     
     % Parse out the national sums, convert to log10
+    [column, label] = parse_type(type);
     data = zeros(size(dates, 2), size(replicates, 2));
     for ndx = 1:size(replicates, 1)
         filtred = raw(raw(:, 2) == replicates(ndx), :);
         for ndy = 1:size(dates, 1)
-            data(ndx, ndy) = sum(filtred(filtred(:, 3) == dates(ndy), column));
+            if strcmp(type, '561H')
+                data(ndx, ndy) = sum(filtred(filtred(:, 3) == dates(ndy), 9)) / sum(filtred(filtred(:, 3) == dates(ndy), 5));
+            else
+                data(ndx, ndy) = sum(filtred(filtred(:, 3) == dates(ndy), column));
+            end
         end
     end
-    data = log10(data);
+    if ~strcmp(type, '561H')
+        data = log10(data);
+    end
     
     % Note the median and IQR of the last year
     iqr = prctile(data(:, end - 11:end), [25 50 70]);
