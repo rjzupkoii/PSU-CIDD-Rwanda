@@ -4,7 +4,7 @@
 % can be used in ArcGIS Pro to plot projected cases for Rwanda.
 clear;
 
-data = readmatrix('data/4290-verification-data.csv');
+data = readmatrix('data/10825-verification-data.csv');
 
 % Get the data for 2017, assuming end date is 2025-01-01
 

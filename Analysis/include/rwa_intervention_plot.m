@@ -1,5 +1,9 @@
-% Generate a summary plot of the treatment interventions.
 function [result, frequencies] = rwa_intervention_plot(dataFilename, intervention, startDate, interventionDate, imageFilename)
+    % Generate a single 561H intervention plot.
+    % 
+    % Some extra code here to manage frequency calcluations and allowing 
+    % for spike verification plots to be generated.
+
     % Load the data and the unique datas
     raw = readmatrix(dataFilename);
     dates = unique(raw(:, 3));
@@ -29,19 +33,8 @@ function [result, frequencies] = rwa_intervention_plot(dataFilename, interventio
     if interventionDate ~= ""
         xline(datenum(interventionDate), '-', intervention);
     end
-    
-    % Format the plot
-    title(result);
-    xlabel('Model Year');
-    ylabel('561H Frequency');
-    datetick('x', 'yyyy');
-    graphic = gca;
-    graphic.FontSize = 18;
 
-    % Save and close the plot
-    set(gcf, 'Position',  [0, 0, 2560, 1440]);
-    print('-dpng', '-r150', imageFilename);
-    clf;
-    close;
+    % Format, save, and close the plot
+    format_plot(result, '561H Frequency');
+    save_plot(sprintf(imageFilename, ''));
 end
-
