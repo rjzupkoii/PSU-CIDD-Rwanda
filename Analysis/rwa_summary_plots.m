@@ -45,6 +45,7 @@ STUDIES = {
 
 % Make sure our directories exist
 warning('off', 'MATLAB:MKDIR:DirectoryExists');
+mkdir('out');
 mkdir('plots/summary');
 
 % Generate a single 561H validation plot with IQR
@@ -57,4 +58,5 @@ generate_rwa_plots('561H', STARTDATE, STUDIES);
 % Generate all of the type plots
 generate_rwa_plots('infections', STARTDATE, STUDIES);
 generate_rwa_plots('occurrences', STARTDATE, STUDIES);
+generate_rwa_plots('weighted', STARTDATE, STUDIES);
 generate_rwa_plots('treatmentfailure', STARTDATE, STUDIES);

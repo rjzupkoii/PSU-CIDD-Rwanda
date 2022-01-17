@@ -5,7 +5,10 @@ function [column, label] = parse_type(type)
         label = 'P. falciparum infected indivdiuals, log_{10}';
     elseif strcmp(type, 'occurrences')
         column = 7;
-        label = '561H Occurrences, log_{10}';
+        label = '561H Occurrences (unweighted), log_{10}';
+    elseif strcmp(type, 'weighted')
+        column = 9;
+        label = '561H Occurnaces (weighted), log_{10}';
     elseif strcmp(type, 'treatmentfailure')
         column = 10;
         label = 'Treatment Failures, log_{10}';
