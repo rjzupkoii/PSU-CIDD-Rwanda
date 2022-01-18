@@ -1,4 +1,4 @@
-function [] = generate_rwa_plots(type, startDate, studies)
+function [] = generate_rwa_plots(type, startDate, adjustment, studies)
     % Generate all of the 561H frequency plots for Rwanda, and summary plot.
     
     % Generate the single plots and store the values returned in cell arrays
@@ -6,7 +6,7 @@ function [] = generate_rwa_plots(type, startDate, studies)
     results = {};
     dataset = {};
     for ndx = 1:size(studies, 1)
-        [results{end + 1}, dataset{end + 1}] = rwa_data_plot(type, studies{ndx, 2}, studies{ndx, 3}, startDate, studies{ndx, 4}, studies{ndx, 5});
+        [results{end + 1}, dataset{end + 1}] = rwa_data_plot(type, adjustment, studies{ndx, 2}, studies{ndx, 3}, startDate, studies{ndx, 4}, studies{ndx, 5});
     end
     
     % Write the summary results to the out file
@@ -46,6 +46,13 @@ function [] = generate_rwa_plots(type, startDate, studies)
         ylim(ylimit);
         xticks(dates(12:12:end));
         datetick('x', 'yyyy', 'keepticks', 'keeplimits');
+
+        % If this is not a 561H plot then relabel the y-axis
+        if ~strcmp(type, '561H')
+            labels = split(num2str(yticks, '10^{%.1f};'), ';');
+            labels(cellfun('isempty', labels)) = [];
+            yticklabels(labels);
+        end        
     end
 
     % Format the common elements
@@ -55,6 +62,8 @@ function [] = generate_rwa_plots(type, startDate, studies)
     handle.YLabel.Visible='on';
     ylabel(handle, label);
     xlabel(handle, 'Model Year');
+    graphic = gca;
+    graphic.FontSize = 18;
     
     % Save and close the plot
     save_plot(sprintf('plots/summary/rwa-%s-summary.png', type));

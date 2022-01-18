@@ -1,4 +1,4 @@
-function [result, data] = rwa_data_plot(type, dataFilename, intervention, startDate, interventionDate, imageFilename)
+function [result, data] = rwa_data_plot(type, adjustment, dataFilename, intervention, startDate, interventionDate, imageFilename)
     % Generate a single data plot for an intervention.
     
     % Load the data and the unique datas
@@ -15,7 +15,7 @@ function [result, data] = rwa_data_plot(type, dataFilename, intervention, startD
             if strcmp(type, '561H')
                 data(ndx, ndy) = sum(filtred(filtred(:, 3) == dates(ndy), 9)) / sum(filtred(filtred(:, 3) == dates(ndy), 5));
             else
-                data(ndx, ndy) = sum(filtred(filtred(:, 3) == dates(ndy), column));
+                data(ndx, ndy) = sum(filtred(filtred(:, 3) == dates(ndy), column)) / adjustment;
             end
         end
     end
@@ -40,6 +40,6 @@ function [result, data] = rwa_data_plot(type, dataFilename, intervention, startD
     end
     
     % Format, save, and close the plot
-    format_plot(result, label);
+    format_plot(type, result, label);
     save_plot(sprintf(imageFilename, strcat('-', type)));
 end
