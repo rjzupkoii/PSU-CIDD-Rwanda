@@ -1,8 +1,8 @@
 function [column, label] = parse_type(type)
     % Parse out the type of intervention we are looking at
     if strcmp(type, 'infections')
-        column = 5;
-        label = 'Monthly Count of {\it P. falciparum} infected indivdiuals';
+        column = 6;
+        label = 'Monthly Count of {\it P. falciparum} Clinically Infected Indivdiuals';
     elseif strcmp(type, 'occurrences')
         column = 7;
         label = 'Monthly Count of 561H Clones';

@@ -6,7 +6,7 @@ function [result, data] = rwa_data_plot(type, adjustment, dataFilename, interven
     dates = unique(raw(:, 3));
     replicates = unique(raw(:, 2));
     
-    % Parse out the national sums, convert to log10
+    % Parse out the national sums / frequency
     [column, label] = parse_type(type);
     data = zeros(size(dates, 2), size(replicates, 2));
     for ndx = 1:size(replicates, 1)
@@ -19,13 +19,20 @@ function [result, data] = rwa_data_plot(type, adjustment, dataFilename, interven
             end
         end
     end
-    if ~strcmp(type, '561H')
+    
+    % Cast the data and prepare the plot title as dictated by the type
+    if strcmp(type, '561H')
+        % IQR over the mean last year 561H frequency, per replicate
+        iqr = prctile(mean(data(:, end - 11:end), 2), [25 50 75]);
+        result = sprintf("%s: %.3f (IQR %.3f - %.3f)", intervention, iqr(2), iqr(1), iqr(3));
+    else
+        jf = java.text.DecimalFormat;
+        % IQR over the total data points of the last year, per replicate
+        iqr = prctile(sum(data(:, end - 11:end), 2), [25 50 75]);
+        result = sprintf("%s: %s (IQR %s - %s)", intervention, ...
+            jf.format(iqr(2)), jf.format(iqr(1)), jf.format(iqr(3)));
         data = log10(data);
     end
-    
-    % Note the median and IQR of the last year
-    iqr = prctile(data(:, end - 11:end), [25 50 70]);
-    result = sprintf("%s: %.3f (IQR %.3f - %.3f)", intervention, iqr(2), iqr(1), iqr(3));
 
     % Plot the data
     fig = figure;

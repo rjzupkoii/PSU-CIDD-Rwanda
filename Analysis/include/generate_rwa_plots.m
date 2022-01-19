@@ -49,9 +49,7 @@ function [] = generate_rwa_plots(type, startDate, adjustment, studies)
 
         % If this is not a 561H plot then relabel the y-axis
         if ~strcmp(type, '561H')
-            labels = split(num2str(yticks, '10^{%.1f};'), ';');
-            labels(cellfun('isempty', labels)) = [];
-            yticklabels(labels);
+            format_yticks();
         end        
     end
 

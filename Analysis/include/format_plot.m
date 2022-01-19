@@ -1,15 +1,18 @@
 function [] = format_plot(type, plot_title, yaxis_label)
     % Format a single plot with the title and yaxis label provided
     title(plot_title);
-    xlabel('Model Year');
+    xlabel({'Model Year' '(date indicates end of year)'});
     ylabel(yaxis_label);
-    datetick('x', 'yyyy');
+
+    % Format the x axis
+    dates = datenum('2019-12-31'):datenum('2032-01-01');
+    xlim([min(dates) max(dates)]);
+    xticks(dates(1 : 365 : end));
+    xticklabels(datestr(datetime(xticks, 'ConvertFrom', 'datenum'), 'yyyy'));
 
     % If this is not a 561H plot then relabel the y-axis
     if ~strcmp(type, '561H')
-        labels = split(num2str(yticks, '10^{%.1f};'), ';');
-        labels(cellfun('isempty', labels)) = [];
-        yticklabels(labels);
+        format_yticks();
     end
 
     graphic = gca;
