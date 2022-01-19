@@ -1,7 +1,7 @@
 function [] = format_plot(type, plot_title, yaxis_label)
     % Format a single plot with the title and yaxis label provided
     title(plot_title);
-    xlabel({'Model Year' '(date indicates end of year)'});
+    xlabel({'Model Year' '\fontsize{10} (date indicates end of year)'});
     ylabel(yaxis_label);
 
     % Format the x axis

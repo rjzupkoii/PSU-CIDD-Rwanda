@@ -59,6 +59,7 @@ rwa_data_plot('561H', 1, 'data/datasets/rwa-561h-verification.csv', '561H Verifi
 generate_rwa_plots('561H', STARTDATE, ADJUSTMENT, STUDIES);
 
 % Generate all of the type plots
+generate_rwa_plots('clinical', STARTDATE, ADJUSTMENT, STUDIES);
 generate_rwa_plots('infections', STARTDATE, ADJUSTMENT, STUDIES);
 generate_rwa_plots('occurrences', STARTDATE, ADJUSTMENT, STUDIES);
 generate_rwa_plots('weighted', STARTDATE, ADJUSTMENT, STUDIES);

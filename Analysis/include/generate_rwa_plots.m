@@ -54,14 +54,15 @@ function [] = generate_rwa_plots(type, startDate, adjustment, studies)
     end
 
     % Format the common elements
-    [~, label] = parse_type(type);
+    [~, ~, label] = parse_type(type);
     handle = axes(fig, 'visible', 'off'); 
     handle.XLabel.Visible='on';
     handle.YLabel.Visible='on';
-    ylabel(handle, label);
+    ylabel(handle, {label ''});
     xlabel(handle, 'Model Year');
     graphic = gca;
     graphic.FontSize = 18;
+    sgtitle({['\fontsize{24}' label] '\fontsize{12} (subplot title quantity is for final year)'});
     
     % Save and close the plot
     save_plot(sprintf('plots/summary/rwa-%s-summary.png', type));
