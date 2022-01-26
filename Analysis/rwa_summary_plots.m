@@ -64,3 +64,4 @@ generate_rwa_plots('infections', STARTDATE, ADJUSTMENT, STUDIES);
 generate_rwa_plots('occurrences', STARTDATE, ADJUSTMENT, STUDIES);
 generate_rwa_plots('weighted', STARTDATE, ADJUSTMENT, STUDIES);
 generate_rwa_plots('treatmentfailure', STARTDATE, ADJUSTMENT, STUDIES);
+generate_rwa_plots('genotypecarriers', STARTDATE, ADJUSTMENT, STUDIES);

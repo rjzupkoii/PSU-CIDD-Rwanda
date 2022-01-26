@@ -50,12 +50,14 @@ def get_replicate(replicateId):
         CASE WHEN gd.occurrences IS NULL THEN 0 else gd.occurrences END AS occurrences,
         CASE WHEN gd.clinicaloccurrences IS NULL THEN 0 else gd.clinicaloccurrences END AS clinicaloccurrences,
         CASE WHEN gd.weightedoccurrences IS NULL THEN 0 else gd.weightedoccurrences END AS weightedoccurrences,
-        treatmentfailures
+        treatmentfailures,
+        genotypecarriers
       FROM (
         SELECT md.replicateid, md.dayselapsed, msd.location AS district,
           sum(msd.infectedindividuals) AS infectedindividuals, 
           sum(msd.clinicalepisodes) AS clinicalepisodes,
-          sum(msd.treatmentfailures) as treatmentfailures
+          sum(msd.treatmentfailures) as treatmentfailures,
+          sum(genotypecarriers) as genotypecarriers
         FROM sim.monthlydata md
           INNER JOIN sim.monthlysitedata msd on msd.monthlydataid = md.id
         WHERE md.replicateid = %(replicateId)s
