@@ -8,6 +8,7 @@ import os
 import pandas as pd
 import sys
 
+# From the PSU-CIDD-MaSim-Support repository
 sys.path.insert(1, '../../PSU-CIDD-MaSim-Support/Python/include')
 from database import select
 from utility import progressBar
