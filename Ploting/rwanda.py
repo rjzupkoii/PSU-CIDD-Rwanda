@@ -155,7 +155,7 @@ def plot_summary(title, dates, figureData, district = None, extension = 'png'):
     # Format and save the plot
     if district != None:
         figure.suptitle('{}\n{}, Rwanda'.format(title, DISTRICTS[district]))
-        imagefile = 'plots/{0}/{1} - {0}.{2}'.format(title, district, extension)
+        imagefile = 'plots/{0}/{1} - {0}.{2}'.format(title, DISTRICTS[district], extension)
         os.makedirs('plots/{}'.format(title), exist_ok=True)
     else:
         figure.suptitle('{}\nRwanda'.format(title))
