@@ -7,20 +7,79 @@ import datetime
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 import pandas as pd
 import sys
+
+import rwanda
 
 # From the PSU-CIDD-MaSim-Support repository
 sys.path.insert(1, '../../PSU-CIDD-MaSim-Support/Python/include')
 from plotting import scale_luminosity
+from utility import progressBar
 
 
-# Settings that are passed to the plot function
-DATAFILE = 'data/rwa-561h-verification.csv'
-IMAGEFILE = 'rwa-spike-verification.png'
+def main():
+    print('Parsing 561H verification data ...')
+    os.makedirs('plots', exist_ok=True)
+    filename = os.path.join(rwanda.DATA_PATH, 'rwa-561h-verification.csv')
+    plot_validation(filename, 'plots/561H Verification.png')
+
+    for filename in rwanda.CONFIGURATIONS:
+        print('Parsing {} ...'.format(filename))
+        results = prepare_national(os.path.join(rwanda.DATA_PATH, filename))
+        rwanda.plot_summary(rwanda.CONFIGURATIONS[filename], *results)   
 
 
-def prepare(filename):
+def prepare_national(filename):
+    REPLICATE, DATES, INDIVIDUALS, WEIGHTED = 1, 2, 4, 8
+
+    # Load the data, note the unique dates, replicates
+    data = pd.read_csv(filename, header = None)
+    dates = data[DATES].unique().tolist()
+    replicates = data[REPLICATE].unique().tolist()
+
+    # Build the dictionary for the results
+    results = {}
+    for key in rwanda.REPORT_LAYOUT:
+        results[key] = []
+
+    # Start by filtering by the replicate
+    count = 0
+    for replicate in replicates:
+        byReplicate = data[data[REPLICATE] == replicate]
+
+        # Prepare the data structure for this replicate
+        values = {}
+        for key in rwanda.REPORT_LAYOUT:
+            values[key] = []
+
+        # Next, filter by date so we can properly aggregate
+        for date in dates:           
+            byDate = byReplicate[byReplicate[DATES] == date]
+            for key in rwanda.REPORT_LAYOUT:
+                if key != 'frequency':
+                    index = rwanda.REPORT_LAYOUT[key][rwanda.REPORT_INDEX]
+                    values[key].append(sum(byDate[index]))
+                else:
+                    values[key].append(sum(byDate[WEIGHTED]) / sum(byDate[INDIVIDUALS]))
+
+        # Append this replicate to our results
+        for key in rwanda.REPORT_LAYOUT:
+            if len(results[key]) != 0:
+                results[key] = np.vstack((results[key], values[key]))
+            else:
+                results[key] = values[key]
+
+        # Update the progress bar
+        count += 1
+        progressBar(count, len(replicates))
+
+    # Return the results
+    return dates, results
+
+
+def prepare_validation(filename):
     REPLICATE, DATES, INDIVIDUALS, WEIGHTED = 1, 2, 4, 8
 
     # Load the data, note the unique dates, replicates
@@ -29,7 +88,7 @@ def prepare(filename):
     replicates = data[REPLICATE].unique().tolist()
 
     # Calculate the 561H frequency for each date, replicate
-    frequencies = []
+    count, frequencies = 0, []
     for replicate in replicates:
         byReplicate = data[data[REPLICATE] == replicate]
         frequency = []
@@ -39,34 +98,20 @@ def prepare(filename):
         if len(frequencies) != 0: frequencies = np.vstack((frequencies, frequency))
         else: frequencies = frequency
 
+        # Update the progress bar
+        count += 1
+        progressBar(count, len(replicates))
+
     # Return the results
     return dates, frequencies
 
 
-def plot(datafile, imagefile):
-    STUDYDATE = '2003-1-1'
-    SPIKES = np.array([
-        # Uwimana et al. 2020 
-        ['Gasabo (0.12069)', datetime.datetime(2014,9,30), 0.12069],
-        ['Kayonza (0.00746)', datetime.datetime(2015,9,30), 0.00746],
-        ['Gasabo (0.0603)', datetime.datetime(2015,9,30), 0.0603],
-        
-        # Uwimana et al. 2021
-        ['Gasabo (0.19608)', datetime.datetime(2018,9,30), 0.19608],
-        ['Kayonza (0.09756)', datetime.datetime(2018,9,30), 0.09756],
-
-        # Straimer et al. 2021
-        ['Kigali City (0.21918)', datetime.datetime(2019,9,30), 0.21918],
-
-        # Bergmann et al. 2021 
-        ['Hyue (0.12069)', datetime.datetime(2019,9,30), 0.12121],
-    ])
-    
+def plot_validation(datafile, imagefile):
     # Prepare the data
-    dates, frequencies = prepare(datafile)
+    dates, frequencies = prepare_validation(datafile)
 
     # Format the dates
-    startDate = datetime.datetime.strptime(STUDYDATE, "%Y-%m-%d")
+    startDate = datetime.datetime.strptime(rwanda.STUDYDATE, "%Y-%m-%d")
     dates = [startDate + datetime.timedelta(days=x) for x in dates]
 
     # Calculate the bounds
@@ -88,8 +133,8 @@ def plot(datafile, imagefile):
     plt.fill_between(dates, lower, upper, alpha=0.5, facecolor=color)
 
     # Add the spike annotations
-    plt.scatter(SPIKES[:, 1], SPIKES[:, 2], color='black', s=50)
-    for label, x, y in SPIKES:
+    plt.scatter(rwanda.SPIKES[:, rwanda.SPIKE_X], rwanda.SPIKES[:, rwanda.SPIKE_Y], color='black', s=50)
+    for label, x, y in rwanda.SPIKES:
         plt.annotate(label, (x, y), textcoords='offset points', xytext=(0,10), ha='center', fontsize=18)
 
     # Finalize the image as proof (png) or print (tif)
@@ -101,4 +146,4 @@ def plot(datafile, imagefile):
 
 
 if __name__ == '__main__':
-    plot(DATAFILE, IMAGEFILE)    
+    main()

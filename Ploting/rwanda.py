@@ -3,6 +3,18 @@
 # This file contains common proprties for Rwanda and associated reporting.
 
 # Districts in Rwanda, keyed for the GIS data
+import datetime
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import sys
+
+# From the PSU-CIDD-MaSim-Support repository
+sys.path.insert(1, '../../PSU-CIDD-MaSim-Support/Python/include')
+from plotting import scale_luminosity
+
+
 DISTRICTS = {
     1  : 'Bugesera',
     2  : 'Gatsibo',
@@ -39,6 +51,9 @@ DISTRICTS = {
 # Start of simulation
 STUDYDATE = '2003-1-1'
 
+# The path for the summary data set
+DATA_PATH = '../Analysis/data/datasets'
+
 # The various configurations that are run for the simulation
 CONFIGURATIONS = {
     # Status quo
@@ -70,6 +85,27 @@ CONFIGURATIONS = {
     'rwa-replacement-asaq.csv'     : '100% ASAQ Deployment'
 }
 
+# Index defintions for spikes
+SPIKE_LABEL, SPIKE_X, SPIKE_Y = range(3)
+
+# Points at which 561H was spiked into the population
+SPIKES = np.array([
+    # Uwimana et al. 2020 
+    ['Gasabo (0.12069)', datetime.datetime(2014,9,30), 0.12069],
+    ['Kayonza (0.00746)', datetime.datetime(2015,9,30), 0.00746],
+    ['Gasabo (0.0603)', datetime.datetime(2015,9,30), 0.0603],
+    
+    # Uwimana et al. 2021
+    ['Gasabo (0.19608)', datetime.datetime(2018,9,30), 0.19608],
+    ['Kayonza (0.09756)', datetime.datetime(2018,9,30), 0.09756],
+
+    # Straimer et al. 2021
+    ['Kigali City (0.21918)', datetime.datetime(2019,9,30), 0.21918],
+
+    # Bergmann et al. 2021 
+    ['Hyue (0.12069)', datetime.datetime(2019,9,30), 0.12121],
+])
+
 # Index definitions for the four-panel report layout
 REPORT_INDEX, REPORT_ROW, REPORT_COLUMN, REPORT_YLABEL = range(4)
 
@@ -80,3 +116,54 @@ REPORT_LAYOUT = {
     'frequency' : [-1, 0, 1, '561H Frequency'],
     'carriers': [10, 1, 1, 'Individuals with 561H Clones']
 }
+
+
+def plot_summary(title, dates, figureData, district = None, extension = 'png'):
+    # Format the dates
+    startDate = datetime.datetime.strptime(STUDYDATE, "%Y-%m-%d")
+    dates = [startDate + datetime.timedelta(days=x) for x in dates]
+
+    # Prepare the plots
+    matplotlib.rc_file('matplotlibrc-line')
+    figure, axes = plt.subplots(2, 2)
+
+    for key in REPORT_LAYOUT:
+        row, col = REPORT_LAYOUT[key][REPORT_ROW], REPORT_LAYOUT[key][REPORT_COLUMN]
+
+        # Load the data and calculate the bounds      
+        data = figureData[key]  
+        upper = np.percentile(data, 97.5, axis=0)
+        median = np.percentile(data, 50, axis=0)
+        lower = np.percentile(data, 2.5, axis=0)
+
+        # Add the data to the subplot
+        axes[row, col].plot(dates, median)
+        color = scale_luminosity(axes[row, col].lines[-1].get_color(), 1)
+        axes[row, col].fill_between(dates, lower, upper, alpha=0.5, facecolor=color)
+
+        # Label the axis as needed
+        plt.sca(axes[row, col])
+        plt.ylabel(REPORT_LAYOUT[key][REPORT_YLABEL])
+  
+        if row == 1:
+            plt.xlabel('Model Year')
+
+    # Format the subplots
+    for ax in axes.flat:
+        ax.set_xlim([min(dates), max(dates)])
+
+    # Format and save the plot
+    if district != None:
+        figure.suptitle('{}\n{}, Rwanda'.format(title, DISTRICTS[district]))
+        imagefile = 'plots/{0}/{1} - {0}.{2}'.format(title, district, extension)
+        os.makedirs('plots/{}'.format(title), exist_ok=True)
+    else:
+        figure.suptitle('{}\nRwanda'.format(title))
+        imagefile = 'plots/Summary - {0}.{1}'.format(title, extension)
+
+    # Save the plot based upon the extension
+    if imagefile.endswith('tif'):
+        plt.savefig(imagefile, dpi=300, format="tiff", pil_kwargs={"compression": "tiff_lzw"})
+    else:
+        plt.savefig(imagefile)        
+    plt.close()
