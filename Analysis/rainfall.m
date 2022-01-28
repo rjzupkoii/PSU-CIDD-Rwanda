@@ -2,9 +2,12 @@
 %
 % Use ERA5 mean daily rainfall to generate adjustments to the model beta parameter.
 %
-% Bounding of 0.2 to 1.0 is based on USAID Global Health Supply Chain program figures
+% Bounding of 0.4 to 1.0 is based on USAID Global Health Supply Chain program figures
 % https://www.ghsupplychain.org/news/data-driven-redistribution-ensures-availability-malaria-supplies-rwanda
 warning('off', 'MATLAB:MKDIR:DirectoryExists');
+
+% Set the floor for the beta, this is based on the 2.5x difference in cases
+minima = 0.4;
 
 % Load the data, drop the Google Earth Engine column
 raw = readmatrix('data/rwa-rainfall.csv');
@@ -15,7 +18,7 @@ daily = circshift(raw(:, 2), 10);
 
 % Smooth the and normalize the data
 daily = smoothdata(daily);
-daily = (1 - 0.2) * (daily - min(daily)) / (max(daily) - min(daily)) + 0.2;
+daily = (1 - minima) * (daily - min(daily)) / (max(daily) - min(daily)) + minima;
 
 % Plot the ERA5 rainfall data
 subplot(2, 1, 1);
@@ -30,7 +33,7 @@ format('Daily Beta Adjustment');
 
 % Write the data to disk
 mkdir('out');
-writematrix(daily, 'out/rwa-adjustment.csv');
+writematrix(daily, 'out/rwa_adjustment.csv');
 
 function [] = format(label) 
     xlim([1 365]);
