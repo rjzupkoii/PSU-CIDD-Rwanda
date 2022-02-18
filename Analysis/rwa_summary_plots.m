@@ -16,6 +16,9 @@ STARTDATE = '2003-01-01';
 % The population adjustment applied to the simuation
 ADJUSTMENT = 0.25;
 
+% The number of years to generate the plots for
+YEARS = 5;
+
 % The master list of studies that we wish to plot, first value is the index
 % of the study in the summary plot
 STUDIES = {
@@ -52,16 +55,18 @@ mkdir('out');
 mkdir('plots/summary');
 
 % Generate a single 561H validation plot with IQR
-disp('Generating 561H spike verification plot...')
-rwa_data_plot('561H', 1, 'data/datasets/rwa-561h-verification.csv', '561H Verification', STARTDATE, '', 'plots/rwa-561h-verification.png');
+if isnan(YEARS)
+    disp('Generating 561H spike verification plot...')
+    rwa_data_plot('561H', 1, 'data/datasets/rwa-561h-verification.csv', '561H Verification', STARTDATE, '', 'plots/rwa-561h-verification.png');
+end
 
 % Generate all of the informative plots and summaries
-generate_rwa_plots('561H', STARTDATE, ADJUSTMENT, STUDIES);
+generate_rwa_plots('561H', STARTDATE, ADJUSTMENT, STUDIES, YEARS);
 
 % Generate all of the type plots
-generate_rwa_plots('clinical', STARTDATE, ADJUSTMENT, STUDIES);
-generate_rwa_plots('infections', STARTDATE, ADJUSTMENT, STUDIES);
-generate_rwa_plots('occurrences', STARTDATE, ADJUSTMENT, STUDIES);
-generate_rwa_plots('weighted', STARTDATE, ADJUSTMENT, STUDIES);
-generate_rwa_plots('treatmentfailure', STARTDATE, ADJUSTMENT, STUDIES);
-generate_rwa_plots('genotypecarriers', STARTDATE, ADJUSTMENT, STUDIES);
+generate_rwa_plots('clinical', STARTDATE, ADJUSTMENT, STUDIES, YEARS);
+generate_rwa_plots('infections', STARTDATE, ADJUSTMENT, STUDIES, YEARS);
+generate_rwa_plots('occurrences', STARTDATE, ADJUSTMENT, STUDIES, YEARS);
+generate_rwa_plots('weighted', STARTDATE, ADJUSTMENT, STUDIES, YEARS);
+generate_rwa_plots('treatmentfailure', STARTDATE, ADJUSTMENT, STUDIES, YEARS);
+generate_rwa_plots('genotypecarriers', STARTDATE, ADJUSTMENT, STUDIES, YEARS);

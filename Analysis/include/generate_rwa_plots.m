@@ -1,4 +1,4 @@
-function [] = generate_rwa_plots(type, startDate, adjustment, studies)
+function [] = generate_rwa_plots(type, startDate, adjustment, studies, years)
     % Generate all of the 561H frequency plots for Rwanda, and summary plot.
     
     % Generate the single plots and store the values returned in cell arrays
@@ -16,6 +16,9 @@ function [] = generate_rwa_plots(type, startDate, adjustment, studies)
     raw = readmatrix(studies{1, 2});
     dates = unique(raw(:, 3)) + datenum(startDate);
     dates = dates(end - 119:end);
+    if ~isnan(years)
+        dates = dates(1:(12 * years));
+    end
     
     % Hide the plot during generation
     fig = figure;
@@ -24,8 +27,13 @@ function [] = generate_rwa_plots(type, startDate, adjustment, studies)
     % Generate the summary plot with the data sets
     ylimit = [9999 0];
     for ndx = 1:size(studies, 1)
-        % Find the 75th percentile and the y-limit
+        % Filter the data to match the years as needed
         data = dataset{ndx}(:, end - 119:end);
+        if ~isnan(years)
+            data = data(:, 1:(12 * years));
+        end        
+
+        % Find the 75th percentile and the y-limit
         values = quantile(data, 0.75);
         ylimit(1) = min(ylimit(1), min(values));
         ylimit(2) = max(ylimit(2), max(values));
@@ -33,7 +41,14 @@ function [] = generate_rwa_plots(type, startDate, adjustment, studies)
         % Add the subplot
         subplot(6, 4, studies{ndx, 1});
         hold on;
-        title(results{ndx});
+
+        % Add the title
+        if ~isnan(years) 
+            title(format_title(10 .^ data, type, studies{ndx, 3}))
+        else
+            title(results{ndx});
+        end
+        
         plot(dates, values, 'LineStyle', ':', 'color', [99 99 99] / 256.0);
         plot(dates, median(data), 'black');
         plot(dates, quantile(data, 0.25), 'LineStyle', ':', 'color', [99 99 99] / 256.0);
@@ -65,5 +80,10 @@ function [] = generate_rwa_plots(type, startDate, adjustment, studies)
     sgtitle({['\fontsize{24}' label] '\fontsize{12} (subplot title quantity is for final year)'});
     
     % Save and close the plot
-    save_plot(sprintf('plots/summary/rwa-%s-summary.png', type));
+    if ~isnan(years)
+        mkdir(sprintf('plots/summary/%d-years', years));
+        save_plot(sprintf('plots/summary/%d-years/rwa-%s-summary.png', years, type));
+    else
+        save_plot(sprintf('plots/summary/rwa-%s-summary.png', type));
+    end
 end
