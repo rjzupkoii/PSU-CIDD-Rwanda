@@ -25,10 +25,15 @@ STUDIES = {
     % Status quo
     1, 'data/datasets/rwa-pfpr-constant.csv', 'Status Quo', '', 'plots/rwa-pfpr-constant%s.png';
 
+    % Rotations
+    3, 'data/datasets/rwa-rotation-al-3.csv', 'Rotate DHA-PPQ (3yr), MFT AL (50%) + ASAQ (50%)', '2023-01-01', 'plots/rwa-rotation-al-3%s.png';
+    4, 'data/datasets/rwa-rotation-al-5.csv', 'Rotate DHA-PPQ (3yr), MFT AL 5 day (50%) + ASAQ (50%)', '2023-01-01', 'plots/rwa-rotation-al-5%s.png';
+
     % Multiple First-line Therapies
     5, 'data/datasets/rwa-mft-asaq-dhappq-0.25.csv', 'MFT ASAQ (75%) + DHA-PPQ (25%)', '2023-01-01', 'plots/rwa-mft-asaq-dhappq-0.25%s.png';
     6, 'data/datasets/rwa-mft-asaq-dhappq.csv', 'MFT (50%) ASAQ + DHA-PPQ (50%)', '2023-01-01', 'plots/rwa-mft-asaq-dhappq%s.png';
     7, 'data/datasets/rwa-mft-asaq-dhappq-0.75.csv', 'MFT ASAQ (25%) + DHA-PPQ (75%)', '2023-01-01', 'plots/rwa-mft-asaq-dhappq-0.75%s.png';
+    8, 'data/datasets/rwa-replacement-dhappq.csv', '100% DHA-PPQ Deployment', '2023-01-01', 'plots/rwa-replacement-dhappq%s.png';
     
     9, 'data/datasets/rwa-mft-al-asaq-0.25.csv', 'MFT AL (75%) + ASAQ (25%)', '2023-01-01', 'plots/rwa-mft-al-asaq-0.25%s.png';
     10, 'data/datasets/rwa-mft-al-asaq.csv', 'MFT AL (50%) + ASAQ (50%)', '2023-01-01', 'plots/rwa-mft-al-asaq%s.png';

@@ -82,7 +82,12 @@ CONFIGURATIONS = {
     'rwa-mft-asaq-dhappq-0.75.csv' : 'MFT ASAQ (25%) + DHA-PPQ (75%)',
     
     # AL Replacement
-    'rwa-replacement-asaq.csv'     : '100% ASAQ Deployment'
+    'rwa-replacement-asaq.csv'     : '100% ASAQ Deployment',
+    'rwa-replacement-dhappq.csv'   : '100% DHA-PPQ Deployment',
+
+    # Rotations
+    'rwa-rotation-al-3.csv'        : 'DHA-PPQ (3 years), MFT AL (50%) + ASAQ (50%)',
+    'rwa-rotation-al-5.csv'        : 'DHA-PPQ (3 years), MFT AL, 5 days (50%) + ASAQ (50%)',
 }
 
 # Index defintions for spikes

@@ -17,12 +17,13 @@ function [] = generate_rwa_plots(type, startDate, adjustment, studies, years)
     dates = unique(raw(:, 3)) + datenum(startDate);
     dates = dates(end - 119:end);
     if ~isnan(years)
-        dates = dates(1:(12 * years));
+        dates = dates(12:(11 + (12 * years)));
     end
     
     % Hide the plot during generation
     fig = figure;
     set(fig, 'Visible', 'off');
+    fig.Position = [0 0 6000 4000];
 
     % Generate the summary plot with the data sets
     ylimit = [9999 0];
@@ -30,7 +31,7 @@ function [] = generate_rwa_plots(type, startDate, adjustment, studies, years)
         % Filter the data to match the years as needed
         data = dataset{ndx}(:, end - 119:end);
         if ~isnan(years)
-            data = data(:, 1:(12 * years));
+            data = data(:, 12:(11 + (12 * years)));
         end        
 
         % Find the 75th percentile and the y-limit
@@ -60,7 +61,7 @@ function [] = generate_rwa_plots(type, startDate, adjustment, studies, years)
         axis tight;
         ylim(ylimit);
         xticks(dates(12:12:end));
-        datetick('x', 'yyyy', 'keepticks', 'keeplimits');
+        datetick('x', 'yyyy-mm', 'keepticks', 'keeplimits');
 
         % If this is not a 561H plot then relabel the y-axis
         if ~strcmp(type, '561H')
