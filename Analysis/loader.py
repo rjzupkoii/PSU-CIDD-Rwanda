@@ -17,9 +17,10 @@ from utility import progressBar
 # Connection string for the database
 CONNECTION = 'host=masimdb.vmhost.psu.edu dbname=rwanda user=sim password=sim connect_timeout=60'
 
-# Path for the replicate data and data sets
-REPLICATE_DIRECTORY = 'data/replicates'
+# Path for the locally cached / processed data
 DATASET_DIRECTORY = 'data/datasets'
+REPLICATE_DIRECTORY = 'data/replicates'
+SPIKE_DIRECTORY = 'data/spikes'
 
 # Path for the replicates list
 REPLICATES_LIST = 'data/rwa-replicates.csv'
@@ -107,8 +108,14 @@ def process_datasets():
   count = 0
   progressBar(count, len(configurations))
   for configuration in configurations:
+    # Place the dataset in the correct directory
+    directory = DATASET_DIRECTORY
+    if 'spike' in configuration:
+      directory = SPIKE_DIRECTORY    
+
+    # Filter the replicates and merge the most recent entries for the dataset
     data = replicates[replicates[2] == configuration]
-    filename = os.path.join(DATASET_DIRECTORY, configuration.replace('yml', 'csv'))
+    filename = os.path.join(directory, configuration.replace('yml', 'csv'))
     merge_data(data[-50:][3].to_numpy(), filename)
     count = count + 1
     progressBar(count, len(configurations))
@@ -150,6 +157,7 @@ def save_csv(filename, data):
 def main():
   if not os.path.exists(REPLICATE_DIRECTORY): os.makedirs(REPLICATE_DIRECTORY)
   if not os.path.exists(DATASET_DIRECTORY): os.makedirs(DATASET_DIRECTORY)
+  if not os.path.exists(SPIKE_DIRECTORY): os.makedirs(SPIKE_DIRECTORY)
 
   # Download all of the replicate data locally, then we need to pull the 
   # relevent replicates to the side as the data set for plotting. Since the 
