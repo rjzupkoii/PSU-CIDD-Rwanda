@@ -88,6 +88,10 @@ CONFIGURATIONS = {
     # Rotations
     'rwa-rotation-al-3.csv'        : 'DHA-PPQ (3 years), MFT AL (50%) + ASAQ (50%)',
     'rwa-rotation-al-5.csv'        : 'DHA-PPQ (3 years), MFT AL, 5 days (50%) + ASAQ (50%)',
+
+    # Triple-ACT
+    'rwa-tact-alaq.csv'            : 'TACT AL + AQ',
+    'rwa-tact-dhappqmq.csv'        : 'TACT DHA-PPQ + PQ',
 }
 
 # Index defintions for spikes

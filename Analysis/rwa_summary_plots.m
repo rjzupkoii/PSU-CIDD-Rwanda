@@ -17,7 +17,7 @@ STARTDATE = '2003-01-01';
 ADJUSTMENT = 0.25;
 
 % The number of years to generate the plots for
-YEARS = 5;
+YEARS = NaN;
 
 % The master list of studies that we wish to plot, first value is the index
 % of the study in the summary plot
@@ -46,12 +46,16 @@ STUDIES = {
 
     % Artesunate Extension
     17, 'data/datasets/rwa-ae-al-4.csv', 'AL (Four Days)', '2023-01-01', 'plots/rwa-ae-al-4%s.png';
-    18, 'data/datasets/rwa-ae-al-3-1-1.csv', 'AL 3-1-1', '2023-01-01', 'plots/rwa-ae-al-3-1-1%s.png';
-    19, 'data/datasets/rwa-ae-al-3-2-1.csv', 'AL 3-2-1', '2023-01-01', 'plots/rwa-ae-al-3-2-1%s.png';
+    18, 'data/datasets/rwa-ae-al-5.csv', 'AL (Five Days)', '2023-01-01', 'plots/rwa-ae-al-5%s.png';
+    19, 'data/datasets/rwa-ae-al-3-1-1.csv', 'AL 3-1-1', '2023-01-01', 'plots/rwa-ae-al-3-1-1%s.png';
+    20, 'data/datasets/rwa-ae-al-3-2-1.csv', 'AL 3-2-1', '2023-01-01', 'plots/rwa-ae-al-3-2-1%s.png';
+   
+    21, 'data/datasets/rwa-ae-al-3-1-2.csv', 'AL 3-1-2', '2023-01-01', 'plots/rwa-ae-al-3-1-2%s.png';
+    22, 'data/datasets/rwa-ae-al-3-2-2.csv', 'AL 3-2-2', '2023-01-01', 'plots/rwa-ae-al-3-2-2%s.png';
 
-    21, 'data/datasets/rwa-ae-al-5.csv', 'AL (Five Days)', '2023-01-01', 'plots/rwa-ae-al-5%s.png';
-    22, 'data/datasets/rwa-ae-al-3-1-2.csv', 'AL 3-1-2', '2023-01-01', 'plots/rwa-ae-al-3-1-2%s.png';
-    23, 'data/datasets/rwa-ae-al-3-2-2.csv', 'AL 3-2-2', '2023-01-01', 'plots/rwa-ae-al-3-2-2%s.png';
+    % Triple-ACT
+    23, 'data/datasets/rwa-tact-alaq.csv', 'TACT AL+AQ', '2023-01-01', 'plots/rwa-tact-alaq-2%s.png';
+    24, 'data/datasets/rwa-tact-dhappqmq.csv', 'TACT DHA-PPQ + MQ', '2023-01-01', 'plots/rwa-tact-dhappqmq-2%s.png';
 };
 
 % Make sure our directories exist

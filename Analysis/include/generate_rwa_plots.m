@@ -1,7 +1,9 @@
 function [] = generate_rwa_plots(type, startDate, adjustment, studies, years)
     % Generate all of the 561H frequency plots for Rwanda, and summary plot.
     
-    % Generate the single plots and store the values returned in cell arrays
+    % Generate the single plots and store the values returned in cell
+    % arrays, note that the returned title is for the full dataset, so we
+    % will need to regenerate it if we are evaluating a subset
     fprintf('Generating %s plots...\n', type);
     results = {};
     dataset = {};
@@ -44,8 +46,12 @@ function [] = generate_rwa_plots(type, startDate, adjustment, studies, years)
         hold on;
 
         % Add the title
-        if ~isnan(years) 
-            title(format_title(10 .^ data, type, studies{ndx, 3}))
+        if ~isnan(years)
+            if strcmp(type, '561H')
+                title(format_title(data, type, studies{ndx, 3}))
+            else
+                title(format_title(10 .^ data, type, studies{ndx, 3}))
+            end
         else
             title(results{ndx});
         end

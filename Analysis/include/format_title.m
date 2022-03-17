@@ -3,7 +3,7 @@ function [result] = format_title(data, type, intervention)
     [~, divisor, ~] = parse_type(type);
     if strcmp(type, '561H')
         % IQR over the mean last year 561H frequency, per replicate
-        iqr = prctile(mean(data(:, end - 11:end), 2) / divisor, [25 50 75]);
+        iqr = prctile(mean(data(:, end - 11:end), 2), [25 50 75]);
         result = sprintf("%s: %.3f (IQR %.3f - %.3f)", intervention, iqr(2), iqr(1), iqr(3));
     else
         postfix = 'total';

@@ -7,7 +7,7 @@ function [result, data] = rwa_data_plot(type, adjustment, dataFilename, interven
     replicates = unique(raw(:, 2));
     
     % Parse out the national sums / frequency
-    [column, divisor, label] = parse_type(type);
+    [column, ~, label] = parse_type(type);
     data = zeros(size(dates, 2), size(replicates, 2));
     for ndx = 1:size(replicates, 1)
         filtred = raw(raw(:, 2) == replicates(ndx), :);
