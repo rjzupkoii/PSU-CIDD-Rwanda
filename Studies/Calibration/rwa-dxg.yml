@@ -370,24 +370,8 @@ drug_db:
       16...: 1.05
       #TYFYF
       17...: 0.95       
-  2:
-    name: "QUIN"       # Quinine
-    half_life: 18
-    maximum_parasite_killing_rate: 0.9
-    n: 3                              
-    age_specific_drug_concentration_sd: [0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4]
-    mutation_probability: 0.0
-    affecting_loci: []
-    selecting_alleles: []
-    k: 4
-    EC50:
-      # K----
-      0....: 1.41
-      # T----
-      1....: 1.41
-
   # MFT Additions
-  3:
+  2:
     name: "ADQ"       # Amodiaquine
     half_life: 9.0
     maximum_parasite_killing_rate: 0.95
@@ -430,7 +414,7 @@ drug_db:
       16...: 0.65
       #TYFYF
       17...: 0.82
-  4:
+  3:
     name: "PQ"        # Piperaquine
     half_life: 28.0
     maximum_parasite_killing_rate: 0.9
@@ -444,7 +428,7 @@ drug_db:
     EC50:
       ...0.: 0.58
       ...1.: 1.4
-  5:
+  4:
     name: "MF"      # Mefloquine
     half_life: 21.0
     maximum_parasite_killing_rate: 0.9
@@ -463,10 +447,26 @@ drug_db:
       .5... : 1.1
       .6... : 1.1
       .7... : 1.1
+  5:
+    name: "QUIN"       # Quinine
+    half_life: 18
+    maximum_parasite_killing_rate: 0.9
+    n: 3                              
+    age_specific_drug_concentration_sd: [0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4]
+    mutation_probability: 0.0
+    affecting_loci: []
+    selecting_alleles: []
+    k: 4
+    EC50:
+      # K----
+      0....: 1.41
+      # T----
+      1....: 1.41
+
 
 # Drug IDs for the model
 artemisinin_drug_id: 0
-lumefantrine_drug_id: 4
+lumefantrine_drug_id: 1
 
 # Therapies that are used in Rwanda
 tf_testing_day: 28
@@ -476,47 +476,16 @@ therapy_db:
   0:
     drug_id: [0, 1]
     dosing_days: [3]
-  # AL, one day
-  1:
-    drug_id: [0, 1]
-    dosing_days: [1]
-  # AL, two days
-  2:
-    drug_id: [0, 1]
-    dosing_days: [2]
-  # AL, four days
-  3:
-    drug_id: [0, 1]
-    dosing_days: [4]
-  # AL, five days
-  4:
-    drug_id: [0, 1]
-    dosing_days: [5]
-  # AL, 3-1-1
-  5:
-    therapy_ids: [0, 1]
-    regimen: [1, 5]
-  # AL, 3-2-1
-  6:
-    therapy_ids: [0, 1]
-    regimen: [1, 6]
-  # AL, 3-1-2
-  7:
-    therapy_ids: [0, 2]
-    regimen: [1, 5]
-  # AL, 3-2-2
-  8:
-    therapy_ids: [0, 2]
-    regimen: [1, 6]
 
-  # TACT - artesunate-lumefantrine + amodiaquine (AL + AQ)
-  9:
-    drug_id: [0, 1, 3]
+  #TACT DHA-PPQ-MQ
+  1:
+    drug_id: [0, 3, 4]
     dosing_days: [3]
-  # TACT - DHA-PPQ-MQ / ASMQ-PPQ
-  10:
-    drug_id: [0, 4, 5]
+  #TACT AL-AQ
+  2:
+    drug_id: [0, 1, 2]
     dosing_days: [3]
+
 
 # Drug-deployment strategy - baseline represents the survey data for Rwanda
 # 
@@ -568,7 +537,7 @@ relative_infectivity:
   blood_meal_volume: 3
 
 # probability to relapse after no treatment, or a treatment failure due to drug resistance
-p_relapse: 0.01
+p_relapse: 0.0
 
 # number of days before a relapse can occur
 relapse_duration: 30
@@ -579,7 +548,7 @@ relapseRate: 4.4721
 
 # minimum update frequency for a host's attributes (esp. parasite density) is every 7 days, or
 # more frequently if other events are occurring at this time
-update_frequency: 7
+update_frequency: 1
 
 # if an infected and asymptomatic host is bitten and infected by a new 
 # parasite clone, this setting allows the new infection to cause symptoms
@@ -592,15 +561,7 @@ using_free_recombination: true
 # today's treatment failure rate, as these data are never assembled that quickly in
 # real life; rather, it is the average treatment failure rate observed over the 
 # past 60 days
-tf_window_size: 60
-
-# Mosquitoes always finish their blood meal
-fraction_mosquitoes_interrupted_feeding: 0.0
-
-# TODO - What's this do?
-inflation_factor: 0.01
-
-
+tf_window_size: 90
 
 # --- DISABLED FEATURES ---
 
@@ -610,6 +571,12 @@ using_age_dependent_bitting_level: false
 # special function which makes the probability of an infection (resulting 
 # from an infectious mosquito bite) age-dependent
 using_variable_probability_infectious_bites_cause_infection: false
+
+# Mosquitoes always finish their blood meal
+fraction_mosquitoes_interrupted_feeding: 0.0
+
+# TODO - What's this do?
+inflation_factor: 1.01
 
 # Settings for MDAs - NOT USED
 mda_therapy_id: 8
