@@ -8,6 +8,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import re
 import sys
 
 # From the PSU-CIDD-MaSim-Support repository
@@ -95,24 +96,26 @@ CONFIGURATIONS = {
 }
 
 # Index defintions for spikes
-SPIKE_LABEL, SPIKE_X, SPIKE_Y = range(3)
+SPIKE_DISTRICT, SPIKE_LABEL, SPIKE_X, SPIKE_Y = range(4)
 
 # Points at which 561H was spiked into the population
 SPIKES = np.array([
     # Uwimana et al. 2020 
-    ['Gasabo (0.12069)', datetime.datetime(2014,9,30), 0.12069],
-    ['Kayonza (0.00746)', datetime.datetime(2015,9,30), 0.00746],
-    ['Gasabo (0.0603)', datetime.datetime(2015,9,30), 0.0603],
+    [8, 'Gasabo (0.12069)', datetime.datetime(2014,9,30), 0.12069],
+    [3, 'Kayonza (0.00746)', datetime.datetime(2015,9,30), 0.00746],
+    [8, 'Gasabo (0.0603)', datetime.datetime(2015,9,30), 0.0603],
     
     # Uwimana et al. 2021
-    ['Gasabo (0.19608)', datetime.datetime(2018,9,30), 0.19608],
-    ['Kayonza (0.09756)', datetime.datetime(2018,9,30), 0.09756],
+    [8, 'Gasabo (0.19608)', datetime.datetime(2018,9,30), 0.19608],
+    [3, 'Kayonza (0.09756)', datetime.datetime(2018,9,30), 0.09756],
 
-    # Straimer et al. 2021
-    ['Kigali City (0.21918)', datetime.datetime(2019,9,30), 0.21918],
+    # Straimer et al. 2021, note 
+    [8, 'Kigali City (0.21918)', datetime.datetime(2019,9,30), 0.21918],
+    [9, 'Kigali City (0.21918)', datetime.datetime(2019,9,30), 0.21918],
+    [10, 'Kigali City (0.21918)', datetime.datetime(2019,9,30), 0.21918],
 
     # Bergmann et al. 2021 
-    ['Hyue (0.12069)', datetime.datetime(2019,9,30), 0.12121],
+    [17, 'Hyue (0.12069)', datetime.datetime(2019,9,30), 0.12121],
 ])
 
 # Index definitions for the four-panel report layout
@@ -127,7 +130,7 @@ REPORT_LAYOUT = {
 }
 
 
-def plot_summary(title, dates, figureData, district = None, extension = 'png'):
+def plot_summary(title, dates, figureData, district = None, studies = False, extension = 'png'):
     # Format the dates
     startDate = datetime.datetime.strptime(STUDYDATE, "%Y-%m-%d")
     dates = [startDate + datetime.timedelta(days=x) for x in dates]
@@ -141,9 +144,9 @@ def plot_summary(title, dates, figureData, district = None, extension = 'png'):
 
         # Load the data and calculate the bounds      
         data = figureData[key]  
-        upper = np.percentile(data, 97.5, axis=0)
+        upper = np.percentile(data, 75, axis=0)
         median = np.percentile(data, 50, axis=0)
-        lower = np.percentile(data, 2.5, axis=0)
+        lower = np.percentile(data, 25, axis=0)
 
         # Add the data to the subplot
         axes[row, col].plot(dates, median)
@@ -153,9 +156,16 @@ def plot_summary(title, dates, figureData, district = None, extension = 'png'):
         # Label the axis as needed
         plt.sca(axes[row, col])
         plt.ylabel(REPORT_LAYOUT[key][REPORT_YLABEL])
-  
         if row == 1:
             plt.xlabel('Model Year')
+
+        # Add the 561H data points if requested
+        if studies and key == 'frequency':
+            for id, label, x, y in SPIKES:
+                if district == id:
+                    plt.scatter(x, y, color='black', s=50)
+                    match = re.search('(\d\.\d*)', label)
+                    plt.annotate(match.group(0), (x, y), textcoords='offset points', xytext=(0,10), ha='center', fontsize=18)
 
     # Format the subplots
     for ax in axes.flat:

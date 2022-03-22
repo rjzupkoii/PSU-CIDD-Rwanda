@@ -24,6 +24,8 @@ def main():
     os.makedirs('plots', exist_ok=True)
     filename = os.path.join(rwanda.DATA_PATH, 'rwa-561h-verification.csv')
     plot_validation(filename, 'plots/561H Verification.png')
+    filename = os.path.join(rwanda.DATA_PATH, 'rwa-spike.csv')
+    plot_validation(filename, 'plots/561H Spikes.png')
 
     for filename in rwanda.CONFIGURATIONS:
         print('Parsing {} ...'.format(filename))
@@ -134,7 +136,7 @@ def plot_validation(datafile, imagefile):
 
     # Add the spike annotations
     plt.scatter(rwanda.SPIKES[:, rwanda.SPIKE_X], rwanda.SPIKES[:, rwanda.SPIKE_Y], color='black', s=50)
-    for label, x, y in rwanda.SPIKES:
+    for district, label, x, y in rwanda.SPIKES:
         plt.annotate(label, (x, y), textcoords='offset points', xytext=(0,10), ha='center', fontsize=18)
 
     # Finalize the image as proof (png) or print (tif)

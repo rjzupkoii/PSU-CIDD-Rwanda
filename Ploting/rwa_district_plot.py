@@ -12,9 +12,13 @@ import rwanda
 
 # From the PSU-CIDD-MaSim-Support repository
 sys.path.insert(1, '../../PSU-CIDD-MaSim-Support/Python/include')
+from plotting import scale_luminosity
 from utility import progressBar
 
 def main():
+    print('Generating spiking plots...')
+    plot_spikes('rwa-spike.csv')
+
     for filename in rwanda.CONFIGURATIONS:
         print('Parsing {} ...'.format(filename))
         results = prepare(os.path.join('../Analysis/data/datasets', filename))
@@ -74,6 +78,20 @@ def report(title, dates, districtData):
     for district in rwanda.DISTRICTS:
         rwanda.plot_summary(title, dates, districtData[district], district=district)
         progressBar(district, len(rwanda.DISTRICTS))
+
+
+def plot_spikes(filename):
+    dates, districtData = prepare(os.path.join('../Analysis/data/datasets', filename))
+
+    # Get the unique spikes
+    districts = []
+    for row in rwanda.SPIKES:
+        if row[rwanda.SPIKE_DISTRICT] == 0: continue
+        if row[rwanda.SPIKE_DISTRICT] not in districts:
+            districts.append(row[rwanda.SPIKE_DISTRICT])
+
+    for id in districts:
+        rwanda.plot_summary('District 561H Validation', dates, districtData[id], district=id, studies=True)
 
 
 if __name__ == '__main__':
