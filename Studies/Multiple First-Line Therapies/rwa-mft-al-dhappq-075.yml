@@ -228,60 +228,14 @@ events:
     info:
       - day: 2023/1/1
         strategy_id: 1
+
   - name: introduce_mutant_event
     info:
-      # Uwimana et al. 2020 
-      - day: 2014/09/30
-        district: 8         # Gasabo
-        fraction: 0.12069
-        locus: 2
-        mutant_allele: 1      
-      - day: 2015/09/30
-        district: 3         # Kayonza
-        fraction: 0.00746
-        locus: 2
-        mutant_allele: 1
-      - day: 2015/09/30
-        district: 8         # Gasabo
-        fraction: 0.0603
-        locus: 2
-        mutant_allele: 1
-
-      # Uwimana et al. 2021
-      - day: 2018/09/30
-        district: 8         # Gasabo
-        fraction: 0.19608
-        locus: 2
-        mutant_allele: 1
-      - day: 2018/09/30
-        district: 3         # Kayonza
-        fraction: 0.09756
-        locus: 2
-        mutant_allele: 1         
-
-      # Straimer et al. 2021
-      - day: 2019/09/30
-        district: 8         # Gasabo
-        fraction: 0.21918
-        locus: 2
-        mutant_allele: 1      
-      - day: 2019/09/30
-        district: 9         # Kicukiro
-        fraction: 0.21918
-        locus: 2
-        mutant_allele: 1      
-      - day: 2019/09/30
-        district: 10        # Nyarugenge
-        fraction: 0.21918
+      - day: 2004/09/30
+        district: 8                 # Gasabo
+        fraction: 0.06
         locus: 2
         mutant_allele: 1 
-
-      # Bergmann et al. 2021    
-      - day: 2019/09/30
-        district: 17        # Hyue
-        fraction: 0.12121
-        locus: 2
-        mutant_allele: 1  
 
 # Drug Information
 #
