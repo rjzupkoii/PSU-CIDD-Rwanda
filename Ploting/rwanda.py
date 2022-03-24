@@ -130,6 +130,19 @@ REPORT_LAYOUT = {
 }
 
 
+def plot_data(data, dates, ax):
+    # Find the bounds of the data
+    upper = np.percentile(data, 75, axis=0)
+    median = np.percentile(data, 50, axis=0)
+    lower = np.percentile(data, 25, axis=0)
+
+    # Add the data to the subplot
+    ax.plot(dates, median)
+    color = scale_luminosity(ax.lines[-1].get_color(), 1)
+    ax.fill_between(dates, lower, upper, alpha=0.5, facecolor=color)
+    return ax, np.nanmax(upper)
+
+
 def plot_summary(title, dates, figureData, district = None, studies = False, extension = 'png'):
     # Format the dates
     startDate = datetime.datetime.strptime(STUDYDATE, "%Y-%m-%d")
