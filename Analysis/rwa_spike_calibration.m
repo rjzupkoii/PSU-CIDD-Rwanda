@@ -79,7 +79,7 @@ end
 
 function [] = plot_district(data, startdate, district, name)
     filtered = data(data(:, 4) == district, :);
-    plot(unique(filtered(:, 3)) + datenum(startdate), filtered(:, 8) ./ filtered(:, 5));
+    plot(unique(filtered(:, 3)) + datenum(startdate), filtered(:, 9) ./ filtered(:, 5));
     title(name);
 end
 
@@ -90,7 +90,7 @@ function [] = plot_national(data, startdate)
     months = unique(data(:, 3));
     frequency = zeros(size(months, 1), 1);
     for ndx = 1:size(months, 1)
-        frequency(ndx) = sum(data(data(:, 3) == months(ndx), 8)) / sum(data(data(:, 3) == months(ndx), 5));
+        frequency(ndx) = sum(data(data(:, 3) == months(ndx), 9)) / sum(data(data(:, 3) == months(ndx), 5));
     end
     plot(months + datenum(startdate), frequency);
     
