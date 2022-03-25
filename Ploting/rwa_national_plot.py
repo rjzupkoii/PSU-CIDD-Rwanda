@@ -38,45 +38,45 @@ def main():
 
     for key in rwanda.REPORT_LAYOUT:
         ylabel = rwanda.REPORT_LAYOUT[key][rwanda.REPORT_YLABEL]
-        plot_violin(dataset, key, ylabel, 'plots/Comparison - {}.png'.format(ylabel))        
+        plot_violin(dataset, key, ylabel, 'plots/Comparison - {}.png'.format(ylabel))      
 
 
 def plot_violin(dataset, filter, ylabel, imagefile):
     LABEL, COLOR = range(2)
     ORDER = {
         # Status Quo
-        'rwa-pfpr-constant.csv'        : ['Status Quo', '#332288'],
+        'rwa-pfpr-constant.csv'        : ['Status Quo', '#bdd7e7'],
 
         # Extend AL
-        'rwa-ae-al-4.csv'              : ['AL, 4 days', '#117733'],
-        'rwa-ae-al-5.csv'              : ['AL, 5 days', '#117733'],
+        'rwa-ae-al-4.csv'              : ['AL, 4 days', '#bdd7e7'],
+        'rwa-ae-al-5.csv'              : ['AL, 5 days', '#bdd7e7'],
 
         # Replace AL
-        'rwa-replacement-asaq.csv'     : ['100% ASAQ', '#44AA99'],
-        'rwa-replacement-dhappq.csv'   : ['100% DHA-PPQ', '#44AA99'],
+        'rwa-replacement-asaq.csv'     : ['100% ASAQ', '#6baed6'],
+        'rwa-replacement-dhappq.csv'   : ['100% DHA-PPQ', '#6baed6'],
 
         # AL / ASAQ MFT
-        'rwa-mft-al-asaq-0.25.csv'     : ['AL (75%) + ASAQ (25%)', '#88CCEE'],
-        'rwa-mft-al-asaq.csv'          : ['AL (50%) + ASAQ (50%)', '#88CCEE'],
-        'rwa-mft-al-asaq-0.75.csv'     : ['AL (25%) + ASAQ (75%)', '#88CCEE'],
+        'rwa-mft-al-asaq-0.25.csv'     : ['AL (75%) + ASAQ (25%)', '#bae4b3'],
+        'rwa-mft-al-asaq.csv'          : ['AL (50%) + ASAQ (50%)', '#bae4b3'],
+        'rwa-mft-al-asaq-0.75.csv'     : ['AL (25%) + ASAQ (75%)', '#bae4b3'],
 
         # AL / DHA-PPQ MFT
-        'rwa-mft-al-dhappq-0.25.csv'   : ['AL (75%) + DHA-PPQ (25%)', '#DDCC77'],
-        'rwa-mft-al-dhappq.csv'        : ['AL (50%) + DHA-PPQ (50%)', '#DDCC77'],
-        'rwa-mft-al-dhappq-0.75.csv'   : ['AL (25%) + DHA-PPQ (75%)', '#DDCC77'],
+        'rwa-mft-al-dhappq-0.25.csv'   : ['AL (75%) + DHA-PPQ (25%)', '#74c476'],
+        'rwa-mft-al-dhappq.csv'        : ['AL (50%) + DHA-PPQ (50%)', '#74c476'],
+        'rwa-mft-al-dhappq-0.75.csv'   : ['AL (25%) + DHA-PPQ (75%)', '#74c476'],
 
         # ASAQ / DHA-PPQ MFT
-        'rwa-mft-asaq-dhappq-0.25.csv' : ['ASAQ (75%) + DHA-PPQ (25%)', '#CC6677'],
-        'rwa-mft-asaq-dhappq.csv'      : ['ASAQ (50%) + DHA-PPQ (50%)', '#CC6677'],
-        'rwa-mft-asaq-dhappq-0.75.csv' : ['ASAQ (25%) + DHA-PPQ (75%)', '#CC6677'],
+        'rwa-mft-asaq-dhappq-0.25.csv' : ['ASAQ (75%) + DHA-PPQ (25%)', '#31a354'],
+        'rwa-mft-asaq-dhappq.csv'      : ['ASAQ (50%) + DHA-PPQ (50%)', '#31a354'],
+        'rwa-mft-asaq-dhappq-0.75.csv' : ['ASAQ (25%) + DHA-PPQ (75%)', '#31a354'],
 
         # Rotate DHA-PPQ
-        'rwa-rotation-al-3.csv'        : ['DHA-PPQ (3 years) / AL (50%) + ASAQ', '#AA4499'],
-        'rwa-rotation-al-5.csv'        : ['DHA-PPQ (3 years) / AL, 5 days (50%) + ASAQ', '#AA4499'],
+        'rwa-rotation-al-3.csv'        : ['DHA-PPQ (3 years) / AL (50%) + ASAQ', '#d7b5d8'],
+        'rwa-rotation-al-5.csv'        : ['DHA-PPQ (3 years) / AL, 5 days (50%) + ASAQ', '#d7b5d8'],
 
         # TACT
-        'rwa-tact-alaq.csv'            : ['AL + AQ', '#882255'],
-        'rwa-tact-dhappqmq.csv'        : ['DHA-PPQ + PQ', '#882255'],
+        'rwa-tact-alaq.csv'            : ['AL + AQ', '#df65b0'],
+        'rwa-tact-dhappqmq.csv'        : ['DHA-PPQ + PQ', '#df65b0'],
     }
 
     # Parse the last entry in the data for the violin plot
@@ -101,7 +101,12 @@ def plot_violin(dataset, filter, ylabel, imagefile):
     # Generate the plot
     matplotlib.rc_file("matplotlibrc-violin")
     figure, axis = plt.subplots()
-    sb.violinplot(data=data, cut=0, scale='width', palette=colors)   
+    violin = sb.violinplot(data=data, palette=colors, cut=0, scale='width', inner=None, linewidth=0.5)   
+    sb.boxplot(data=data, palette=colors, width=0.2, boxprops={'zorder' : 2})
+    sb.despine(top=True, right=True, left=True, bottom=True)
+
+    # Scale the alpha channel for the violin plot
+    for item in violin.collections: item.set_alpha(0.5)
 
     # Format the plot for the data
     axis.set_title('{}{} in 2032'.format(prefix, ylabel))
