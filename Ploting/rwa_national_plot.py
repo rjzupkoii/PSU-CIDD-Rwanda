@@ -87,7 +87,7 @@ def plot_violin(dataset, filter, ylabel, imagefile):
 
         # If it's not frequency we want the total of the last 12 months
         if filter != 'frequency':
-            temp = np.sum(temp[:, -12:], axis=1)
+            temp = np.sum(temp[:, -12:], axis=1) / 12
             temp = np.asarray(temp).reshape(-1)
             prefix = 'Total '
         else:
@@ -119,19 +119,22 @@ def plot_violin(dataset, filter, ylabel, imagefile):
         axis.yaxis.set_major_formatter(ticker.EngFormatter())
     
     # Finalize the image as proof (png) or print (tif)
-    if imagefile.endswith('tif'):
+    if imagefile.endswith('svg'):
+        plt.savefig(imagefile, dpi=1200, format="svg")
+    elif imagefile.endswith('tif'):
         plt.savefig(imagefile, dpi=300, format="tiff", pil_kwargs={"compression": "tiff_lzw"})
     else:
         plt.savefig(imagefile)
         
 
 def prepare_national(filename):
-    REPLICATE, DATES, INDIVIDUALS, WEIGHTED = 1, 2, 4, 8
+    REPLICATE, DATES, DISTRICT, INDIVIDUALS, WEIGHTED = 1, 2, 3, 4, 8
 
     # Load the data, note the unique dates, replicates
     data = pd.read_csv(filename, header = None)
     dates = data[DATES].unique().tolist()
     replicates = data[REPLICATE].unique().tolist()
+    startDate = datetime.datetime.strptime(rwanda.STUDYDATE, "%Y-%m-%d")
 
     # Build the dictionary for the results
     results = {}
@@ -139,7 +142,7 @@ def prepare_national(filename):
         results[key] = []
 
     # Start by filtering by the replicate
-    count = 0
+    count, failed = 0, 0
     for replicate in replicates:
         byReplicate = data[data[REPLICATE] == replicate]
 
@@ -149,8 +152,21 @@ def prepare_national(filename):
             values[key] = []
 
         # Next, filter by date so we can properly aggregate
-        for date in dates:           
+        rejected = False
+        for date in dates:    
+            # Stop if this replicate was rejected
+            if rejected: break
+
+            # Verify the frequency if this is the correct date
             byDate = byReplicate[byReplicate[DATES] == date]
+            if (startDate + datetime.timedelta(days=date)) == rwanda.REFERENCEDATE:
+                temp = byDate[byDate[DISTRICT] == rwanda.REFERENCEDISTRICT]
+                if (temp[WEIGHTED] / temp[INDIVIDUALS]).values[0] < rwanda.REFERENCEFREQUENCY:
+                    failed += 1
+                    rejected = True
+                    continue
+
+            # Store the appropriate data
             for key in rwanda.REPORT_LAYOUT:
                 if key != 'frequency':
                     index = rwanda.REPORT_LAYOUT[key][rwanda.REPORT_INDEX]
@@ -158,18 +174,20 @@ def prepare_national(filename):
                 else:
                     values[key].append(sum(byDate[WEIGHTED]) / sum(byDate[INDIVIDUALS]))
 
-        # Append this replicate to our results
+        # Update the progress bar
+        count += 1
+        progressBar(count, len(replicates))
+
+        # Add the data if not rejected
+        if rejected: continue        
         for key in rwanda.REPORT_LAYOUT:
             if len(results[key]) != 0:
                 results[key] = np.vstack((results[key], values[key]))
             else:
                 results[key] = values[key]
 
-        # Update the progress bar
-        count += 1
-        progressBar(count, len(replicates))
-
     # Return the results
+    if failed > 0: print('{} replicate(s) rejected'.format(failed))
     return dates, results
 
 

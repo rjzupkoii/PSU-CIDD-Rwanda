@@ -19,21 +19,21 @@ from plotting import scale_luminosity
 DISTRICTS = {
     1  : 'Bugesera',
     2  : 'Gatsibo',
-    3  : 'Kayonza',         # Spiked
+    3  : 'Kayonza',         # Studies
     4  : 'Kirehe',
     5  : 'Ngoma',
     6  : 'Nyagatare',
     7  : 'Rwamagana',
-    8  : 'Gasabo',          # Spiked
-    9  : 'Kicukiro',        # Spiked
-    10 : 'Nyarugenge',      # Spiked
+    8  : 'Gasabo',          # Studies / Spiked
+    9  : 'Kicukiro',        # Studies
+    10 : 'Nyarugenge',      # Studies
     11 : 'Burera',
     12 : 'Gakenke',
     13 : 'Gicumbi',
     14 : 'Musanze',
     15 : 'Rulindo',
     16 : 'Gisagara',
-    17 : 'Hyue',            # Spiked
+    17 : 'Hyue',            # Studies
     18 : 'Kamonyi',
     19 : 'Muhanga',
     20 : 'Nyamagabe',
@@ -51,6 +51,13 @@ DISTRICTS = {
 
 # Start of simulation
 STUDYDATE = '2003-1-1'
+
+# Reference date for replicate validation, note we are using the minimal
+# frequency for the reject threshold since there may have been spatial 
+# clustering when the study was performed.
+REFERENCEDATE = datetime.datetime(2014, 9, 1)
+REFERENCEDISTRICT = 8
+REFERENCEFREQUENCY = 0.01
 
 # The path for the summary data set
 DATA_PATH = '../Analysis/data/datasets'
