@@ -29,16 +29,19 @@ def main():
     filename = os.path.join(rwanda.DATA_PATH, 'rwa-spike.csv')
     plot_validation(filename, 'plots/561H Spikes.png')
 
-    dataset = {}
+    dataset, filter = {}, None
     for filename in rwanda.CONFIGURATIONS:
         print('Parsing {} ...'.format(filename))
-        results = prepare_national(os.path.join(rwanda.DATA_PATH, filename))
+        results = prepare_national(os.path.join(rwanda.DATA_PATH, filename), filter=filter)
         rwanda.plot_summary(rwanda.CONFIGURATIONS[filename], *results)   
         dataset[filename] = results[1]
 
     for key in rwanda.REPORT_LAYOUT:
         ylabel = rwanda.REPORT_LAYOUT[key][rwanda.REPORT_YLABEL]
-        plot_violin(dataset, key, ylabel, 'plots/Comparison - {}.png'.format(ylabel))      
+        filename = 'plots/Comparison - {}.png'.format(ylabel)
+        if filter is not None:
+            filename = 'plots/Comparison, 5y - {}.png'.format(ylabel)
+        plot_violin(dataset, key, ylabel, filename)      
 
 
 def plot_violin(dataset, filter, ylabel, imagefile):
@@ -76,7 +79,7 @@ def plot_violin(dataset, filter, ylabel, imagefile):
 
         # TACT
         'rwa-tact-alaq.csv'            : ['AL + AQ', '#df65b0'],
-        'rwa-tact-dhappqmq.csv'        : ['DHA-PPQ + PQ', '#df65b0'],
+        'rwa-tact-dhappqmq.csv'        : ['DHA-PPQ + MQ', '#df65b0'],
     }
 
     # Parse the last entry in the data for the violin plot
@@ -109,7 +112,6 @@ def plot_violin(dataset, filter, ylabel, imagefile):
     for item in violin.collections: item.set_alpha(0.5)
 
     # Format the plot for the data
-    axis.set_title('{}{} in 2032'.format(prefix, ylabel))
     axis.set_xticks(range(len(labels)))
     axis.set_xticklabels(labels)
     axis.tick_params(axis='x', rotation=30)
@@ -127,7 +129,7 @@ def plot_violin(dataset, filter, ylabel, imagefile):
         plt.savefig(imagefile)
         
 
-def prepare_national(filename):
+def prepare_national(filename, filter=None):
     REPLICATE, DATES, DISTRICT, INDIVIDUALS, WEIGHTED = 1, 2, 3, 4, 8
 
     # Load the data, note the unique dates, replicates
@@ -142,7 +144,7 @@ def prepare_national(filename):
         results[key] = []
 
     # Start by filtering by the replicate
-    count, failed = 0, 0
+    count, failed, endDate = 0, 0, datetime.datetime(9999, 12, 31)
     for replicate in replicates:
         byReplicate = data[data[REPLICATE] == replicate]
 
@@ -157,9 +159,17 @@ def prepare_national(filename):
             # Stop if this replicate was rejected
             if rejected: break
 
+            # If we are filtering then check the date
+            currentDate = startDate + datetime.timedelta(days=date)
+            if filter is not None:
+                if currentDate < filter: continue
+                if currentDate > endDate: break
+                if currentDate == filter:
+                    endDate = currentDate + datetime.timedelta(days=365)
+
             # Verify the frequency if this is the correct date
             byDate = byReplicate[byReplicate[DATES] == date]
-            if (startDate + datetime.timedelta(days=date)) == rwanda.REFERENCEDATE:
+            if currentDate == rwanda.REFERENCEDATE:
                 temp = byDate[byDate[DISTRICT] == rwanda.REFERENCEDISTRICT]
                 if (temp[WEIGHTED] / temp[INDIVIDUALS]).values[0] < rwanda.REFERENCEFREQUENCY:
                     failed += 1
