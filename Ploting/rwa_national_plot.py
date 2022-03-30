@@ -88,7 +88,7 @@ def plot_violin(dataset, filter, ylabel, imagefile):
         # Filter to the data we want
         temp = np.matrix(dataset[key][filter])
 
-        # If it's not frequency we want the total of the last 12 months
+        # If it's not frequency we want the monthly average of the last 12 months
         if filter != 'frequency':
             temp = np.sum(temp[:, -12:], axis=1) / 12
             temp = np.asarray(temp).reshape(-1)
