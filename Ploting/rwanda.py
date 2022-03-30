@@ -33,7 +33,7 @@ DISTRICTS = {
     14 : 'Musanze',
     15 : 'Rulindo',
     16 : 'Gisagara',
-    17 : 'Hyue',            # Studies
+    17 : 'Huye',            # Studies
     18 : 'Kamonyi',
     19 : 'Muhanga',
     20 : 'Nyamagabe',
