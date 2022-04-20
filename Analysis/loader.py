@@ -4,6 +4,7 @@
 # 
 # Load the relevent data for the study from the database.
 import csv
+import datetime
 import os
 import pandas as pd
 import sys
@@ -13,6 +14,9 @@ sys.path.insert(1, '../../PSU-CIDD-MaSim-Support/Python/include')
 from database import select
 from utility import progressBar
 
+# From the Plotting directory
+sys.path.insert(1, '../Ploting')
+import rwanda
 
 # Connection string for the database
 CONNECTION = 'host=masimdb.vmhost.psu.edu dbname=rwanda user=sim password=sim connect_timeout=60'
@@ -26,8 +30,10 @@ SPIKE_DIRECTORY = 'data/spikes'
 REPLICATES_LIST = 'data/rwa-replicates.csv'
 
 # The number of replicates to pull to the size as our data set
-REPLICATE_COUNT = 50
+REPLICATE_COUNT = 100
 
+# Flag to indicate if we are doing a manuscript run or not
+MANUSCRIPT = True
 
 def get_replicates():
   sql = """
@@ -121,6 +127,66 @@ def process_datasets():
     progressBar(count, len(configurations))
 
 
+def process_final_datasets(date):
+  print("Preparing data sets...")
+  replicates = pd.read_csv(REPLICATES_LIST, header=None)
+  configurations = replicates[2].unique()
+
+  for configuration in configurations:
+    # Skip the spike configurations
+    if 'spike' in configuration: 
+      continue
+
+    # Filter the replicates specific to this configuration
+    data = replicates[replicates[2] == configuration]
+    data = data[data[4] > date]
+    
+    # Scan the replicates returned to make sure the frequency is high enough
+    valid = []
+    for index, row in data.iterrows():
+      filename = "data/replicates/{}.csv".format(row[3])
+      if check_replicate(filename):
+        valid.append(filename)
+
+        # Break if we have enough, even if there are still some pending.
+        # This may occur when extra replicates are run to me the target.
+        if len(valid) == REPLICATE_COUNT: 
+          break
+
+    # Merge the files if we have results
+    if len(valid) > 0:
+      filename = os.path.join(DATASET_DIRECTORY, configuration.replace('yml', 'csv'))
+      merge_data(data[-REPLICATE_COUNT:][3].to_numpy(), filename)
+
+    # Update the user
+    print("{}: {}".format(configuration, len(valid)))
+
+
+def check_replicate(filename):
+  DATES, DISTRICT, INDIVIDUALS, WEIGHTED = 2, 3, 4, 8
+
+  # Load the data, note the unique dates, replicates
+  data = pd.read_csv(filename, header = None)
+  dates = data[DATES].unique().tolist()
+  startDate = datetime.datetime.strptime(rwanda.STUDYDATE, "%Y-%m-%d")
+
+  # Scan until the date matches the reference date
+  for date in dates:    
+
+    # Verify the frequency if this is the correct date
+    currentDate = startDate + datetime.timedelta(days=date)
+    if currentDate == rwanda.REFERENCEDATE:
+      temp = data[data[DATES] == date]
+      temp = temp[temp[DISTRICT] == rwanda.REFERENCEDISTRICT]
+
+      # Return false if the replicate is below the reference frequency
+      if (temp[WEIGHTED] / temp[INDIVIDUALS]).values[0] < rwanda.REFERENCEFREQUENCY:
+          return False
+
+  # Valid replicate to use
+  return True
+
+
 def process_replicates():
 # Process the replicates to make sure we have all of the data we need locally
 
@@ -164,7 +230,10 @@ def main():
   # project is iterating quickly this will save on needing to clean-up the 
   # database.
   process_replicates()
-  process_datasets()
+  if MANUSCRIPT: 
+    process_final_datasets('2022-04-17')
+  else:
+    process_datasets()
 
 
 if __name__ == '__main__':
