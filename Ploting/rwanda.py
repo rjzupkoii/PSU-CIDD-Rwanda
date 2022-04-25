@@ -52,6 +52,9 @@ DISTRICTS = {
 # Start of simulation
 STUDYDATE = '2003-1-1'
 
+# Date when the policy change is introduced in the simulation
+POLICYDATE = datetime.datetime(2023, 1, 1)
+
 # Reference date for replicate validation, note we are using the minimal
 # frequency for the reject threshold since there may have been spatial 
 # clustering when the study was performed.
@@ -150,7 +153,7 @@ def plot_data(data, dates, ax):
     return ax, np.nanmax(upper)
 
 
-def plot_summary(title, dates, figureData, district = None, studies = False, extension = 'png'):
+def plot_summary(title, dates, figureData, district = None, studies = False, extension = 'png', prefix = None):
     # Format the dates
     startDate = datetime.datetime.strptime(STUDYDATE, "%Y-%m-%d")
     dates = [startDate + datetime.timedelta(days=x) for x in dates]
@@ -194,11 +197,11 @@ def plot_summary(title, dates, figureData, district = None, studies = False, ext
     # Format and save the plot
     if district != None:
         figure.suptitle('{}\n{}, Rwanda'.format(title, DISTRICTS[district]))
-        imagefile = 'plots/{0}/{1} - {0}.{2}'.format(title, DISTRICTS[district], extension)
+        imagefile = 'plots/{0}/{3}{1} - {0}.{2}'.format(title, DISTRICTS[district], extension, prefix)
         os.makedirs('plots/{}'.format(title), exist_ok=True)
     else:
         figure.suptitle('{}\nRwanda'.format(title))
-        imagefile = 'plots/Summary - {0}.{1}'.format(title, extension)
+        imagefile = 'plots/{2}Summary - {0}.{1}'.format(title, extension, prefix)
 
     # Save the plot based upon the extension
     if imagefile.endswith('tif'):

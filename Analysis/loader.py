@@ -146,7 +146,7 @@ def process_final_datasets(date):
     for index, row in data.iterrows():
       filename = "data/replicates/{}.csv".format(row[3])
       if check_replicate(filename):
-        valid.append(filename)
+        valid.append(row[3])
 
         # Break if we have enough, even if there are still some pending.
         # This may occur when extra replicates are run to me the target.
@@ -156,7 +156,7 @@ def process_final_datasets(date):
     # Merge the files if we have results
     if len(valid) > 0:
       filename = os.path.join(DATASET_DIRECTORY, configuration.replace('yml', 'csv'))
-      merge_data(data[-REPLICATE_COUNT:][3].to_numpy(), filename)
+      merge_data(valid, filename)
 
     # Update the user
     print("{}: {}".format(configuration, len(valid)))
@@ -181,7 +181,7 @@ def check_replicate(filename):
 
       # Return false if the replicate is below the reference frequency
       if (temp[WEIGHTED] / temp[INDIVIDUALS]).values[0] < rwanda.REFERENCEFREQUENCY:
-          return False
+        return False
 
   # Valid replicate to use
   return True

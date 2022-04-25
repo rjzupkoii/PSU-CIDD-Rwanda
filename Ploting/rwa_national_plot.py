@@ -13,6 +13,8 @@ import pandas as pd
 import seaborn as sb
 import sys
 
+from dateutil.relativedelta import relativedelta
+
 import rwanda
 
 # From the PSU-CIDD-MaSim-Support repository
@@ -29,19 +31,28 @@ def main():
     filename = os.path.join(rwanda.DATA_PATH, 'rwa-spike.csv')
     plot_validation(filename, 'plots/561H Spikes.png')
 
-    dataset, filter = {}, None
-    for filename in rwanda.CONFIGURATIONS:
-        print('Parsing {} ...'.format(filename))
-        results = prepare_national(os.path.join(rwanda.DATA_PATH, filename), filter=filter)
-        rwanda.plot_summary(rwanda.CONFIGURATIONS[filename], *results)   
-        dataset[filename] = results[1]
+    for years in [3, 5, None]:
+        dataset = {}
+        for filename in rwanda.CONFIGURATIONS:
+            print('Parsing {} ...'.format(filename))
 
-    for key in rwanda.REPORT_LAYOUT:
-        ylabel = rwanda.REPORT_LAYOUT[key][rwanda.REPORT_YLABEL]
-        filename = 'plots/Comparison - {}.png'.format(ylabel)
-        if filter is not None:
-            filename = 'plots/Comparison, 5y - {}.png'.format(ylabel)
-        plot_violin(dataset, key, ylabel, filename)      
+            # Load the data, apply the relevent filter
+            filter, prefix = None, ''
+            if years is not None:
+                filter = rwanda.POLICYDATE + relativedelta(years=years)
+                prefix = "{} - ".format(years)
+            results = prepare_national(os.path.join(rwanda.DATA_PATH, filename), filter=filter)
+
+            # Plot the summary figure
+            rwanda.plot_summary(rwanda.CONFIGURATIONS[filename], *results, prefix=prefix)   
+            dataset[filename] = results[1]
+
+        for key in rwanda.REPORT_LAYOUT:
+            ylabel = rwanda.REPORT_LAYOUT[key][rwanda.REPORT_YLABEL]
+            filename = 'plots/Comparison - {}.png'.format(ylabel)
+            if years is not None:
+                filename = 'plots/Comparison, {}y - {}.png'.format(years, ylabel)
+            plot_violin(dataset, key, ylabel, filename)      
 
 
 def plot_violin(dataset, filter, ylabel, imagefile):
@@ -144,7 +155,7 @@ def prepare_national(filename, filter=None):
         results[key] = []
 
     # Start by filtering by the replicate
-    count, failed, endDate = 0, 0, datetime.datetime(9999, 12, 31)
+    count, failed = 0, 0
     for replicate in replicates:
         byReplicate = data[data[REPLICATE] == replicate]
 
@@ -159,22 +170,21 @@ def prepare_national(filename, filter=None):
             # Stop if this replicate was rejected
             if rejected: break
 
-            # If we are filtering then check the date
-            currentDate = startDate + datetime.timedelta(days=date)
-            if filter is not None:
-                if currentDate < filter: continue
-                if currentDate > endDate: break
-                if currentDate == filter:
-                    endDate = currentDate + datetime.timedelta(days=365)
-
             # Verify the frequency if this is the correct date
+            currentDate = startDate + datetime.timedelta(days=date)
             byDate = byReplicate[byReplicate[DATES] == date]
             if currentDate == rwanda.REFERENCEDATE:
                 temp = byDate[byDate[DISTRICT] == rwanda.REFERENCEDISTRICT]
                 if (temp[WEIGHTED] / temp[INDIVIDUALS]).values[0] < rwanda.REFERENCEFREQUENCY:
+                    print((temp[WEIGHTED] / temp[INDIVIDUALS]).values[0])
                     failed += 1
                     rejected = True
-                    continue
+                    continue            
+
+            # If we are filtering then check the date
+            if filter is not None:
+                if currentDate < rwanda.POLICYDATE: continue
+                if currentDate > filter: break
 
             # Store the appropriate data
             for key in rwanda.REPORT_LAYOUT:
@@ -198,6 +208,20 @@ def prepare_national(filename, filter=None):
 
     # Return the results
     if failed > 0: print('{} replicate(s) rejected'.format(failed))
+
+    # Select the subset of dates if a filter was applied
+    if filter is not None:
+        start, end = 0, 0
+        for ndx in range(len(dates)):
+            currentDate = startDate + datetime.timedelta(days=dates[ndx])
+            if currentDate == rwanda.POLICYDATE: 
+                start = ndx
+            if currentDate == filter:
+                end = ndx
+                break
+        dates = dates[start:end + 1]
+
+    # Return the results and dates
     return dates, results
 
 
