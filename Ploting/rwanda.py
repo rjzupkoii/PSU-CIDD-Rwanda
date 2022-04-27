@@ -103,6 +103,14 @@ CONFIGURATIONS = {
     # Triple-ACT
     'rwa-tact-alaq.csv'            : 'TACT AL + AQ',
     'rwa-tact-dhappqmq.csv'        : 'TACT DHA-PPQ + PQ',
+
+    # NMCP
+    'rwa-nmcp-1a.csv'              : 'NMCP Scenario 1a',
+    'rwa-nmcp-1b.csv'              : 'NMCP Scenario 1b',
+    'rwa-nmcp-1c.csv'              : 'NMCP Scenario 1c',
+    'rwa-nmcp-2a.csv'              : 'NMCP Scenario 2a',
+    'rwa-nmcp-3c.csv'              : 'NMCP Scenario 3c',
+    'rwa-nmcp-4c.csv'              : 'NMCP Scenario 4c',
 }
 
 # Index defintions for spikes

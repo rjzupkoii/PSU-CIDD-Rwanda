@@ -23,7 +23,7 @@ from plotting import scale_luminosity
 from utility import progressBar
 
 
-def main():
+def main(nmcp=False):
     print('Parsing 561H verification data ...')
     os.makedirs('plots', exist_ok=True)
     filename = os.path.join(rwanda.DATA_PATH, 'rwa-561h-verification.csv')
@@ -34,9 +34,14 @@ def main():
     for years in [3, 5, None]:
         dataset = {}
         for filename in rwanda.CONFIGURATIONS:
-            print('Parsing {} ...'.format(filename))
+            # Press on if we are not dealing with NMCP scenarios
+            if not nmcp and '-nmcp-' in filename:
+                continue
+            if nmcp and not ('-constant' in filename or '-nmcp-' in filename):
+                continue
 
             # Load the data, apply the relevent filter
+            print('Parsing {} ...'.format(filename))
             filter, prefix = None, ''
             if years is not None:
                 filter = rwanda.POLICYDATE + relativedelta(years=years)
@@ -44,7 +49,8 @@ def main():
             results = prepare_national(os.path.join(rwanda.DATA_PATH, filename), filter=filter)
 
             # Plot the summary figure
-            rwanda.plot_summary(rwanda.CONFIGURATIONS[filename], *results, prefix=prefix)   
+            if not nmcp:
+                rwanda.plot_summary(rwanda.CONFIGURATIONS[filename], *results, prefix=prefix)   
             dataset[filename] = results[1]
 
         for key in rwanda.REPORT_LAYOUT:
@@ -52,10 +58,10 @@ def main():
             filename = 'plots/Comparison - {}.png'.format(ylabel)
             if years is not None:
                 filename = 'plots/Comparison, {}y - {}.png'.format(years, ylabel)
-            plot_violin(dataset, key, ylabel, filename)      
+            plot_violin(dataset, key, ylabel, filename, nmcp)      
 
 
-def plot_violin(dataset, filter, ylabel, imagefile):
+def plot_violin(dataset, filter, ylabel, imagefile, nmcp):
     LABEL, COLOR = range(2)
     ORDER = {
         # Status Quo
@@ -93,9 +99,34 @@ def plot_violin(dataset, filter, ylabel, imagefile):
         'rwa-tact-dhappqmq.csv'        : ['DHA-PPQ + MQ', '#df65b0'],
     }
 
+    # NMCP scenarios
+    NMCP = {
+        # Status Quo
+        'rwa-pfpr-constant.csv' : ['Status Quo', '#88CCEE'],
+
+        # Scenario 1, MFT AL (5-day) and DHA-PPQ
+        'rwa-nmcp-1a.csv'       : ['1a', '#44AA99'],
+        'rwa-nmcp-1b.csv'       : ['1b', '#44AA99'],
+        'rwa-nmcp-1c.csv'       : ['1c', '#44AA99'],
+
+        # Scenario 2, sensitivity analysis for scenario 1a
+        'rwa-nmcp-2a.csv'       : ['2a', '#117733'],
+
+        # Scenario 3c, MFT AL (5-day), DHA-PPQ, and ASAQ / Prolonged ASAQ adoption
+        'rwa-nmcp-3c.csv'       : ['3c', '#DDCC77'],
+
+        # Scenario 4c, MFT AL (5-day), DHA-PPQ, and ASAQ / Rapid ASAQ adoption
+        'rwa-nmcp-4c.csv'       : ['4c', '#A691AE'],
+    }
+
+    # Variable with the dataset to use for the studies
+    plot = ORDER
+    if nmcp:
+        plot = NMCP
+
     # Parse the last entry in the data for the violin plot
     data, labels, colors, prefix = [], [], [], ''
-    for key in ORDER:
+    for key in plot:
         # Filter to the data we want
         temp = np.matrix(dataset[key][filter])
 
@@ -109,8 +140,8 @@ def plot_violin(dataset, filter, ylabel, imagefile):
 
         # Append to the working data and update the labels            
         data.append(temp)
-        labels.append(ORDER[key][LABEL])
-        colors.append(ORDER[key][COLOR])
+        labels.append(plot[key][LABEL])
+        colors.append(plot[key][COLOR])
 
     # Generate the plot
     matplotlib.rc_file("matplotlibrc-violin")
@@ -292,4 +323,4 @@ def plot_validation(datafile, imagefile):
 
 
 if __name__ == '__main__':
-    main()
+    main(True)
