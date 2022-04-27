@@ -411,7 +411,7 @@ therapy_db:
   # ACT - artemether–lumefantrine (AL) / first line therapy
   0:
     drug_id: [0, 1]
-    dosing_days: [4]
+    dosing_days: [3]
   # MONO - Artesunate (AS) / severe treatment
   1:
     drug_id: [0]
