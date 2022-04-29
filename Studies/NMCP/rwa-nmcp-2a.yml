@@ -232,11 +232,11 @@ events:
   - name: change_treatment_strategy
     info:
       - day: 2024/1/1
-        strategy_id: 3
+        strategy_id: 2
   - name: change_treatment_strategy
     info:
       - day: 2025/1/1
-        strategy_id: 4
+        strategy_id: 3
   - name: change_treatment_strategy
     info:
       - day: 2026/1/1
