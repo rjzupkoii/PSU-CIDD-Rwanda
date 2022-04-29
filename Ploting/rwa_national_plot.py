@@ -49,8 +49,7 @@ def main(nmcp=False):
             results = prepare_national(os.path.join(rwanda.DATA_PATH, filename), filter=filter)
 
             # Plot the summary figure
-            if not nmcp:
-                rwanda.plot_summary(rwanda.CONFIGURATIONS[filename], *results, prefix=prefix)   
+            rwanda.plot_summary(rwanda.CONFIGURATIONS[filename], *results, prefix=prefix)   
             dataset[filename] = results[1]
 
         for key in rwanda.REPORT_LAYOUT:

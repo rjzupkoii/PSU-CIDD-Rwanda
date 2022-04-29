@@ -231,7 +231,7 @@ def main():
   # database.
   process_replicates()
   if MANUSCRIPT: 
-    process_final_datasets('2022-04-17')
+    process_final_datasets('2022-04-28')
   else:
     process_datasets()
 
