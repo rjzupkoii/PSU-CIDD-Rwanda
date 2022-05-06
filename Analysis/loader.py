@@ -45,8 +45,14 @@ def get_replicates():
         r.endtime
       FROM sim.replicate r
         INNER JOIN sim.configuration c ON c.id = r.configurationid
-      WHERE r.endtime IS NOT null
-        AND c.studyid > 2
+      WHERE r.endtime IS NOT null AND c.id in (
+        SELECT max(c.id)
+        FROM sim.configuration c
+        WHERE c.filename in (
+          SELECT distinct c.filename
+          FROM sim.configuration c
+          WHERE c.studyid NOT IN (1, 2, 3, 10))
+        GROUP BY c.filename, c.studyid)
       ORDER BY c.studyid, c.filename, r.id"""
   return select(CONNECTION, sql, None)
 
@@ -139,7 +145,8 @@ def process_final_datasets(date):
 
     # Filter the replicates specific to this configuration
     data = replicates[replicates[2] == configuration]
-    data = data[data[4] > date]
+    if date is not None:
+      data = data[data[4] > date]
     
     # Scan the replicates returned to make sure the frequency is high enough
     valid = []
@@ -231,7 +238,7 @@ def main():
   # database.
   process_replicates()
   if MANUSCRIPT: 
-    process_final_datasets('2022-04-28')
+    process_final_datasets(None)
   else:
     process_datasets()
 
