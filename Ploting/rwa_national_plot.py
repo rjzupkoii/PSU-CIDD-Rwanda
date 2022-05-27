@@ -56,7 +56,7 @@ def main(nmcp=False):
             ylabel = rwanda.REPORT_LAYOUT[key][rwanda.REPORT_YLABEL]
             filename = 'plots/Comparison - {}.png'.format(ylabel)
             if years is not None:
-                filename = 'plots/Comparison, {}y - {}.png'.format(years, ylabel)
+                filename = 'plots/Comparison, {:02d}y - {}.png'.format(years, ylabel)
             plot_violin(dataset, key, ylabel, filename, nmcp)      
 
 
@@ -322,4 +322,4 @@ def plot_validation(datafile, imagefile):
 
 
 if __name__ == '__main__':
-    main(True)
+    main()
