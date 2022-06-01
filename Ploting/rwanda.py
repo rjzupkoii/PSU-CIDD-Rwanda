@@ -1,6 +1,6 @@
 # rwanda.py
 #
-# This file contains common proprties for Rwanda and associated reporting.
+# This file contains common properties for Rwanda and associated reporting.
 
 # Districts in Rwanda, keyed for the GIS data
 import datetime
@@ -111,6 +111,31 @@ CONFIGURATIONS = {
     'rwa-nmcp-2a.csv'              : 'NMCP Scenario 2a',
     'rwa-nmcp-3c.csv'              : 'NMCP Scenario 3c',
     'rwa-nmcp-4c.csv'              : 'NMCP Scenario 4c',
+
+    # Compliance, AL, three days
+    'rwa-al-3-high.csv'     : 'AL, 3 days, High',
+    'rwa-al-3-moderate.csv' : 'AL, 3 days, Moderate',
+    'rwa-al-3-low.csv'      : 'AL, 3 days, Low',
+
+    # Compliance, AL, four days
+    'rwa-al-4-high.csv'     : 'AL, 4 days, High',
+    'rwa-al-4-moderate.csv' : 'AL, 4 days, Moderate',
+    'rwa-al-4-low.csv'      : 'AL, 4 days, Low',
+
+    # Compliance, AL, five days
+    'rwa-al-5-high.csv'     : 'AL, 5 days, High',
+    'rwa-al-5-moderate.csv' : 'AL, 5 days, Moderate',
+    'rwa-al-5-low.csv'      : 'AL, 5 days, Low',
+
+    # Compliance, ASAQ
+    'rwa-asaq-high.csv'     : 'ASAQ, High',
+    'rwa-asaq-moderate.csv' : 'ASAQ, Moderate',
+    'rwa-asaq-low.csv'      : 'ASAQ, Low',
+
+    # Compliance, DHA-PPQ
+    'rwa-dhappq-high.csv'     : 'DHA-PPQ, High',
+    'rwa-dhappq-moderate.csv' : 'DHA-PPQ, Moderate',
+    'rwa-dhappq-low.csv'      : 'DHA-PPQ, Low',
 }
 
 # Index defintions for spikes

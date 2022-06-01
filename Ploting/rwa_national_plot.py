@@ -16,6 +16,7 @@ import sys
 from dateutil.relativedelta import relativedelta
 
 import rwanda
+import rwa_reports
 
 # From the PSU-CIDD-MaSim-Support repository
 sys.path.insert(1, '../../PSU-CIDD-MaSim-Support/Python/include')
@@ -23,21 +24,22 @@ from plotting import scale_luminosity
 from utility import progressBar
 
 
-def main(nmcp=False):
-    print('Parsing 561H verification data ...')
-    os.makedirs('plots', exist_ok=True)
-    filename = os.path.join(rwanda.DATA_PATH, 'rwa-561h-verification.csv')
-    plot_validation(filename, 'plots/561H Verification.png')
-    filename = os.path.join(rwanda.DATA_PATH, 'rwa-spike.csv')
-    plot_validation(filename, 'plots/561H Spikes.png')
+def main(plot, verification=True, search=''):
+    if verification:
+        print('Parsing 561H verification data ...')
+        os.makedirs('plots', exist_ok=True)
+        filename = os.path.join(rwanda.DATA_PATH, 'rwa-561h-verification.csv')
+        plot_validation(filename, 'plots/561H Verification.png')
+        filename = os.path.join(rwanda.DATA_PATH, 'rwa-spike.csv')
+        plot_validation(filename, 'plots/561H Spikes.png')
 
     for years in [3, 5, None]:
         dataset = {}
         for filename in rwanda.CONFIGURATIONS:
-            # Press on if we are not dealing with NMCP scenarios
-            if not nmcp and '-nmcp-' in filename:
+            # Speed things up by only parsing the data we need
+            if search == 'nmcp' and not ('-nmcp-' in filename):
                 continue
-            if nmcp and not ('-constant' in filename or '-nmcp-' in filename):
+            elif search == 'compliance' and not any(filter in filename for filter in ['high', 'moderate', 'low']):
                 continue
 
             # Load the data, apply the relevent filter
@@ -57,71 +59,11 @@ def main(nmcp=False):
             filename = 'plots/Comparison - {}.png'.format(ylabel)
             if years is not None:
                 filename = 'plots/Comparison, {:02d}y - {}.png'.format(years, ylabel)
-            plot_violin(dataset, key, ylabel, filename, nmcp)      
+            plot_violin(dataset, key, ylabel, filename, plot)      
 
 
-def plot_violin(dataset, filter, ylabel, imagefile, nmcp):
+def plot_violin(dataset, filter, ylabel, imagefile, plot):
     LABEL, COLOR = range(2)
-    ORDER = {
-        # Status Quo
-        'rwa-pfpr-constant.csv'        : ['Status Quo', '#bdd7e7'],
-
-        # Extend AL
-        'rwa-ae-al-4.csv'              : ['AL, 4 days', '#bdd7e7'],
-        'rwa-ae-al-5.csv'              : ['AL, 5 days', '#bdd7e7'],
-
-        # Replace AL
-        'rwa-replacement-asaq.csv'     : ['100% ASAQ', '#6baed6'],
-        'rwa-replacement-dhappq.csv'   : ['100% DHA-PPQ', '#6baed6'],
-
-        # AL / ASAQ MFT
-        'rwa-mft-al-asaq-0.25.csv'     : ['AL (75%) + ASAQ (25%)', '#bae4b3'],
-        'rwa-mft-al-asaq.csv'          : ['AL (50%) + ASAQ (50%)', '#bae4b3'],
-        'rwa-mft-al-asaq-0.75.csv'     : ['AL (25%) + ASAQ (75%)', '#bae4b3'],
-
-        # AL / DHA-PPQ MFT
-        'rwa-mft-al-dhappq-0.25.csv'   : ['AL (75%) + DHA-PPQ (25%)', '#74c476'],
-        'rwa-mft-al-dhappq.csv'        : ['AL (50%) + DHA-PPQ (50%)', '#74c476'],
-        'rwa-mft-al-dhappq-0.75.csv'   : ['AL (25%) + DHA-PPQ (75%)', '#74c476'],
-
-        # ASAQ / DHA-PPQ MFT
-        'rwa-mft-asaq-dhappq-0.25.csv' : ['ASAQ (75%) + DHA-PPQ (25%)', '#31a354'],
-        'rwa-mft-asaq-dhappq.csv'      : ['ASAQ (50%) + DHA-PPQ (50%)', '#31a354'],
-        'rwa-mft-asaq-dhappq-0.75.csv' : ['ASAQ (25%) + DHA-PPQ (75%)', '#31a354'],
-
-        # Rotate DHA-PPQ
-        'rwa-rotation-al-3.csv'        : ['DHA-PPQ (3 years) / AL (50%) + ASAQ', '#d7b5d8'],
-        'rwa-rotation-al-5.csv'        : ['DHA-PPQ (3 years) / AL, 5 days (50%) + ASAQ', '#d7b5d8'],
-
-        # TACT
-        'rwa-tact-alaq.csv'            : ['AL + AQ', '#df65b0'],
-        'rwa-tact-dhappqmq.csv'        : ['DHA-PPQ + MQ', '#df65b0'],
-    }
-
-    # NMCP scenarios
-    NMCP = {
-        # Status Quo
-        'rwa-pfpr-constant.csv' : ['Status Quo', '#88CCEE'],
-
-        # Scenario 1, MFT AL (5-day) and DHA-PPQ
-        'rwa-nmcp-1a.csv'       : ['1a', '#44AA99'],
-        'rwa-nmcp-1b.csv'       : ['1b', '#44AA99'],
-        'rwa-nmcp-1c.csv'       : ['1c', '#44AA99'],
-
-        # Scenario 2, sensitivity analysis for scenario 1a
-        'rwa-nmcp-2a.csv'       : ['2a', '#117733'],
-
-        # Scenario 3c, MFT AL (5-day), DHA-PPQ, and ASAQ / Prolonged ASAQ adoption
-        'rwa-nmcp-3c.csv'       : ['3c', '#DDCC77'],
-
-        # Scenario 4c, MFT AL (5-day), DHA-PPQ, and ASAQ / Rapid ASAQ adoption
-        'rwa-nmcp-4c.csv'       : ['4c', '#A691AE'],
-    }
-
-    # Variable with the dataset to use for the studies
-    plot = ORDER
-    if nmcp:
-        plot = NMCP
 
     # Parse the last entry in the data for the violin plot
     data, labels, colors, prefix = [], [], [], ''
@@ -322,4 +264,4 @@ def plot_validation(datafile, imagefile):
 
 
 if __name__ == '__main__':
-    main()
+    main(rwa_reports.COMPLIANCE, False, 'compliance')
