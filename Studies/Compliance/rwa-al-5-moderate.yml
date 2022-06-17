@@ -350,7 +350,7 @@ therapy_db:
   3:
     drug_id: [0, 1]
     dosing_days: [5]    
-    compliance: [1, 0.83, 0.83, 0.83, 1]
+    compliance: [0.0, 0.166, 0.166, 0.166, 0.502]
   
 # Drug-deployment strategy - baseline represents the survey data for Rwanda
 # 
