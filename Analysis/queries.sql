@@ -19,7 +19,7 @@ select c.id as configurationid, c.studyid, c.filename,
   case when r.endtime is null then 0 else 1 end as complete
 from sim.configuration c
   inner join sim.replicate r on r.configurationid = c.id
-where c.studyid > 2) iq
+where c.studyid not in (1, 2, 10)) iq
 group by configurationid, studyid, filename
 order by studyid, filename
 
