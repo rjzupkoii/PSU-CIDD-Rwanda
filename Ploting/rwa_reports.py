@@ -2,7 +2,7 @@
 #
 # This file contains the definitions of various reports for Rwanda.
 
-ORDER = {
+STUDIES = {
     # Status Quo
     'rwa-pfpr-constant.csv'        : ['Status Quo', '#bdd7e7'],
 

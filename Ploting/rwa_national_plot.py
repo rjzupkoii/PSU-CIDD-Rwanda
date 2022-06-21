@@ -37,7 +37,7 @@ def main(plot, verification=True, search=''):
         dataset = {}
         for filename in rwanda.CONFIGURATIONS:
             # Speed things up by only parsing the data we need
-            if search == 'nmcp' and not ('-nmcp-' in filename):
+            if search == 'nmcp' and not any(filter in filename for filter in ['-nmcp', 'constant']):
                 continue
             elif search == 'compliance' and not any(filter in filename for filter in ['high', 'moderate', 'low']):
                 continue
