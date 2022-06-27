@@ -105,3 +105,25 @@ SELECT c.id AS configurationid, c.filename, r.id AS replicateid, c.studyid
 FROM sim.configuration c
   INNER JOIN sim.replicate r ON r.configurationid = c.id
 WHERE c.studyid > 2
+
+-- Query to determine what time frame manuscript replicates were from
+  SELECT configurationid, s.name, filename, min(starttime), max(endtime)
+  FROM (
+  SELECT c.id AS configurationid, 
+    c.studyid, 
+    c.filename, 
+    r.starttime,
+    r.endtime
+  FROM sim.replicate r
+    INNER JOIN sim.configuration c ON c.id = r.configurationid
+  WHERE r.endtime IS NOT null AND c.id in (
+    SELECT max(c.id)
+    FROM sim.configuration c
+    WHERE c.filename in (
+      SELECT distinct c.filename
+      FROM sim.configuration c
+      WHERE c.studyid NOT IN (1, 2, 3, 10))
+    GROUP BY c.filename, c.studyid)) iq
+ INNER JOIN sim.study s ON s.id = studyid
+ GROUP BY configurationid, studyid, filename, s.name
+ ORDER BY studyid, filename
