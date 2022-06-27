@@ -138,7 +138,7 @@ CONFIGURATIONS = {
     'rwa-dhappq-low.csv'      : 'DHA-PPQ, Low',
 
     # AL Replacement, extended model
-    'rwa-replacement-dhappq-20y.csv'   : '100% DHA-PPQ Deployment',
+    'rwa-replacement-dhappq-20y.csv'   : '100% DHA-PPQ Deployment, 20 years',
 }
 
 # Index defintions for spikes
