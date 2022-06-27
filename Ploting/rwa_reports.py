@@ -38,6 +38,27 @@ STUDIES = {
     'rwa-tact-dhappqmq.csv'        : ['DHA-PPQ + MQ', '#df65b0'],
 }
 
+EXTENDED = {
+    # Status Quo
+    'rwa-pfpr-constant.csv'        : ['Status Quo', '#bdd7e7'],
+
+    # Replace AL
+    'rwa-replacement-dhappq.csv'   : ['100% DHA-PPQ', '#6baed6'],
+
+    # AL / DHA-PPQ MFT
+    'rwa-mft-al-dhappq-0.25.csv'   : ['AL (75%) + DHA-PPQ (25%)', '#74c476'],
+    'rwa-mft-al-dhappq.csv'        : ['AL (50%) + DHA-PPQ (50%)', '#74c476'],
+    'rwa-mft-al-dhappq-0.75.csv'   : ['AL (25%) + DHA-PPQ (75%)', '#74c476'],
+
+    # ASAQ / DHA-PPQ MFT
+    'rwa-mft-asaq-dhappq-0.25.csv' : ['ASAQ (75%) + DHA-PPQ (25%)', '#31a354'],
+    'rwa-mft-asaq-dhappq.csv'      : ['ASAQ (50%) + DHA-PPQ (50%)', '#31a354'],
+    'rwa-mft-asaq-dhappq-0.75.csv' : ['ASAQ (25%) + DHA-PPQ (75%)', '#31a354'],
+
+    # Replace AL, 20 years
+    'rwa-replacement-dhappq-20y.csv'   : ['100% DHA-PPQ, 20 Years', '#6baed6'],
+}
+
 COMPLIANCE = {
     # AL, three days
     'rwa-al-3-high.csv'     : ['AL, 3 days, High', '#117733'],

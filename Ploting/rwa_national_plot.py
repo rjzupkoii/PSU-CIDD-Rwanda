@@ -24,7 +24,11 @@ from plotting import scale_luminosity
 from utility import progressBar
 
 
-def main(plot, verification=True, search=''):
+def main(plot, verification=True, search='', breaks=[3, 5, None]):
+    # Make sure a plots directory is present
+    if not os.path.exists('plots'):
+        os.makedirs('plots')
+
     if verification:
         print('Parsing 561H verification data ...')
         os.makedirs('plots', exist_ok=True)
@@ -33,13 +37,15 @@ def main(plot, verification=True, search=''):
         filename = os.path.join(rwanda.DATA_PATH, 'rwa-spike.csv')
         plot_validation(filename, 'plots/561H Spikes.png')
 
-    for years in [3, 5, None]:
+    for years in breaks:
         dataset = {}
         for filename in rwanda.CONFIGURATIONS:
             # Speed things up by only parsing the data we need
             if search == 'nmcp' and not any(filter in filename for filter in ['-nmcp', 'constant']):
                 continue
             elif search == 'compliance' and not any(filter in filename for filter in ['high', 'moderate', 'low']):
+                continue
+            elif search == 'dhappq' and not any(filter in filename for filter in ['dhappq', 'constant']):
                 continue
 
             # Load the data, apply the relevent filter
@@ -264,4 +270,4 @@ def plot_validation(datafile, imagefile):
 
 
 if __name__ == '__main__':
-    main(rwa_reports.COMPLIANCE, False, 'compliance')
+    main(rwa_reports.EXTENDED, False, 'dhappq', [None])
