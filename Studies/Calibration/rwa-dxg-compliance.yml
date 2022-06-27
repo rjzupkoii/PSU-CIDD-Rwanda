@@ -2,8 +2,8 @@
 #
 # Boni Lab
 #
-# Configuration file for DxG Generator, for the therapies used
-# across all studies.
+# Configuration file for DxG Generator, for the therapies used 
+# for the compliance studies.
 #
 # ---------------------------------------------------------------
 
@@ -470,60 +470,41 @@ lumefantrine_drug_id: 1
 # Therapies that are used in Rwanda
 tf_testing_day: 28
 therapy_db:
-  # ACT - artemether–lumefantrine (AL), 1 day
-  0: 
-    drug_id: [0, 1]
-    dosing_days: [1]
   # ACT - artemether–lumefantrine (AL), 2 days
-  1: 
+  0:
     drug_id: [0, 1]
-    dosing_days: [2]    
+    dosing_days: [2]
   # ACT - artemether–lumefantrine (AL), 3 days
-  2:
+  1:
     drug_id: [0, 1]
     dosing_days: [3]
   # ACT - artemether–lumefantrine (AL), 4 days
-  3:
+  2:
     drug_id: [0, 1]
     dosing_days: [4]
   # ACT - artemether–lumefantrine (AL), 5 days
-  4:
+  3:
     drug_id: [0, 1]
-    dosing_days: [5]        
-  # ACT - artesunate–amodiaquine (ASAQ)
+    dosing_days: [5]
+
+  # ACT - artesunate–amodiaquine (ASAQ), 2 days
+  4:
+    drug_id: [0, 2]
+    dosing_days: [2]        
+  # ACT - artesunate–amodiaquine (ASAQ), 3 days
   5:
     drug_id: [0, 2]
-    dosing_days: [3]   
-  # ACT - Dihydroartemisinin-piperaquine (DHA-PPQ)
+    dosing_days: [3]        
+
+  # ACT - Dihydroartemisinin-piperaquine (DHA-PPQ), 2 days
   6:
+    drug_id: [0, 3]
+    dosing_days: [2]
+  # ACT - Dihydroartemisinin-piperaquine (DHA-PPQ), 3 days
+  7:
     drug_id: [0, 3]
     dosing_days: [3]          
 
-  # TACT - artesunate-lumefantrine + amodiaquine (AL + AQ)
-  7:
-    drug_id: [0, 1, 2]
-    dosing_days: [3]  
-  # TACT - DHA-PPQ-MQ / ASMQ-PPQ
-  8:
-    drug_id: [0, 3, 4]
-    dosing_days: [3]    
-
-  # Complex therapy, AL (3-1-1)    
-  9:
-    therapy_ids: [2, 0]
-    regimen: [1, 5]      
-  # Complex therapy, AL (3-1-2)
-  10:
-    therapy_ids: [2, 1]
-    regimen: [1, 5]    
-  # Complex therapy, AL (3-2-1)
-  11:
-    therapy_ids: [2, 0]
-    regimen: [1, 6]    
-  # Complex therapy, AL (3-2-2)
-  12:
-    therapy_ids: [2, 1]
-    regimen: [1, 6]    
 
 # Drug-deployment strategy - baseline represents the survey data for Rwanda
 # 
