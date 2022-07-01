@@ -15,3 +15,6 @@
 
 # Ignore Matlab temporary files
 /**/*.asv
+
+# Ignore the local working directory
+local

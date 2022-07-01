@@ -417,7 +417,7 @@ therapy_db:
   3:
     drug_id: [0, 3]
     dosing_days: [3]    
-    compliance: [0.0, 0.2, 0.8] 
+    pr_completed_days: [0.0, 0.2, 0.8] 
   
 # Drug-deployment strategy - baseline represents the survey data for Rwanda
 # 
@@ -442,9 +442,6 @@ days_to_clinical_over_five: 6
 # Days that parasites develop mature gametocyte after exiting liver stage
 days_mature_gametocyte_under_five: 4
 days_mature_gametocyte_over_five: 6
-
-# Probability of patient compliance
-p_compliance: 1
 
 # Minimum dosing days if patient compliance is < 1 - EFFECTIVELY DISABLED 
 min_dosing_days: 1
