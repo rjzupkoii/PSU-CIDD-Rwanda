@@ -30,8 +30,8 @@ STUDIES = {
     'rwa-mft-asaq-dhappq-0.75.csv' : ['ASAQ (25%) + DHA-PPQ (75%)', '#31a354'],
 
     # Rotate DHA-PPQ
-    'rwa-rotation-al-3.csv'        : ['DHA-PPQ (3 years) / AL (50%) + ASAQ', '#d7b5d8'],
-    'rwa-rotation-al-5.csv'        : ['DHA-PPQ (3 years) / AL, 5 days (50%) + ASAQ', '#d7b5d8'],
+    'rwa-rotation-al-3.csv'        : ['DHA-PPQ (3 years) then\nAL (50%) + ASAQ', '#d7b5d8'],
+    'rwa-rotation-al-5.csv'        : ['DHA-PPQ (3 years) then\nAL, 5 days (50%) + ASAQ', '#d7b5d8'],
 
     # TACT
     'rwa-tact-alaq.csv'            : ['AL + AQ', '#df65b0'],

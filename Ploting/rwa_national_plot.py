@@ -63,17 +63,17 @@ def main(plot, verification=True, search='', breaks=[3, 5, None]):
             dataset[filename] = results[1]
 
         for key in rwanda.REPORT_LAYOUT:
-            ylabel = rwanda.REPORT_LAYOUT[key][rwanda.REPORT_YLABEL]
-            filename = 'plots/Comparison - {}.png'.format(ylabel)
+            label = rwanda.REPORT_LAYOUT[key][rwanda.REPORT_YLABEL]
+            filename = 'plots/Comparison - {}.png'.format(label)
             if years is not None:
-                filename = 'plots/Comparison, {:02d}y - {}.png'.format(years, ylabel)
-            plot_violin(dataset, key, ylabel, filename, plot)      
+                filename = 'plots/Comparison, {:02d}y - {}.png'.format(years, label)
+            plot_violin(dataset, key, label, filename, plot)
 
 
-def plot_violin(dataset, filter, ylabel, imagefile, plot):
+def plot_violin(dataset, filter, label, imagefile, plot):
     LABEL, COLOR = range(2)
 
-    # If the fitler is for treatments, then return since it's just a sentinel
+    # If the filter is for treatments, then return since it's just a sentinel
     if filter == 'treatments':
         return
 
@@ -109,21 +109,18 @@ def plot_violin(dataset, filter, ylabel, imagefile, plot):
     # Generate the plot
     matplotlib.rc_file("matplotlibrc-violin")
     figure, axis = plt.subplots()
-    violin = sb.violinplot(data=data, palette=colors, cut=0, scale='width', inner=None, linewidth=0.5)   
-    sb.boxplot(data=data, palette=colors, width=0.2, boxprops={'zorder' : 2})
+    violin = sb.violinplot(data=data, palette=colors, cut=0, scale='width', inner=None, linewidth=0.5, orient='h')   
+    sb.boxplot(data=data, palette=colors, width=0.2, boxprops={'zorder' : 2}, orient='h')
     sb.despine(top=True, right=True, left=True, bottom=True)
 
     # Scale the alpha channel for the violin plot
     for item in violin.collections: item.set_alpha(0.5)
 
     # Format the plot for the data
-    axis.set_xticks(range(len(labels)))
-    axis.set_xticklabels(labels)
-    axis.tick_params(axis='x', rotation=30)
-    plt.setp(axis.xaxis.get_majorticklabels(), ha='right')
-    axis.set_ylabel("{} {}".format(prefix, ylabel))
+    axis.set_yticklabels(labels)
+    axis.set_xlabel("{} {}".format(prefix, label))   
     if prefix != '':
-        axis.yaxis.set_major_formatter(ticker.EngFormatter())
+        axis.xaxis.set_major_formatter(ticker.EngFormatter())
     
     # Finalize the image as proof (png) or print (tif)
     if imagefile.endswith('svg'):
@@ -286,4 +283,8 @@ def plot_validation(datafile, imagefile):
 
 
 if __name__ == '__main__':
-    main(rwa_reports.STUDIES, False, 'standard')
+    # main(rwa_reports.STUDIES, False, 'standard')
+    main(rwa_reports.COMPLIANCE, False, 'compliance')
+    # main(rwa_reports.NMCP, False, 'nmcp')
+    # main(rwa_reports.EXTENDED, False, 'dhappq')
+    

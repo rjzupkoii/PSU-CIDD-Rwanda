@@ -173,6 +173,11 @@ REPORT_LAYOUT = {
     'failures': [10, 1, 0, 'Treatment Failures'], 
     'frequency' : [-1, 0, 1, '561H Frequency'],
     'carriers': [11, 1, 1, 'Individuals with 561H Clones'],
+
+    # Sentinel used to store data to calculate the average monthly treatment failures
+    'monthly_failures': [10, 1, 0, 'Treatment Failures, Count'], 
+
+    # Sentinel used to store data to calculate percent treatment failures
     'treatments' : [9, -1, -1, 'Treatments']
 }
 
