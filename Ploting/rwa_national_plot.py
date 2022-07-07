@@ -41,7 +41,9 @@ def main(plot, verification=True, search='', breaks=[3, 5, None]):
         dataset = {}
         for filename in rwanda.CONFIGURATIONS:
             # Speed things up by only parsing the data we need
-            if search == 'nmcp' and not any(filter in filename for filter in ['-nmcp', 'constant']):
+            if search == 'standard' and any (filter in filename for filter in ['-nmcp', 'high', 'moderate', 'low', '20y']):
+                continue
+            elif search == 'nmcp' and not any(filter in filename for filter in ['-nmcp', 'constant']):
                 continue
             elif search == 'compliance' and not any(filter in filename for filter in ['high', 'moderate', 'low']):
                 continue
@@ -284,4 +286,4 @@ def plot_validation(datafile, imagefile):
 
 
 if __name__ == '__main__':
-    main(rwa_reports.COMPLIANCE, False, 'compliance')
+    main(rwa_reports.STUDIES, False, 'standard')
