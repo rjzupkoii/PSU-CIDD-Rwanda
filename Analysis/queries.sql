@@ -127,3 +127,22 @@ WHERE c.studyid > 2
  INNER JOIN sim.study s ON s.id = studyid
  GROUP BY configurationid, studyid, filename, s.name
  ORDER BY studyid, filename
+
+-- Query to check the status of the final replicates for the manuscript
+ SELECT configurationid, studyid, filename, 
+  sum(complete) AS complete,
+  count(id) AS total, min(starttime), max(starttime)
+FROM (
+	SELECT c.id AS configurationid, c.studyid, c.filename,
+	  r.id, r.starttime,
+	  CASE WHEN r.endtime IS NULL THEN 0 ELSE 1 END AS complete
+	FROM sim.configuration c
+	  INNER JOIN sim.replicate r ON r.configurationid = c.id
+	where c.id in (
+		SELECT max(c.id) AS configurationid
+		FROM sim.configuration c
+		WHERE c.studyid NOT IN (1, 2, 3, 10)
+		GROUP BY c.studyid, c.filename)
+	  AND r.starttime > '2022-06-30') iq
+GROUP BY configurationid, studyid, filename
+ORDER BY studyid, filename
