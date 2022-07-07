@@ -97,7 +97,7 @@ def plot_violin(dataset, filter, ylabel, imagefile, plot):
         else:
             temp = np.sum(temp[:, -12:], axis=1) / 12
             temp = np.asarray(temp).reshape(-1)
-            prefix = 'Total'
+            prefix = 'Monthly'
  
         # Append to the working data and update the labels            
         data.append(temp)
