@@ -48,7 +48,7 @@ def main(plot, verification=True, search='', breaks=[3, 5, None]):
             elif search == 'dhappq' and not any(filter in filename for filter in ['dhappq', 'constant']):
                 continue
 
-            # Load the data, apply the relevent filter
+            # Load the data, apply the relevant filter
             print('Parsing {} ...'.format(filename))
             filter, prefix = None, ''
             if years is not None:
@@ -71,20 +71,34 @@ def main(plot, verification=True, search='', breaks=[3, 5, None]):
 def plot_violin(dataset, filter, ylabel, imagefile, plot):
     LABEL, COLOR = range(2)
 
+    # If the fitler is for treatments, then return since it's just a sentinel
+    if filter == 'treatments':
+        return
+
     # Parse the last entry in the data for the violin plot
     data, labels, colors, prefix = [], [], [], ''
     for key in plot:
         # Filter to the data we want
         temp = np.matrix(dataset[key][filter])
 
-        # If it's not frequency we want the monthly average of the last 12 months
-        if filter != 'frequency':
+        # If the filter is for frequency then just reshape
+        if filter == 'frequency':
+            temp = np.asarray(temp[:, -1].T).reshape(-1) 
+
+        # Treatment failures need to be reported as a percentage of treatments
+        elif filter == 'failures':
+            treatments = np.matrix(dataset[key]['treatments'])
+            failures = np.matrix(dataset[key]['failures'])
+            temp = (np.sum(failures[:, -12:], axis=1) / np.sum(treatments[:, -12:], axis=1)) * 100.0
+            temp = np.asarray(temp).reshape(-1)
+            prefix = 'Percent'
+
+        # Otherwise we want the monthly average of the last 12 months
+        else:
             temp = np.sum(temp[:, -12:], axis=1) / 12
             temp = np.asarray(temp).reshape(-1)
-            prefix = 'Total '
-        else:
-            temp = np.asarray(temp[:, -1].T).reshape(-1)  
-
+            prefix = 'Total'
+ 
         # Append to the working data and update the labels            
         data.append(temp)
         labels.append(plot[key][LABEL])
@@ -105,7 +119,7 @@ def plot_violin(dataset, filter, ylabel, imagefile, plot):
     axis.set_xticklabels(labels)
     axis.tick_params(axis='x', rotation=30)
     plt.setp(axis.xaxis.get_majorticklabels(), ha='right')
-    axis.set_ylabel(ylabel)
+    axis.set_ylabel("{} {}".format(prefix, ylabel))
     if prefix != '':
         axis.yaxis.set_major_formatter(ticker.EngFormatter())
     
@@ -270,4 +284,4 @@ def plot_validation(datafile, imagefile):
 
 
 if __name__ == '__main__':
-    main(rwa_reports.EXTENDED, False, 'dhappq', [None])
+    main(rwa_reports.COMPLIANCE, False, 'compliance')

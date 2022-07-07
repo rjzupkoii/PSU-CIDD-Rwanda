@@ -64,12 +64,14 @@ def get_replicate(replicateId):
         CASE WHEN gd.occurrences IS NULL THEN 0 else gd.occurrences END AS occurrences,
         CASE WHEN gd.clinicaloccurrences IS NULL THEN 0 else gd.clinicaloccurrences END AS clinicaloccurrences,
         CASE WHEN gd.weightedoccurrences IS NULL THEN 0 else gd.weightedoccurrences END AS weightedoccurrences,
+        treatments,
         treatmentfailures,
         genotypecarriers
       FROM (
         SELECT md.replicateid, md.dayselapsed, msd.location AS district,
           sum(msd.infectedindividuals) AS infectedindividuals, 
           sum(msd.clinicalepisodes) AS clinicalepisodes,
+          sum(msd.treatments) AS treatments,
           sum(msd.treatmentfailures) as treatmentfailures,
           sum(genotypecarriers) as genotypecarriers
         FROM sim.monthlydata md
@@ -233,12 +235,12 @@ def main():
   if not os.path.exists(SPIKE_DIRECTORY): os.makedirs(SPIKE_DIRECTORY)
 
   # Download all of the replicate data locally, then we need to pull the 
-  # relevent replicates to the side as the data set for plotting. Since the 
+  # relevant replicates to the side as the data set for plotting. Since the 
   # project is iterating quickly this will save on needing to clean-up the 
   # database.
   process_replicates()
   if MANUSCRIPT: 
-    process_final_datasets(None)
+    process_final_datasets('2022-06-30')
   else:
     process_datasets()
 

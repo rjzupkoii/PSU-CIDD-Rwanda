@@ -170,9 +170,10 @@ REPORT_INDEX, REPORT_ROW, REPORT_COLUMN, REPORT_YLABEL = range(4)
 # Four-panel report layout
 REPORT_LAYOUT = {
     'cases': [5, 0, 0, 'Clinical Cases'],
-    'failures': [9, 1, 0, 'Treatment Failures'], 
+    'failures': [10, 1, 0, 'Treatment Failures'], 
     'frequency' : [-1, 0, 1, '561H Frequency'],
-    'carriers': [10, 1, 1, 'Individuals with 561H Clones']
+    'carriers': [11, 1, 1, 'Individuals with 561H Clones'],
+    'treatments' : [9, -1, -1, 'Treatments']
 }
 
 
@@ -199,6 +200,9 @@ def plot_summary(title, dates, figureData, district = None, studies = False, ext
     figure, axes = plt.subplots(2, 2)
 
     for key in REPORT_LAYOUT:
+        # Pass on the treatments sentinel, otherwise note the row and column
+        if key == 'treatments':
+            continue
         row, col = REPORT_LAYOUT[key][REPORT_ROW], REPORT_LAYOUT[key][REPORT_COLUMN]
 
         # Load the data and calculate the bounds      
