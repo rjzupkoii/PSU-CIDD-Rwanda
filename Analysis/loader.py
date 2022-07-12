@@ -141,13 +141,13 @@ def get_national_replicate(replicateId):
   return select(CONNECTION, sql, {'replicateId':replicateId})
 
 
-def merge_data(replicates, outfile):
+def merge_data(replicates, path, outfile):
   # Read the first file so we have something to append to
-  infile = os.path.join(REPLICATE_DIRECTORY, "{}.csv".format(replicates[0]))
+  infile = os.path.join(path, "{}.csv".format(replicates[0]))
   data = pd.read_csv(infile, header=None)
 
   for replicate in replicates[1:]:
-    infile = os.path.join(REPLICATE_DIRECTORY, "{}.csv".format(replicate))
+    infile = os.path.join(path, "{}.csv".format(replicate))
     working = pd.read_csv(infile, header=None)
     data = data.append(working)
 
@@ -170,7 +170,7 @@ def process_datasets():
     # Filter the replicates and merge the most recent entries for the dataset
     data = replicates[replicates[2] == configuration]
     filename = os.path.join(directory, configuration.replace('yml', 'csv'))
-    merge_data(data[-50:][3].to_numpy(), filename)
+    merge_data(data[-50:][3].to_numpy(), REPLICATE_DIRECTORY, filename)
     count = count + 1
     progressBar(count, len(configurations))
 
@@ -210,7 +210,7 @@ def process_final_datasets(date, path, results):
     # Merge the files if we have results
     if len(valid) > 0:
       filename = os.path.join(results, configuration.replace('yml', 'csv'))
-      merge_data(valid, filename)
+      merge_data(valid, path, filename)
 
     # Update the user
     print("{}: {}".format(configuration, len(valid)))
@@ -219,8 +219,8 @@ def process_final_datasets(date, path, results):
 def check_replicate(filename):
   DATES, DISTRICT, INDIVIDUALS, WEIGHTED = 2, 3, 4, 8
 
-  # If this is a national data set then it automatically gets a pass
-  if 'national' in filename:
+  # If this is a genotype data set then it automatically gets a pass
+  if 'genotype' in filename:
     return True
 
   # Load the data, note the unique dates, replicates
@@ -245,14 +245,13 @@ def check_replicate(filename):
   return True
 
 
-def process_national():
-  DATASET_OUTPUT = 'data/national_dataset'
-  REPLICATE_DIRECTORY = 'data/national'
-  REPLICATE_DATE = datetime.date(2022, 6, 30)
-  FILENAMES = ['rwa-replacement-dhappq.yml', 'rwa-ae-al-5.yml']
+def process_genotype(date):
+  GENOTYPE_DATASET = 'data/genotype_dataset'
+  GENOTYPE_DIRECTORY = 'data/genotype'
+  FILENAMES = ['rwa-replacement-dhappq.yml', 'rwa-ae-al-5.yml', 'rwa-pfpr-constant.yml']
 
-  if not os.path.exists(DATASET_OUTPUT): os.makedirs(DATASET_OUTPUT)
-  if not os.path.exists(REPLICATE_DIRECTORY): os.makedirs(REPLICATE_DIRECTORY)
+  if not os.path.exists(GENOTYPE_DATASET): os.makedirs(GENOTYPE_DATASET)
+  if not os.path.exists(GENOTYPE_DIRECTORY): os.makedirs(GENOTYPE_DIRECTORY)
 
   print("Querying for replicates list...")
   replicates = get_replicates()
@@ -263,11 +262,11 @@ def process_national():
   progressBar(count, len(replicates))
   for row in replicates:
     # Pass if the replicate is too old or a
-    if (row[4].date() < REPLICATE_DATE) or (row[2] not in FILENAMES):
+    if (row[4].date() < datetime.datetime.strptime(date, '%Y-%m-%d').date()) or (row[2] not in FILENAMES):
       continue
 
     # Check to see if we already have the data
-    filename = os.path.join(REPLICATE_DIRECTORY, "{}.csv".format(row[3]))
+    filename = os.path.join(GENOTYPE_DIRECTORY, "{}.csv".format(row[3]))
     if os.path.exists(filename): continue
 
     # Query and store the data
@@ -282,7 +281,7 @@ def process_national():
   if count != len(replicates): progressBar(len(replicates), len(replicates))  
 
   # Merge the data sets
-  process_final_datasets('2022-06-30', REPLICATE_DIRECTORY, DATASET_OUTPUT)
+  process_final_datasets(date, GENOTYPE_DIRECTORY, GENOTYPE_DATASET)
 
 
 # Process the replicates to make sure we have all of the data we need locally
@@ -337,4 +336,4 @@ def main():
 
 if __name__ == '__main__':
 #  main()
-  process_national()
+  process_genotype('2022-06-30')
