@@ -101,7 +101,7 @@ def get_replicate(replicateId):
   return select(CONNECTION, sql, {'replicateId':replicateId})  
 
 
-def get_national_replicate(replicateId):
+def get_genotype_replicate(replicateId):
   sql = """
       SELECT monthly.replicateid, monthly.dayselapsed,
         population, infectedindividuals, clinicalepisodes, treatments, treatmentfailures, pfpr2to10,
@@ -270,7 +270,7 @@ def process_genotype(date):
     if os.path.exists(filename): continue
 
     # Query and store the data
-    replicate = get_national_replicate(row[3])
+    replicate = get_genotype_replicate(row[3])
     save_csv(filename, replicate)
 
     # Update the progress bar
