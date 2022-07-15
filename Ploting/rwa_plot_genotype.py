@@ -110,7 +110,11 @@ def plot(dates, data, layout):
     COLORS = {
         'tf' : '#fb9a99',
         'pfpr' : '#a6cee3',
-        'freq_561h' : '#fdbf6f'
+        'freq_561h' : '#fdbf6f',
+
+        # Note we use the same color for the next two
+        'freq_plasmepsin' : '#67503d',
+        'freq_double' : '#67503d'
     }
     
     # Generate all of the graphic elements for this axis
@@ -150,7 +154,7 @@ def plot(dates, data, layout):
     ax1.text(-0.175, layout['intervention'], 'Drug Policy Introduction', rotation=90, size=20, color='#a5a5a5')
 
     # Format the legend
-    fig.legend(loc='lower center', ncol=3, borderpad=0.25, frameon=False, prop={'size': 20})
+    fig.legend(loc='lower center', ncol=len(layout['plot']), borderpad=0.25, frameon=False, prop={'size': 20})
 
     # Format the axes
     ax1.grid(False)
@@ -222,9 +226,53 @@ if __name__ == '__main__':
         'label' : {
             'tf' : '% Treatment Failures',
             'pfpr' : '$\it{Pf}$PR$_{2-10}$',
-            'freq_561h' : '561H Frequency'
+            'freq_561h' : '561H Frequency',
         }        
     }
+    al5_vs_dhappq_plas = {
+        'source' : [ 
+            '../Analysis/data/genotype_dataset/rwa-ae-al-5.csv',
+            '../Analysis/data/genotype_dataset/rwa-replacement-dhappq.csv'
+        ],
+        'name' : ['AL 5-day', 'DHA-PPQ' ],
+
+        'plot' : ['tf', 'pfpr', 'freq_561h', 'freq_plasmepsin'],
+        'left' : ['tf', 'freq_561h', 'freq_plasmepsin'],
+        'right' : ['pfpr'],
+        'style' : ['-.', '-'],
+        'intervention' : 0.65,
+
+        'title' : 'AL 5-day vs. DHA-PPQ - Plasmepsin 2-3, 2x Copy',
+        'label' : {
+            'tf' : '% Treatment Failures',
+            'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+            'freq_561h' : '561H Frequency',
+            'freq_plasmepsin' : 'Plasmepsin 2-3, 2x copy Frequency'
+        }        
+    }    
+    al5_vs_dhappq_double = {
+        'source' : [ 
+            '../Analysis/data/genotype_dataset/rwa-ae-al-5.csv',
+            '../Analysis/data/genotype_dataset/rwa-replacement-dhappq.csv'
+        ],
+        'name' : ['AL 5-day', 'DHA-PPQ' ],
+
+        'plot' : ['tf', 'pfpr', 'freq_561h', 'freq_double'],
+        'left' : ['tf', 'freq_561h', 'freq_double'],
+        'right' : ['pfpr'],
+        'style' : ['-.', '-'],
+        'intervention' : 0.65,
+
+        'title' : 'AL 5-day vs. DHA-PPQ - Double Resistance',
+        'label' : {
+            'tf' : '% Treatment Failures',
+            'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+            'freq_561h' : '561H Frequency',
+            'freq_double' : 'Double Resistance Frequency'
+        }        
+    }      
 
     generate(al_vs_al5)
     generate(al5_vs_dhappq)
+    generate(al5_vs_dhappq_plas)
+    generate(al5_vs_dhappq_double)
