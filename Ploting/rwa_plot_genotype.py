@@ -35,7 +35,7 @@ INDICES = {
 # Generate the plot using the layout provided
 def generate(layout):
     dates, data = load(layout)
-    data = formatPfPR(data)
+    data = smoothData(data, 'pfpr')
     plot(dates, data, layout)
 
 
@@ -177,14 +177,14 @@ def plot(dates, data, layout):
     print('Saved, {}'.format(filename))
 
 
-# Apply a 12-month smoothing to the PfPR data
-def formatPfPR(data):
+# Apply a 12-month smoothing to the indicated data
+def smoothData(data, element):
     kernel = np.ones(12) / 12
     for index in data.keys():
-        if not 'pfpr' in data[index].keys(): return data
-        pfpr = data[index]['pfpr']
-        for ndx in range(len(pfpr)):
-            pfpr[ndx] = np.convolve(pfpr[ndx], kernel, mode = 'same')
+        if not element in data[index].keys(): return data
+        values = data[index][element]
+        for ndx in range(len(values)):
+            values[ndx] = np.convolve(values[ndx], kernel, mode = 'same')
     return data
 
 
