@@ -248,7 +248,12 @@ def check_replicate(filename):
 def process_genotype(date):
   GENOTYPE_DATASET = 'data/genotype_dataset'
   GENOTYPE_DIRECTORY = 'data/genotype'
-  FILENAMES = ['rwa-replacement-dhappq.yml', 'rwa-ae-al-5.yml', 'rwa-pfpr-constant.yml']
+  FILENAMES = ['rwa-ae-al-5.yml', 
+               'rwa-pfpr-constant.yml',
+               'rwa-replacement-dhappq.yml', 
+               'rwa-mft-asaq-dhappq-0.25.yml',
+               'rwa-rotation-al-5.yml',
+               'rwa-tact-alaq.yml']
 
   if not os.path.exists(GENOTYPE_DATASET): os.makedirs(GENOTYPE_DATASET)
   if not os.path.exists(GENOTYPE_DIRECTORY): os.makedirs(GENOTYPE_DIRECTORY)

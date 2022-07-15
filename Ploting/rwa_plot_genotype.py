@@ -3,11 +3,13 @@
 # rwa_plot_genotype.py
 #
 # Generated the more complicated overlay plots for the key manuscript figures.
+import csv
 import datetime
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import os
 import sys
 
 import rwanda
@@ -33,9 +35,26 @@ INDICES = {
 }
 
 # Generate the plot using the layout provided
-def generate(layout):
-    dates, data = load(layout)
-    data = smoothData(data, 'pfpr')
+def generate(layout, cached=False):
+    # Load and save the data if it wasn't cached
+    if not cached:          
+        dates, data = load(layout)
+        if not os.path.exists('np'):
+            os.makedirs('np')
+        for key in data.keys():
+            filename = 'np/{}'.format(key.split('/')[-1].replace('.csv', '-parsed.csv'))
+            writeCsv(dates, data[key], filename)
+        np.save('np/{}'.format(layout['title']), data, allow_pickle=True)
+        np.save('np/rwa-dates', dates, allow_pickle=True)
+
+    # Data was cached, load it
+    else:
+        print('Loading  {}...'.format(layout['title']))
+        data = np.load('np/{}.npy'.format(layout['title']), allow_pickle=True)
+        dates = np.load('np/rwa-dates.npy', allow_pickle=True)    
+        data = dict(enumerate(data.flatten(), 0))[0]
+
+    # Plot the data
     plot(dates, data, layout)
 
 
@@ -109,12 +128,12 @@ def parse(filename, plots):
 def plot(dates, data, layout):       
     COLORS = {
         'tf' : '#fb9a99',
-        'pfpr' : '#a6cee3',
+        'pfpr' : '#cfcfcf',
         'freq_561h' : '#fdbf6f',
 
         # Note we use the same color for the next two
-        'freq_plasmepsin' : '#67503d',
-        'freq_double' : '#67503d'
+        'freq_plasmepsin' : '#bf6ffd',
+        'freq_double' : '#bf6ffd'
     }
     
     # Generate all of the graphic elements for this axis
@@ -124,13 +143,21 @@ def plot(dates, data, layout):
             style = iter(layout['style'])
             name = iter(layout['name'])
             for filename in layout['source']:
-                color = handle_data(axis, data[filename][element], '{}, {}'.format(layout['label'][element], next(name)), color, next(style))
+                smooth = True if element == 'pfpr' else False
+                color = handle_data(axis, data[filename][element],  
+                    '{}, {}'.format(layout['label'][element], next(name)), color, next(style), smooth)
 
     # Update the current plot with the median of the data and shaded IQR
-    def handle_data(axis, data, label, color, style):
+    def handle_data(axis, data, label, color, style, smooth):
         upper = np.percentile(data, 75, axis=0)
         median = np.percentile(data, 50, axis=0)
         lower = np.percentile(data, 25, axis=0)
+
+        if smooth: 
+            upper = paddedSimpleSmooth(upper)
+            median = paddedSimpleSmooth(median)
+            lower = paddedSimpleSmooth(lower)
+
         line = axis.plot(dates, median, style, label = label, color = color, linewidth = 3)
         fill = scale_luminosity(line[0].get_color(), 1)
         axis.fill_between(dates, lower, upper, alpha=0.5, facecolor=fill)
@@ -146,8 +173,8 @@ def plot(dates, data, layout):
     ax2 = ax1.twinx()   
 
     # Plot the axes data
-    handle_axis(layout['left'], ax1)
-    handle_axis(layout['right'], ax2)
+    handle_axis(layout['left'], ax1)    
+    handle_axis(layout['right'], ax2)    
 
     # Plot the intervention point
     plt.axvline(0, color='#a5a5a5')
@@ -166,7 +193,8 @@ def plot(dates, data, layout):
 
     ax2.grid(False)
     ax2.set_ylabel('$\it{Pf}$PR$_{2-10}$')
-    ax2.set_xlim([dates[6], dates[-6]])
+    ax2.set_ylim([0, max(ax2.get_ylim()) + 0.25])
+    ax2.set_xlim([dates[6], dates[len(dates) - 1]])
 
     # Format the plot
     ax1.set_title(layout['title'])
@@ -177,16 +205,51 @@ def plot(dates, data, layout):
     print('Saved, {}'.format(filename))
 
 
-# Apply a 12-month smoothing to the indicated data
-def smoothData(data, element):
-    kernel = np.ones(12) / 12
-    for index in data.keys():
-        if not element in data[index].keys(): return data
-        values = data[index][element]
-        for ndx in range(len(values)):
-            values[ndx] = np.convolve(values[ndx], kernel, mode = 'same')
-    return data
+def simpleSmooth(vector):
+    w = 13
+    l = len(vector)
+    out = [0]*l
+    for j in range(l):
+        lb = int(j - (w - 1) / 2)
+        rb = int(j + (w - 1) / 2)
+        if lb < 0: lb = 0
+        if rb > l: rb = l - 1
+        num_elements = rb - lb + 1      # Normally == w
+        out[j] = (sum(vector[lb:rb]) / num_elements)
+    return out
 
+def paddedSimpleSmooth(vector):
+    window = 11
+
+    # Force to a vector, create a new vector padded to the window size
+    vector = vector.tolist()
+    new_vector = vector[0:window]
+    new_vector.extend(vector)
+    new_vector.extend(vector[-(window + 1):-1])
+
+    # Build a single array
+#    new_vector = np.convolve(new_vector, np.ones(12) / 12, mode = 'same')
+    new_vector = simpleSmooth(new_vector)
+    return new_vector[window:-window]
+
+
+def writeCsv(dates, data, filename):
+    # Start by writing out raw CSV
+    with open(filename, 'w') as out:
+        # Start by writing the dates
+        values = ','.join([str(item) for item in dates])
+        out.write("{},{}\n".format('date', values))    
+    
+        # Write the median and IQR for each keyed value
+        for key in data.keys():
+            for value in [25, 50, 75]:
+                values = ','.join([str(item) for item in np.percentile(data[key], value, axis=0)])
+                out.write("{}-{},{}\n".format(key, value, values))
+
+    # Transpose the CSV from horizontal to vertical alignment
+    values = zip(*csv.reader(open(filename, "r")))
+    csv.writer(open(filename, "w")).writerows(values)
+        
 
 if __name__ == '__main__':
     al_vs_al5 = {
@@ -220,7 +283,7 @@ if __name__ == '__main__':
         'left' : ['tf', 'freq_561h'],
         'right' : ['pfpr'],
         'style' : ['-.', '-'],
-        'intervention' : 0.65,
+        'intervention' : 0.72,
 
         'title' : 'AL 5-day vs. DHA-PPQ',
         'label' : {
@@ -240,7 +303,7 @@ if __name__ == '__main__':
         'left' : ['tf', 'freq_561h', 'freq_plasmepsin'],
         'right' : ['pfpr'],
         'style' : ['-.', '-'],
-        'intervention' : 0.65,
+        'intervention' : 0.72,
 
         'title' : 'AL 5-day vs. DHA-PPQ - Plasmepsin 2-3, 2x Copy',
         'label' : {
@@ -261,7 +324,7 @@ if __name__ == '__main__':
         'left' : ['tf', 'freq_561h', 'freq_double'],
         'right' : ['pfpr'],
         'style' : ['-.', '-'],
-        'intervention' : 0.65,
+        'intervention' : 0.72,
 
         'title' : 'AL 5-day vs. DHA-PPQ - Double Resistance',
         'label' : {
@@ -271,8 +334,74 @@ if __name__ == '__main__':
             'freq_double' : 'Double Resistance Frequency'
         }        
     }      
+    al5_vs_mft= {
+        'source' : [ 
+            '../Analysis/data/genotype_dataset/rwa-ae-al-5.csv',
+            '../Analysis/data/genotype_dataset/rwa-mft-asaq-dhappq-0.25.csv'
+        ],
+        'name' : ['AL 5-day', 'MFT' ],
 
-    generate(al_vs_al5)
-    generate(al5_vs_dhappq)
-    generate(al5_vs_dhappq_plas)
-    generate(al5_vs_dhappq_double)
+        'plot' : ['tf', 'pfpr', 'freq_561h', 'freq_double'],
+        'left' : ['tf', 'freq_561h', 'freq_double'],
+        'right' : ['pfpr'],
+        'style' : ['-.', '-'],
+        'intervention' : 0.45,
+
+        'title' : 'AL 5-day vs. MFT (75% ASAQ, 25% DHA-PPQ)',
+        'label' : {
+            'tf' : '% Treatment Failures',
+            'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+            'freq_561h' : '561H Frequency',
+            'freq_double' : 'Double Resistance Frequency'
+        }        
+    }      
+    al5_vs_cycling = {
+        'source' : [ 
+            '../Analysis/data/genotype_dataset/rwa-ae-al-5.csv',
+            '../Analysis/data/genotype_dataset/rwa-rotation-al-5.csv'
+        ],
+        'name' : ['AL 5-day', 'DHA-PPQ rotation to MFT' ],
+
+        'plot' : ['tf', 'pfpr', 'freq_561h', 'freq_double'],
+        'left' : ['tf', 'freq_561h', 'freq_double'],
+        'right' : ['pfpr'],
+        'style' : ['-.', '-'],
+        'intervention' : 0.45,
+
+        'title' : 'AL 5-day vs. DHA-PPQ rotation to MFT',
+        'label' : {
+            'tf' : '% Treatment Failures',
+            'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+            'freq_561h' : '561H Frequency',
+            'freq_double' : 'Double Resistance Frequency'
+        }        
+    }      
+    al5_vs_tact = {
+        'source' : [ 
+            '../Analysis/data/genotype_dataset/rwa-ae-al-5.csv',
+            '../Analysis/data/genotype_dataset/rwa-tact-alaq.csv'
+        ],
+        'name' : ['AL 5-day', 'AL + AQ' ],
+
+        'plot' : ['tf', 'pfpr', 'freq_561h'],
+        'left' : ['tf', 'freq_561h'],
+        'right' : ['pfpr'],
+        'style' : ['-.', '-'],
+        'intervention' : 0.45,
+
+        'title' : 'AL 5-day vs. AL + AQ',
+        'label' : {
+            'tf' : '% Treatment Failures',
+            'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+            'freq_561h' : '561H Frequency',
+        }        
+    }                  
+
+    cached = True
+    generate(al_vs_al5, cached)
+    generate(al5_vs_dhappq, cached)
+    generate(al5_vs_dhappq_plas, cached)
+    generate(al5_vs_dhappq_double, cached)
+    generate(al5_vs_mft, cached)
+    generate(al5_vs_cycling, cached)
+    generate(al5_vs_tact, cached)
