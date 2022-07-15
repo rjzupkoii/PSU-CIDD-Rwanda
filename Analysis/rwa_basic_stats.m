@@ -1,17 +1,9 @@
 % rwa_basic_stats.m
 %
-% Calculate the basic statistics for each study, district, etc.
-clear;
-
-% Get the frequency data from the files
-files = dir('data/datasets/rwa-*.csv');
-frequencies = zeros(size(files, 2), 30);
-for ndx = 1:length(files)
-   filename = fullfile(files(ndx).folder, files(ndx).name);
-   report = strcat('out/', strrep(files(ndx).name, '.csv', '.txt'));
-   process(filename, report);
-end
-
+% Calculate the basic statistics for the 561H frequency, clinical cases,
+% and treatment failures for each study, district, etc. as a CSV file with 
+% 3-, 5-, and 10-year end-points for the returned data sets.
+%
 % Expected file structure
 %  1: Configuration Id
 %  2: Replicate Id
@@ -24,9 +16,86 @@ end
 %  9: 561H Weighted Occurrences,
 % 10: Treatment Failures,
 % 11: Genotype Carriers
-function [] = process(filename, report)
+clear;
+
+generate_reports();
+
+function [] = generate_reports()
+    ENDPOINTS = 'out/rwa-endpoints.csv';
+    
+    % Open the endpoints for output
+    output = fopen(ENDPOINTS, 'W');
+    
+    % Add the header to the file
+    fprintf(output, 'Study,Three Years,,,,,Five Years,,,,,Ten Years,,,,,\n');
+    fprintf(output, '%s,\n', repmat(',Clinical Cases,Treatments,Treatment Failures,Treatment Failures,561H Frequency', 1, 3));
+    
+    % Get the frequency data from the files
+    files = dir('data/datasets/rwa-*.csv');
+    frequencies = zeros(size(files, 2), 30);
+    for ndx = 1:length(files)
+        if files(ndx).name == "rwa-561h-verification.csv"
+            continue
+        end
+    
+        filename = fullfile(files(ndx).folder, files(ndx).name);
+        summary(filename, strcat('out/', strrep(files(ndx).name, '.csv', '.txt')));
+        endpoints(filename, strrep(files(ndx).name, '.csv', ''), output);
+    end
+    
+    % Close the file
+    fclose(output);
+end
+
+function [] = endpoints(filename, study, output) 
+    REPLICATE = 2; DAYSELAPSED = 3;
+    INFECTIONS = 5; CLINICAL = 6; OCCURRENCES = 9; TREATMENTS = 10; FAILURES = 11;
+
+    % Note the filename
+    fprintf(output, '%s,', study);
+
+    % Read the data
+    data = readmatrix(filename);
+    replicates = transpose(unique(data(:, REPLICATE)));
+
+    for offset = [7, 5, 0]
+        % Filter on the dates
+        days = unique(data(:, DAYSELAPSED));
+        days = days(end - (11 + 12 * offset):end - (12 * offset));
+        filtered = data(ismember(data(:, DAYSELAPSED), days), :);
+        
+        % Prepare our data 
+        cases = zeros(size(replicates, 2), 1);
+        treatments = zeros(size(replicates, 2), 1);
+        failures_abs = zeros(size(replicates, 2), 1);
+        failures_prct = zeros(size(replicates, 2), 1);
+        frequency = zeros(size(replicates, 2), 1);
+
+        % Get the values for each replicate
+        for ndx = 1:size(replicates, 2)
+            temp = filtered(filtered(:, REPLICATE) == replicates(ndx), :);
+            cases(ndx) = sum(temp(:, CLINICAL)) / 12;                                             % Monthly average
+            treatments(ndx) = sum(temp(:, TREATMENTS)) / 12;                                      % Monthly average
+            failures_abs(ndx) = sum(temp(:, FAILURES)) / 12;                                      % Monthly average
+            failures_prct(ndx) = (sum(temp(:, FAILURES)) / sum(temp(:, TREATMENTS))) * 100.0;     % Annual percentage
+            frequency(ndx) = sum(temp(:, OCCURRENCES)) / sum(temp(:, INFECTIONS));                % Annual frequency
+        end
+
+        % Write the data points
+        fprintf(output, '%.0f (%.0f - %.0f),', prctile(cases(:), [50 25 75]));
+        fprintf(output, '%.0f (%.0f - %.0f),', prctile(treatments(:), [50 25 75]));
+        fprintf(output, '%.0f (%.0f - %.0f),', prctile(failures_abs(:), [50 25 75]));
+        fprintf(output, '%.2f (%.2f - %.2f),', prctile(failures_prct(:), [50 25 75]));
+        fprintf(output, '%.2f (%.2f - %.2f),', prctile(frequency(:), [50 25 75]));
+    end
+
+    % End the line we are on
+    fprintf(output, '\n');
+end
+
+function [] = summary(filename, report)
     REPLICATE = 2; DAYSELAPSED = 3; DISTRICT = 4; INFECTIONS = 5;
-    CLINICAL = 6; OCCURRENCES = 9; FAILURES = 10;
+    CLINICAL = 6; OCCURRENCES = 9; FAILURES = 11;
 
     % Load the labels
     labels = readtable('../GIS/rwa_districts.csv');
@@ -71,9 +140,9 @@ function [] = process(filename, report)
 
     % Now calculate the national frequency
     frequency = sum(occurrences, 2) ./ sum(infections, 2);
-    fprintf(out, '\nNATIONAL: %.4f (IQR %.4f - %.4f)\n', prctile(frequency, [50 25 75]));
-    fprintf(out, 'Clinical: %.2f (IQR %.2f - %.2f\n', prctile(clinical ./ 12, [50 25 75]));
-    fprintf(out, 'Failures: %.2f (IQR %.2f - %.2f\n', prctile(failures ./ 12, [50 25 75]));
+    fprintf(out, '\nNATIONAL: %.4f (%.4f - %.4f)\n', prctile(frequency, [50 25 75]));
+    fprintf(out, 'Clinical: %.2f (%.2f - %.2f)\n', prctile(clinical ./ 12, [50 25 75]));
+    fprintf(out, 'Failures: %.2f (%.2f - %.2f)\n'    , prctile(failures ./ 12, [50 25 75]));
 
     % Close the file
     fclose(out);
