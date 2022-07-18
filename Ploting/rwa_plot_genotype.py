@@ -14,6 +14,8 @@ import sys
 
 import rwanda
 
+from matplotlib.offsetbox import AnchoredOffsetbox, TextArea, VPacker
+
 # From the PSU-CIDD-MaSim-Support repository
 sys.path.insert(1, '../../PSU-CIDD-MaSim-Support/Python/include')
 from plotting import scale_luminosity
@@ -129,7 +131,7 @@ def plot(dates, data, layout):
     COLORS = {
         'tf' : '#fb9a99',
         'pfpr' : '#cfcfcf',
-        'freq_561h' : '#fdbf6f',
+        'freq_561h' : '#3182bd',
 
         # Note we use the same color for the next two
         'freq_plasmepsin' : '#bf6ffd',
@@ -158,7 +160,7 @@ def plot(dates, data, layout):
             median = paddedSimpleSmooth(median)
             lower = paddedSimpleSmooth(lower)
 
-        line = axis.plot(dates, median, style, label = label, color = color, linewidth = 3)
+        line = axis.plot(dates, median, style, label = label, color = color, linewidth = 5)
         fill = scale_luminosity(line[0].get_color(), 1)
         axis.fill_between(dates, lower, upper, alpha=0.5, facecolor=fill)
         return scale_luminosity(color, 0.5)
@@ -173,9 +175,9 @@ def plot(dates, data, layout):
     ax2 = ax1.twinx()   
 
     # Plot the axes data
-    handle_axis(layout['left'], ax1)    
-    handle_axis(layout['right'], ax2)    
-
+    handle_axis(layout['left'], ax1)
+    handle_axis(layout['right'], ax2)
+     
     # Plot the intervention point
     plt.axvline(0, color='#a5a5a5')
     ax1.text(-0.175, layout['intervention'], 'Drug Policy Introduction', rotation=90, size=20, color='#a5a5a5')
@@ -183,18 +185,28 @@ def plot(dates, data, layout):
     # Format the legend
     fig.legend(loc='lower center', ncol=len(layout['plot']), borderpad=0.25, frameon=False, prop={'size': 20})
 
+    # Add the three color left y-axis label
+    box = [
+        TextArea('% Treatment Failures', textprops=dict(color='#c61815', rotation=90, ha='left', va='bottom')),
+        TextArea(' / ', textprops=dict(color='black', rotation=90, ha='left', va='bottom')),
+        TextArea(' '*16 + 'Genotype Frequency', textprops=dict(color='#3182bd', rotation=90, ha='left', va='bottom')),
+    ]
+    ybox = VPacker(children=box, align="bottom", pad=0, sep=5)
+    anchored = AnchoredOffsetbox(loc='center', child=ybox, pad=0, frameon=False, bbox_to_anchor=(-0.08, 0.4), 
+                                  bbox_transform=ax1.transAxes, borderpad=0)
+    ax1.add_artist(anchored)    
+
     # Format the axes
     ax1.grid(False)
-    ax1.set_ylabel('Genotype Frequency / % Treatment Failures')
     ax1.set_ylim([0, 1])
     labels = ['{:.1f} / {:.0f}%'.format(tick, tick * 100) for tick in ax1.get_yticks()]
     ax1.set_yticks(ax1.get_yticks())        # Redundant, but keeps the formatter happy
     ax1.set_yticklabels(labels)
 
     ax2.grid(False)
-    ax2.set_ylabel('$\it{Pf}$PR$_{2-10}$')
-    ax2.set_ylim([0, max(ax2.get_ylim()) + 0.25])
-    ax2.set_xlim([dates[6], dates[len(dates) - 1]])
+    ax2.set_ylabel('$\it{Pf}$PR$_{2-10}$', color='#686868')
+    ax2.set_ylim([0, 4.25])
+    ax2.set_xlim([dates[12], dates[len(dates) - 1]])
 
     # Format the plot
     ax1.set_title(layout['title'])
@@ -228,7 +240,6 @@ def paddedSimpleSmooth(vector):
     new_vector.extend(vector[-(window + 1):-1])
 
     # Build a single array
-#    new_vector = np.convolve(new_vector, np.ones(12) / 12, mode = 'same')
     new_vector = simpleSmooth(new_vector)
     return new_vector[window:-window]
 
@@ -243,7 +254,10 @@ def writeCsv(dates, data, filename):
         # Write the median and IQR for each keyed value
         for key in data.keys():
             for value in [25, 50, 75]:
-                values = ','.join([str(item) for item in np.percentile(data[key], value, axis=0)])
+                if key == 'pfpr':
+                    values = ','.join([str(item) for item in paddedSimpleSmooth(np.percentile(data[key], value, axis=0))])
+                else:
+                    values = ','.join([str(item) for item in np.percentile(data[key], value, axis=0)])
                 out.write("{}-{},{}\n".format(key, value, values))
 
     # Transpose the CSV from horizontal to vertical alignment
@@ -263,7 +277,7 @@ if __name__ == '__main__':
         'left' : ['tf', 'freq_561h'],
         'right' : ['pfpr'],
         'style' : ['-.', '-'],
-        'intervention' : 0.45,
+        'intervention' : 0.42,
 
         'title' : 'AL 3-day vs. AL 5-day',
         'label' : {
@@ -283,7 +297,7 @@ if __name__ == '__main__':
         'left' : ['tf', 'freq_561h'],
         'right' : ['pfpr'],
         'style' : ['-.', '-'],
-        'intervention' : 0.72,
+        'intervention' : 0.42,
 
         'title' : 'AL 5-day vs. DHA-PPQ',
         'label' : {
@@ -303,7 +317,7 @@ if __name__ == '__main__':
         'left' : ['tf', 'freq_561h', 'freq_plasmepsin'],
         'right' : ['pfpr'],
         'style' : ['-.', '-'],
-        'intervention' : 0.72,
+        'intervention' : 0.42,
 
         'title' : 'AL 5-day vs. DHA-PPQ - Plasmepsin 2-3, 2x Copy',
         'label' : {
@@ -324,7 +338,7 @@ if __name__ == '__main__':
         'left' : ['tf', 'freq_561h', 'freq_double'],
         'right' : ['pfpr'],
         'style' : ['-.', '-'],
-        'intervention' : 0.72,
+        'intervention' : 0.42,
 
         'title' : 'AL 5-day vs. DHA-PPQ - Double Resistance',
         'label' : {
@@ -345,7 +359,7 @@ if __name__ == '__main__':
         'left' : ['tf', 'freq_561h', 'freq_double'],
         'right' : ['pfpr'],
         'style' : ['-.', '-'],
-        'intervention' : 0.45,
+        'intervention' : 0.42,
 
         'title' : 'AL 5-day vs. MFT (75% ASAQ, 25% DHA-PPQ)',
         'label' : {
@@ -366,7 +380,7 @@ if __name__ == '__main__':
         'left' : ['tf', 'freq_561h', 'freq_double'],
         'right' : ['pfpr'],
         'style' : ['-.', '-'],
-        'intervention' : 0.45,
+        'intervention' : 0.40,
 
         'title' : 'AL 5-day vs. DHA-PPQ rotation to MFT',
         'label' : {
@@ -387,7 +401,7 @@ if __name__ == '__main__':
         'left' : ['tf', 'freq_561h'],
         'right' : ['pfpr'],
         'style' : ['-.', '-'],
-        'intervention' : 0.45,
+        'intervention' : 0.41,
 
         'title' : 'AL 5-day vs. AL + AQ',
         'label' : {
@@ -400,7 +414,7 @@ if __name__ == '__main__':
     cached = True
     generate(al_vs_al5, cached)
     generate(al5_vs_dhappq, cached)
-    generate(al5_vs_dhappq_plas, cached)
+    generate(al5_vs_dhappq_plas, cached)    
     generate(al5_vs_dhappq_double, cached)
     generate(al5_vs_mft, cached)
     generate(al5_vs_cycling, cached)
