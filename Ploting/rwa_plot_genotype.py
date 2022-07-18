@@ -127,7 +127,7 @@ def parse(filename, plots):
 
 
 # Plot using Matplotlib
-def plot(dates, data, layout):       
+def plot(dates, data, layout):     
     COLORS = {
         'tf' : '#fb9a99',
         'pfpr' : '#cfcfcf',
@@ -156,9 +156,9 @@ def plot(dates, data, layout):
         lower = np.percentile(data, 25, axis=0)
 
         if smooth: 
-            upper = paddedSimpleSmooth(upper)
-            median = paddedSimpleSmooth(median)
-            lower = paddedSimpleSmooth(lower)
+            upper = pd.Series(upper).rolling(12, min_periods=1).mean()
+            median = pd.Series(median).rolling(12, min_periods=1).mean()
+            lower = pd.Series(lower).rolling(12, min_periods=1).mean()
 
         line = axis.plot(dates, median, style, label = label, color = color, linewidth = 5)
         fill = scale_luminosity(line[0].get_color(), 1)
@@ -205,7 +205,7 @@ def plot(dates, data, layout):
 
     ax2.grid(False)
     ax2.set_ylabel('$\it{Pf}$PR$_{2-10}$', color='#686868')
-    ax2.set_ylim([0, 4.25])
+    ax2.set_ylim([0, 5.25])
     ax2.set_xlim([dates[12], dates[len(dates) - 1]])
 
     # Format the plot
@@ -215,34 +215,6 @@ def plot(dates, data, layout):
     filename = '{}/{}.png'.format('plots/', layout['title'])
     plt.savefig(filename)
     print('Saved, {}'.format(filename))
-
-
-def simpleSmooth(vector):
-    w = 13
-    l = len(vector)
-    out = [0]*l
-    for j in range(l):
-        lb = int(j - (w - 1) / 2)
-        rb = int(j + (w - 1) / 2)
-        if lb < 0: lb = 0
-        if rb > l: rb = l - 1
-        num_elements = rb - lb + 1      # Normally == w
-        out[j] = (sum(vector[lb:rb]) / num_elements)
-    return out
-
-def paddedSimpleSmooth(vector):
-    window = 11
-
-    # Force to a vector, create a new vector padded to the window size
-    vector = vector.tolist()
-    new_vector = vector[0:window]
-    new_vector.extend(vector)
-    new_vector.extend(vector[-(window + 1):-1])
-
-    # Build a single array
-    new_vector = simpleSmooth(new_vector)
-    return new_vector[window:-window]
-
 
 def writeCsv(dates, data, filename):
     # Start by writing out raw CSV
@@ -255,7 +227,7 @@ def writeCsv(dates, data, filename):
         for key in data.keys():
             for value in [25, 50, 75]:
                 if key == 'pfpr':
-                    values = ','.join([str(item) for item in paddedSimpleSmooth(np.percentile(data[key], value, axis=0))])
+                    values = ','.join([str(item) for item in pd.Series(np.percentile(data[key], value, axis=0)).rolling(12, min_periods=1).mean()  ])
                 else:
                     values = ','.join([str(item) for item in np.percentile(data[key], value, axis=0)])
                 out.write("{}-{},{}\n".format(key, value, values))
