@@ -146,3 +146,30 @@ FROM (
 	  AND r.starttime > '2022-06-30') iq
 GROUP BY configurationid, studyid, filename
 ORDER BY studyid, filename
+
+-- Validation study query, constrained to model year 2020
+SELECT c.id as configurationid, sd.replicateid, sd.district, 
+max(population) / 0.25 as population, 
+sum(clinicalepisodes) / 0.25 as clinicalepisodes,
+sum(treatments) / 0.25 as treatments,
+sum(treatmentfailures) / 0.25 as treatmentfailures,
+round(sum(clinicalepisodes) / (max(population) / 1000), 2) annualclinical_per1000,
+round(sum(treatments) / (max(population) / 1000), 2) annualtreated_per1000
+FROM (
+SELECT md.replicateid, md.dayselapsed, msd.location AS district,
+  sum(msd.population) as population,
+  sum(msd.clinicalepisodes) AS clinicalepisodes,
+  sum(msd.infectedindividuals) as infectedindividuals,
+  sum(msd.treatments) AS treatments,
+  sum(msd.treatmentfailures) as treatmentfailures
+FROM sim.monthlydata md
+  INNER JOIN sim.monthlysitedata msd on msd.monthlydataid = md.id
+WHERE md.replicateid = 35557
+  AND md.dayselapsed between 6209 and 6544
+GROUP BY md.replicateid, md.dayselapsed, msd.location) sd
+INNER JOIN sim.replicate r on r.id = sd.replicateid
+INNER JOIN sim.configuration c on c.id = r.configurationid
+WHERE r.endtime is not null
+AND r.id = 35557
+GROUP BY c.id, sd.replicateid, sd.district
+ORDER BY district
