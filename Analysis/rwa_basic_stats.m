@@ -18,9 +18,9 @@
 % 11: Genotype Carriers
 clear;
 
-generate_reports();
+generate_reports(0.25);
 
-function [] = generate_reports()
+function [] = generate_reports(scaling)
     ENDPOINTS = 'out/rwa-endpoints.csv';
     
     % Open the endpoints for output
@@ -39,15 +39,15 @@ function [] = generate_reports()
         end
     
         filename = fullfile(files(ndx).folder, files(ndx).name);
-        summary(filename, strcat('out/', strrep(files(ndx).name, '.csv', '.txt')));
-        endpoints(filename, strrep(files(ndx).name, '.csv', ''), output);
+        summary(filename, scaling, strcat('out/', strrep(files(ndx).name, '.csv', '.txt')));
+        endpoints(filename, scaling, strrep(files(ndx).name, '.csv', ''), output);
     end
     
     % Close the file
     fclose(output);
 end
 
-function [] = endpoints(filename, study, output) 
+function [] = endpoints(filename, scaling, study, output) 
     REPLICATE = 2; DAYSELAPSED = 3;
     INFECTIONS = 5; CLINICAL = 6; OCCURRENCES = 9; TREATMENTS = 10; FAILURES = 11;
 
@@ -74,9 +74,9 @@ function [] = endpoints(filename, study, output)
         % Get the values for each replicate
         for ndx = 1:size(replicates, 2)
             temp = filtered(filtered(:, REPLICATE) == replicates(ndx), :);
-            cases(ndx) = sum(temp(:, CLINICAL)) / 12;                                             % Monthly average
-            treatments(ndx) = sum(temp(:, TREATMENTS)) / 12;                                      % Monthly average
-            failures_abs(ndx) = sum(temp(:, FAILURES)) / 12;                                      % Monthly average
+            cases(ndx) = sum(temp(:, CLINICAL) / scaling) / 12;                                   % Monthly average
+            treatments(ndx) = sum(temp(:, TREATMENTS) / scaling) / 12;                            % Monthly average
+            failures_abs(ndx) = sum(temp(:, FAILURES) / scaling) / 12;                            % Monthly average
             failures_prct(ndx) = (sum(temp(:, FAILURES)) / sum(temp(:, TREATMENTS))) * 100.0;     % Annual percentage
             frequency(ndx) = sum(temp(:, OCCURRENCES)) / sum(temp(:, INFECTIONS));                % Annual frequency
         end
@@ -93,7 +93,7 @@ function [] = endpoints(filename, study, output)
     fprintf(output, '\n');
 end
 
-function [] = summary(filename, report)
+function [] = summary(filename, scaling, report)
     REPLICATE = 2; DAYSELAPSED = 3; DISTRICT = 4; INFECTIONS = 5;
     CLINICAL = 6; OCCURRENCES = 9; FAILURES = 11;
 
@@ -128,8 +128,8 @@ function [] = summary(filename, report)
             occurrences(ndx, ndy) = sum(filtered(:, OCCURRENCES));
             infections(ndx, ndy) = sum(filtered(:, INFECTIONS));
         end
-        clinical(ndx) = sum(data(data(:, REPLICATE) == replicates(ndx), CLINICAL));
-        failures(ndx) = sum(data(data(:, REPLICATE) == replicates(ndx), FAILURES));
+        clinical(ndx) = sum(data(data(:, REPLICATE) == replicates(ndx), CLINICAL) / scaling);
+        failures(ndx) = sum(data(data(:, REPLICATE) == replicates(ndx), FAILURES) / scaling);
     end
     frequency = occurrences ./ infections;
 
