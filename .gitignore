@@ -9,6 +9,7 @@
 
 # Ignore data directories
 /**/data
+/**/np
 
 # Ignore plot directories
 /**/plots

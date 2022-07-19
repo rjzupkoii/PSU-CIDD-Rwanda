@@ -101,7 +101,7 @@ def parse(filename, plots):
             for index in plots:
                 if 'freq_' in index:
                     values[index].append(byDate[INDICES[index]] / byDate[INDICES['infections']])
-                elif 'tf' is index:
+                elif 'tf' == index:
                     values[index].append((byDate[INDICES['failures']] / byDate[INDICES['treatments']]))
                 else:
                     values[index].append(byDate[INDICES[index]])
