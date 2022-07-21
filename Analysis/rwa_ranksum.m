@@ -25,8 +25,10 @@ function [] = process(offset)
     
         filename = fullfile(files(ndx).folder, files(ndx).name);
         [failures, frequency] = calculate(filename, offset);
-        fprintf('vs. %s; failures: p = %0.4f; frequency: p = %0.4f\n', ...
-            files(ndx).name, ranksum(sq_failures, failures), ranksum(sq_frequency, frequency));
+        p_failures = ranksum(sq_failures, failures);
+        p_frequency = ranksum(sq_frequency, frequency);
+        fprintf('vs. %s; failures: p = %0.4f (log10 = %.2f); frequency: p = %0.4f (log10 = %.2f)\n', ...
+            files(ndx).name, p_failures, log10(p_failures), p_frequency, log10(p_frequency));
     end
 end
 
@@ -39,20 +41,13 @@ function [failures, frequency] = calculate(filename, offset)
     days = unique(data(:, DAYSELAPSED));
 
     % Discard everything but the last year
-    days = days(end - (11 + 12 * offset):end - (12 * offset));  
-        
+    days = days(end - (11 + 12 * offset):end - (12 * offset));
+
     % Calcluate the median treatment failures (percentage) and 561H frequency
     failures = []; frequency = [];
     for replicate = replicates
         filtered = data(data(:, REPLICATE) == replicate, :);
-        rep_failures = []; rep_frequency = [];
-        for day = transpose(days)
-            rep_failures = [rep_failures sum(filtered(filtered(:, DAYSELAPSED) == day, FAILURES))];
-            rep_frequency = [rep_frequency sum(filtered(filtered(:, DAYSELAPSED) == day, WEIGHTED)) / sum(filtered(filtered(:, DAYSELAPSED) == day, INFECTIONS))];
-        end
-        failures = [failures; rep_failures];
-        frequency = [frequency; rep_frequency];
+        failures = [failures sum(filtered(:, FAILURES))];
+        frequency = [frequency sum(filtered(:, WEIGHTED)) / sum(filtered(:, INFECTIONS))];
     end
-    failures = median(failures, 1);
-    frequency = median(frequency, 1);
 end
