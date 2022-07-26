@@ -7,6 +7,9 @@
 %
 % NOTE this script should be run after loader.py to ensure that the most 
 % recent data has been loaded into data/datasets.
+%
+% NOTE Used in the preliminary calibration and validation of the model, but
+% not for generating the final plots that appear in the manuscript.
 addpath('include');
 clear;
 

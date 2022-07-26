@@ -1,7 +1,8 @@
 % rwa_561h_splike.m
 %
-% Generate a nine panel plot that compares the status quo versus a 1% and
-% 2% decline in the cell PfPR for Rwanda.
+% Generate a three panel spagetti plot that compares the projected
+% trajectory of the 561H frequency for at the national level; Gasabo and
+% Kayoza districts.
 clear;
 
 startdate = '2003-01-01';
@@ -26,7 +27,6 @@ xline(4290 + datenum(startdate), ':', '0.12069');
 xline(4650 + datenum(startdate), ':', '0.0603');
 xline(5730 + datenum(startdate), ':', '0.19608');
 xline(6090 + datenum(startdate), ':', '0.21918');
-
 
 % Plot the district data for Kayonza
 subplot(3, 1, 3);

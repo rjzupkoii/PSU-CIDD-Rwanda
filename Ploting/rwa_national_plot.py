@@ -64,9 +64,9 @@ def main(plot, verification=True, search='', breaks=[3, 5, None]):
 
         for key in rwanda.REPORT_LAYOUT:
             label = rwanda.REPORT_LAYOUT[key][rwanda.REPORT_YLABEL]
-            filename = 'plots/Comparison - {}.png'.format(label)
+            filename = 'plots/Comparison - {}.svg'.format(label)
             if years is not None:
-                filename = 'plots/Comparison, {:02d}y - {}.png'.format(years, label)
+                filename = 'plots/Comparison, {:02d}y - {}.svg'.format(years, label)
             plot_violin(dataset, key, label, filename, plot)
 
 
@@ -283,8 +283,8 @@ def plot_validation(datafile, imagefile):
 
 
 if __name__ == '__main__':
-    # main(rwa_reports.STUDIES, False, 'standard')
-    main(rwa_reports.COMPLIANCE, False, 'compliance')
+    main(rwa_reports.STUDIES, False, 'standard')
+    # main(rwa_reports.COMPLIANCE, False, 'compliance')
     # main(rwa_reports.NMCP, False, 'nmcp')
     # main(rwa_reports.EXTENDED, False, 'dhappq')
     

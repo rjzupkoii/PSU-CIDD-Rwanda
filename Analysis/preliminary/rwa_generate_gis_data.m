@@ -2,6 +2,9 @@
 %
 % Use the verification data file to generate an aggregated CSV file that
 % can be used in ArcGIS Pro to plot projected cases for Rwanda.
+%
+% NOTE Used in the preliminary calibration and validation of the model, not
+% for the final manuscript runs.
 clear;
 
 data = readmatrix('data/10825-verification-data.csv');

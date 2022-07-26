@@ -1,4 +1,4 @@
-% rwa_treatment_failures.m
+ % rwa_treatment_failures.m
 % 
 % Calculate the treatment failure for the last 11 years of the study.
 clear;
@@ -6,7 +6,7 @@ clear;
 calculate('data/datasets/rwa-pfpr-constant.csv', 0.25);
 
 function [] = calculate(filename, scaling)
-    REPLICATE = 2; DAYSELAPSED = 3; TREATMENTS = 10; FAILURES = 11;
+    REPLICATE = 2; DAYSELAPSED = 3; CLINICAL = 6; TREATMENTS = 10; FAILURES = 11;
 
     % Read the data
     data = readmatrix(filename);
@@ -23,6 +23,7 @@ function [] = calculate(filename, scaling)
         failures_abs = zeros(size(replicates, 2), 1);
         failures_prct = zeros(size(replicates, 2), 1);
         failures_sum = zeros(size(replicates, 2), 1);
+        clinical_sum = zeros(size(replicates, 2), 1);
     
         % Get the values for each replicate
         for ndx = 1:size(replicates, 2)
@@ -30,9 +31,11 @@ function [] = calculate(filename, scaling)
             failures_abs(ndx) = sum(temp(:, FAILURES) / scaling) / 12;                            % Monthly average
             failures_prct(ndx) = (sum(temp(:, FAILURES)) / sum(temp(:, TREATMENTS))) * 100.0;     % Annual percentage
             failures_sum(ndx) = sum(temp(:, FAILURES) / scaling);                                 % Sum for year
+            clinical_sum(ndx) = sum(temp(:, CLINICAL) / scaling);
         end
     
-        fprintf('Year: %d | Monthly: %.0f (%.0f - %.0f) | Yearly: %.0f (%.0f - %.0f) | %%: %.2f (%.2f - %.2f)\n', ...
-            10 - offset, prctile(failures_abs(:), [50 25 75]), prctile(failures_sum(:), [50 25 75]), prctile(failures_prct(:), [50 25 75]));
+%         fprintf('Year: %d | Monthly: %.0f (%.0f - %.0f) | Yearly: %.0f (%.0f - %.0f) | %%: %.2f (%.2f - %.2f)\n', ...
+%             10 - offset, prctile(failures_abs(:), [50 25 75]), prctile(failures_sum(:), [50 25 75]), prctile(failures_prct(:), [50 25 75]));
+        fprintf('Year: %d | Clinical: %.0f (IQR: %.0f - %.0f)\n', 10 - offset, prctile(clinical_sum(:), [50 25 75]))
     end
 end

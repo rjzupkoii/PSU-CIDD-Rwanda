@@ -1,4 +1,4 @@
-% rainfall.m
+% rwa_rainfall.m
 %
 % Use ERA5 mean daily rainfall to generate adjustments to the model beta parameter.
 %

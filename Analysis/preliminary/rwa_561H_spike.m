@@ -2,6 +2,9 @@
 %
 % Generate a nine panel plot that compares the status quo versus a 1% and
 % 2% decline in the cell PfPR for Rwanda.
+%
+% NOTE Used in the preliminary calibration and validation of the model, not
+% for the final manuscript runs.
 clear;
 
 startdate = '2003-01-01';
