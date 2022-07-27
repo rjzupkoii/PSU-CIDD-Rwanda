@@ -24,7 +24,6 @@ CONNECTION = 'host=masimdb.vmhost.psu.edu dbname=rwanda user=sim password=sim co
 # Path for the locally cached / processed data
 DATASET_DIRECTORY = 'data/datasets'
 REPLICATE_DIRECTORY = 'data/replicates'
-SPIKE_DIRECTORY = 'data/spikes'
 
 # Path for the replicates list
 REPLICATES_LIST = 'data/rwa-replicates.csv'
@@ -35,7 +34,7 @@ REPLICATE_COUNT = 100
 # Flag to indicate if we are doing a manuscript run or not
 MANUSCRIPT = True
 
-def get_replicates():
+def get_replicates(startDate):
   sql = """
       SELECT c.id AS configurationid, 
         c.studyid, 
@@ -45,16 +44,18 @@ def get_replicates():
         r.endtime
       FROM sim.replicate r
         INNER JOIN sim.configuration c ON c.id = r.configurationid
-      WHERE r.endtime IS NOT null AND c.id in (
-        SELECT max(c.id)
-        FROM sim.configuration c
-        WHERE c.filename in (
-          SELECT distinct c.filename
+      WHERE r.starttime > to_date(%(startDate)s, 'YYYY-MM-DD')
+        AND r.endtime IS NOT NULL
+        AND c.id in (
+          SELECT max(c.id)
           FROM sim.configuration c
-          WHERE c.studyid NOT IN (1, 2, 3, 10))
-        GROUP BY c.filename, c.studyid)
+          WHERE c.filename in (
+            SELECT distinct c.filename
+            FROM sim.configuration c
+            WHERE c.studyid NOT IN (1, 2, 3, 10))
+          GROUP BY c.filename, c.studyid)
       ORDER BY c.studyid, c.filename, r.id"""
-  return select(CONNECTION, sql, None)
+  return select(CONNECTION, sql, {'startDate':startDate})
 
 
 def get_replicate(replicateId):
@@ -164,8 +165,6 @@ def process_datasets():
   for configuration in configurations:
     # Place the dataset in the correct directory
     directory = DATASET_DIRECTORY
-    if 'spike' in configuration:
-      directory = SPIKE_DIRECTORY    
 
     # Filter the replicates and merge the most recent entries for the dataset
     data = replicates[replicates[2] == configuration]
@@ -259,7 +258,7 @@ def process_genotype(date):
   if not os.path.exists(GENOTYPE_DIRECTORY): os.makedirs(GENOTYPE_DIRECTORY)
 
   print("Querying for replicates list...")
-  replicates = get_replicates()
+  replicates = get_replicates(date)
   save_csv(REPLICATES_LIST, replicates)
   
   print("Processing replicates...")  
@@ -290,9 +289,9 @@ def process_genotype(date):
 
 
 # Process the replicates to make sure we have all of the data we need locally
-def process_replicates():
+def process_replicates(date):
   print("Querying for replicates list...")
-  replicates = get_replicates()
+  replicates = get_replicates(date)
   save_csv(REPLICATES_LIST, replicates)
   
   print("Processing replicates...")  
@@ -322,23 +321,22 @@ def save_csv(filename, data):
       writer.writerow(row)
 
 
-def main():
+def main(date):
   if not os.path.exists(REPLICATE_DIRECTORY): os.makedirs(REPLICATE_DIRECTORY)
   if not os.path.exists(DATASET_DIRECTORY): os.makedirs(DATASET_DIRECTORY)
-  if not os.path.exists(SPIKE_DIRECTORY): os.makedirs(SPIKE_DIRECTORY)
 
   # Download all of the replicate data locally, then we need to pull the 
   # relevant replicates to the side as the data set for plotting. Since the 
   # project is iterating quickly this will save on needing to clean-up the 
   # database.
-  process_replicates()
+  process_replicates(date)
 
   if MANUSCRIPT: 
-    process_final_datasets('2022-06-30', REPLICATE_DIRECTORY, DATASET_DIRECTORY)
+    process_final_datasets(date, REPLICATE_DIRECTORY, DATASET_DIRECTORY)
   else:
     process_datasets()
 
 
 if __name__ == '__main__':
-#  main()
+  main('2022-06-30')
   process_genotype('2022-06-30')
