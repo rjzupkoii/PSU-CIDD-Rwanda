@@ -62,49 +62,52 @@ where r.endtime is not null
 order by replicateid, dayselapsed
 
 -- General aggergation query for 561H validation replicates at the district level
-select c.id as configurationid,
-  sd.replicateid,
-  sd.dayselapsed,
-  sd.district,
-  infectedindividuals, 
-  clinicalepisodes, 
-  case when gd.clinicaloccurrences is null then 0 else gd.clinicaloccurrences end as clinicaloccurrences,
-  case when gd.weightedoccurrences is null then 0 else gd.weightedoccurrences end as weightedoccurrences
-from (
-  select md.replicateid, md.dayselapsed, msd.location as district,
-    sum(msd.infectedindividuals) as infectedindividuals, 
-    sum(msd.clinicalepisodes) as clinicalepisodes
-  from sim.monthlydata md
-    inner join sim.monthlysitedata msd on msd.monthlydataid = md.id
-  where md.replicateid in (select replicateid from v_561h_replicates)
-    and md.dayselapsed > (11 * 365)
-  group by md.replicateid, md.dayselapsed, msd.location) sd
-left join (
-  select md.replicateid, md.dayselapsed, mgd.location as district,
-    sum(mgd.clinicaloccurrences) as clinicaloccurrences,
-    sum(mgd.weightedoccurrences) as weightedoccurrences
-  from sim.monthlydata md
-    inner join sim.monthlygenomedata mgd on mgd.monthlydataid = md.id
-    inner join sim.genotype g on g.id = mgd.genomeid
-  where md.replicateid in (select replicateid from v_561h_replicates)
-    and md.dayselapsed > (11 * 365)
-    and g.name ~ '^.....H.'
-  group by md.replicateid, md.dayselapsed, mgd.location) gd 
-  	on (gd.replicateid = sd.replicateid 
-	  and gd.dayselapsed = sd.dayselapsed
-	  and gd.district = sd.district)
-inner join sim.replicate r on r.id = sd.replicateid
-inner join sim.configuration c on c.id = r.configurationid
-where r.endtime is not null
-  and c.id = 4025
-order by replicateid, dayselapsed
+SELECT c.id as configurationid, sd.replicateid, sd.dayselapsed,
+  sd.district, infectedindividuals,  clinicalepisodes, 
+  CASE WHEN gd.occurrences IS NULL THEN 0 else gd.occurrences END AS occurrences,
+  CASE WHEN gd.clinicaloccurrences IS NULL THEN 0 else gd.clinicaloccurrences END AS clinicaloccurrences,
+  CASE WHEN gd.weightedoccurrences IS NULL THEN 0 else gd.weightedoccurrences END AS weightedoccurrences,
+  treatments,
+  treatmentfailures,
+  genotypecarriers
+FROM (
+  SELECT md.replicateid, md.dayselapsed, msd.location AS district,
+    sum(msd.infectedindividuals) AS infectedindividuals, 
+    sum(msd.clinicalepisodes) AS clinicalepisodes,
+    sum(msd.treatments) AS treatments,
+    sum(msd.treatmentfailures) as treatmentfailures,
+    sum(genotypecarriers) as genotypecarriers
+  FROM sim.monthlydata md
+    INNER JOIN sim.monthlysitedata msd on msd.monthlydataid = md.id
+  WHERE md.replicateid IN (SELECT replicateid FROM v_561h_replicates)
+    AND md.dayselapsed > 365
+  GROUP BY md.replicateid, md.dayselapsed, msd.location) sd
+LEFT JOIN (
+  SELECT md.replicateid, md.dayselapsed, mgd.location AS district,
+  sum(mgd.occurrences) AS occurrences,
+    sum(mgd.clinicaloccurrences) AS clinicaloccurrences,
+    sum(mgd.weightedoccurrences) AS weightedoccurrences
+  FROM sim.monthlydata md
+    INNER JOIN sim.monthlygenomedata mgd on mgd.monthlydataid = md.id
+    INNER JOIN sim.genotype g on g.id = mgd.genomeid
+  WHERE md.replicateid IN (SELECT replicateid FROM v_561h_replicates)
+    AND md.dayselapsed > 365
+    AND g.name ~ '^.....H.'
+  GROUP BY md.replicateid, md.dayselapsed, mgd.location) gd ON (gd.replicateid = sd.replicateid 
+    AND gd.dayselapsed = sd.dayselapsed
+    AND gd.district = sd.district)
+  INNER JOIN sim.replicate r on r.id = sd.replicateid
+  INNER JOIN sim.configuration c on c.id = r.configurationid
+WHERE r.endtime is not null
+  AND c.id = 7462
+ORDER BY replicateid, dayselapsed
 
 -- View to select 561H replicates and configurations from
 CREATE VIEW v_561h_replicates AS
 SELECT c.id AS configurationid, c.filename, r.id AS replicateid, c.studyid
 FROM sim.configuration c
   INNER JOIN sim.replicate r ON r.configurationid = c.id
-WHERE c.studyid > 2
+WHERE c.id = 7462
 
 -- Query to determine what time frame manuscript replicates were from
   SELECT configurationid, s.name, filename, min(starttime), max(endtime)

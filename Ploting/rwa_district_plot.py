@@ -21,7 +21,7 @@ from utility import progressBar
 
 def main():
     print('Generating spiking plots...')
-    plot_spikes('rwa-spike.csv', 'png')
+    plot_spikes('rwa-spike-7462.csv', 'png')
 
     for filename in rwanda.CONFIGURATIONS:
         print('Parsing {} ...'.format(filename))
@@ -49,7 +49,7 @@ def prepare(filename):
     for replicate in replicates:
         byReplicate = data[data[REPLICATE] == replicate]
 
-        # Load the relevent data for each district
+        # Load the relevant data for each district
         for district in rwanda.DISTRICTS:
             byDistrict = byReplicate[byReplicate[DISTRICT] == district]
 
@@ -146,7 +146,7 @@ def plot_spikes(filename, extension):
     if 'tif' == extension:
         plt.savefig(imagefile, dpi=300, format="tiff", pil_kwargs={"compression": "tiff_lzw"})
     else:
-        plt.savefig(imagefile)     
+        plt.savefig(imagefile, dpi=150)     
 
 
 if __name__ == '__main__':
