@@ -15,28 +15,30 @@ data = readmatrix('data/datasets/rwa-561h-verification.csv');
 % Plot the national data
 subplot(3, 1, 1);
 plot_national(data, startdate);
-xline(4290 + datenum(startdate), ':', 'Gasabo, 0.12069');
-xline(4650 + datenum(startdate), ':', 'Gasabo, Kayonza');
-xline(5730 + datenum(startdate), ':', 'Gasabo, Kayonza');
-xline(6090 + datenum(startdate), ':', 'Kigali, 0.21918; Huye 0.12121');
+xline(4290 + datenum(startdate), ':', 'Gasabo', 'LineWidth', 1.5, 'FontSize', 14);
+xline(4650 + datenum(startdate), ':', 'Gasabo, Kayonza', 'LineWidth', 1.5, 'FontSize', 14);
+xline(5730 + datenum(startdate), ':', 'Gasabo, Kayonza', 'LineWidth', 1.5, 'FontSize', 14);
+xline(6090 + datenum(startdate), ':', 'Kigali, Huye', 'LineWidth', 1.5, 'FontSize', 14);
 
 % Plot the district data for Gasabo
 subplot(3, 1, 2);
 plot_district(data, startdate, gasabo, 'Gasabo');
-xline(4290 + datenum(startdate), ':', '0.12069');
-xline(4650 + datenum(startdate), ':', '0.0603');
-xline(5730 + datenum(startdate), ':', '0.19608');
-xline(6090 + datenum(startdate), ':', '0.21918');
+xline(4290 + datenum(startdate), ':', '0.12069', 'LineWidth', 1.5, 'FontSize', 14);
+xline(4650 + datenum(startdate), ':', '0.0603', 'LineWidth', 1.5, 'FontSize', 14);
+xline(5730 + datenum(startdate), ':', '0.19608', 'LineWidth', 1.5, 'FontSize', 14);
+xline(6090 + datenum(startdate), ':', '0.21918', 'LineWidth', 1.5, 'FontSize', 14);
 
 % Plot the district data for Kayonza
 subplot(3, 1, 3);
 plot_district(data, startdate, kayonza, 'Kayonza');
-xline(4650 + datenum(startdate), ':', '0.00746');
-xline(5730 + datenum(startdate), ':', '0.09756');
+xline(4650 + datenum(startdate), ':', '0.00746', 'LineWidth', 1.5, 'FontSize', 14);
+xline(5730 + datenum(startdate), ':', '0.09756', 'LineWidth', 1.5, 'FontSize', 14);
 
 % Format all of the plots
 format();
 
+% Print the count
+size(unique(data(:, 2)))
 
 function [] = plot_district(data, startdate, district, name)
     hold on;
@@ -84,9 +86,13 @@ function [] = format()
         datetick('x', 'yyyy');
         ylim(ylimit);
         xlim(xlimit);
-        ylabel('561H Frequency');
+        if ndx == 2
+            ylabel('561H Frequency');
+        end
         if ndx == 3
             xlabel('Model Year');
         end
+        graphic = gca;
+        graphic.FontSize = 16;
     end
 end
