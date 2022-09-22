@@ -52,7 +52,7 @@ def get_replicates(startDate):
           WHERE c.filename in (
             SELECT distinct c.filename
             FROM sim.configuration c
-            WHERE c.studyid NOT IN (1, 2, 3, 10))
+            WHERE c.studyid NOT IN (1, 2, 10))
           GROUP BY c.filename, c.studyid)
       ORDER BY c.studyid, c.filename, r.id"""
   return select(CONNECTION, sql, {'startDate':startDate})
@@ -338,5 +338,5 @@ def main(date):
 
 
 if __name__ == '__main__':
-  main('2022-06-30')
-  process_genotype('2022-06-30')
+  main('2022-09-01')
+  process_genotype('2022-09-01')
