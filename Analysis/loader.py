@@ -184,6 +184,11 @@ def process_final_datasets(date, path, results):
     if 'spike' in configuration: 
       continue
 
+    # Set the target count
+    target = REPLICATE_COUNT
+    if configuration == 'rwa-561h-verification.yml':
+      target /= 2
+
     # Filter the replicates specific to this configuration
     data = replicates[replicates[2] == configuration]
     if date is not None:
@@ -203,7 +208,7 @@ def process_final_datasets(date, path, results):
 
         # Break if we have enough, even if there are still some pending.
         # This may occur when extra replicates are run to me the target.
-        if len(valid) == REPLICATE_COUNT: 
+        if len(valid) == target: 
           break
 
     # Merge the files if we have results
