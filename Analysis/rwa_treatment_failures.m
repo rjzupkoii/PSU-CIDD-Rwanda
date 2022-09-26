@@ -34,8 +34,8 @@ function [] = calculate(filename, scaling)
             clinical_sum(ndx) = sum(temp(:, CLINICAL) / scaling);
         end
     
-%         fprintf('Year: %d | Monthly: %.0f (%.0f - %.0f) | Yearly: %.0f (%.0f - %.0f) | %%: %.2f (%.2f - %.2f)\n', ...
-%             10 - offset, prctile(failures_abs(:), [50 25 75]), prctile(failures_sum(:), [50 25 75]), prctile(failures_prct(:), [50 25 75]));
+         fprintf('Year: %d | Monthly: %.0f (%.0f - %.0f) | Yearly: %.0f (%.0f - %.0f) | %%: %.2f (%.2f - %.2f)\n', ...
+             10 - offset, prctile(failures_abs(:), [50 25 75]), prctile(failures_sum(:), [50 25 75]), prctile(failures_prct(:), [50 25 75]));
         fprintf('Year: %d | Clinical: %.0f (IQR: %.0f - %.0f)\n', 10 - offset, prctile(clinical_sum(:), [50 25 75]))
     end
 end

@@ -212,6 +212,8 @@ def plot(dates, data, layout):
     ax1.set_title(layout['title'])
     ax1.set_xlabel('Years Since Intervention')
   
+    if not os.path.exists('plots'):
+        os.makedirs('plots')
     filename = '{}/{}.png'.format('plots/', layout['title'])
     plt.savefig(filename)
     print('Saved, {}'.format(filename))
@@ -383,7 +385,8 @@ if __name__ == '__main__':
         }        
     }                  
 
-    cached = True
+    # NOTE Things will crash if this is set to True and the files are not present
+    cached = False
     generate(al_vs_al5, cached)
     generate(al5_vs_dhappq, cached)
     generate(al5_vs_dhappq_plas, cached)    
