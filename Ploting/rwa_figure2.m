@@ -1,11 +1,19 @@
+% rwa_figure2.m
+%
+% Generate the base image that is used for Figure 2 of the manuscript.
+%
+% Requires the files rwa-AL3-parsed.csv, rwa-AL5-parsed.csv, rwa-ALAQ-parsed.csv, 
+% rwa-DHAPPQ-parsed.csv, rwa-MFT-parsed.csv, and rwa-ROTATION-parsed.csv,
+% be present in the data directory. These are created by the
+% rwa_plot_genotype.py script and are placed by the organize.sh script.
 clear all;
 
 % export figure as  8" by 8", fixed font size at 10, and save as SVG
 
 all_labels_blank = true;
 
-AL3=csvread('rwa-AL3-parsed.csv',1,0);
-AL5=csvread('rwa-AL5-parsed.csv',1,0);
+AL3=csvread('data/rwa-AL3-parsed.csv',1,0);
+AL5=csvread('data/rwa-AL5-parsed.csv',1,0);
 nr = size(AL3,1);
 
 x1=AL3(1,1)+730;
@@ -165,18 +173,18 @@ for spi=2:5
     
     subplot(3,2,spi)
     if spi==2
-        C = csvread('rwa-DHAPPQ-parsed.csv',1,0);
+        C = csvread('data/rwa-DHAPPQ-parsed.csv',1,0);
     end
     if spi==3
-        C = csvread('rwa-MFT-parsed.csv',1,0);
+        C = csvread('data/rwa-MFT-parsed.csv',1,0);
         odd = true;
     end
     if spi==4
-        C = csvread('rwa-ROTATION-parsed.csv',1,0);
+        C = csvread('data/rwa-ROTATION-parsed.csv',1,0);
         bottom = true;
     end
     if spi==5
-        C = csvread('rwa-ALAQ-parsed.csv',1,0);
+        C = csvread('data/rwa-ALAQ-parsed.csv',1,0);
         odd = true;
         bottom = true;
     end
