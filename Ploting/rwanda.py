@@ -161,7 +161,7 @@ SPIKES = np.array([
     [10, 'Kigali City (0.21918)', datetime.datetime(2019,9,30), 0.21918],
 
     # Bergmann et al. 2021 
-    [17, 'Hyue (0.12069)', datetime.datetime(2019,9,30), 0.12121],
+    [17, 'Hyue (0.04545)', datetime.datetime(2019,9,30), 0.04545],
 ])
 
 # Index definitions for the four-panel report layout

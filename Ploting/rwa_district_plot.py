@@ -21,7 +21,7 @@ from utility import progressBar
 
 def main():
     print('Generating spiking plots...')
-    plot_spikes('rwa-spike-7462.csv', 'png')
+    plot_spikes('rwa-561h-verification.csv', 'png')
 
     for filename in rwanda.CONFIGURATIONS:
         print('Parsing {} ...'.format(filename))
@@ -136,7 +136,7 @@ def plot_spikes(filename, extension):
     # Format the subplots, hide the empty subplot
     for ax in axes.flat:
         ax.set_ylim([0, ymax])
-        ax.set_xlim([datetime.datetime(2008, 1, 1), max(dates)])
+        ax.set_xlim([datetime.datetime(2014, 1, 1), max(dates)])
     axes[0, 2].set_visible(False)
     
     figure.suptitle('Districts with 561H Frequency Studies')
