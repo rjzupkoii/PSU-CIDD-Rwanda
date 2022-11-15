@@ -18,29 +18,31 @@ REFERENCE_PFPR = '../../GIS/rwa_pfpr2to10.asc'
 
 # Query to retrieve the possible mappings and bins
 SELECT_MAPPINGS = r"""
-SELECT replicateid,
-    cast(fileparts[1] as numeric) as zone,
-    cast(fileparts[2] as numeric) as population,
-    cast(fileparts[3] as numeric) as access,
-    cast(fileparts[4] as numeric) as beta,
-    eir,
-    pfpr2to10,
-    round(clinical / (population / 1000.0), 2) as incidence
+SELECT one.replicateid,
+  one.location,
+  two.clinical,
+  one.population,
+  round(two.clinical / (one.population / 1000.0), 2) as clinical_per
 FROM (
-    SELECT replicateid,
-        regexp_matches(filename, '^([\d\.]*)-(\d*)-([\.\d]*)-([\.\d]*)') as fileparts,
-        avg(eir) AS eir, 
-        avg(pfpr2to10) AS pfpr2to10,
-        max(clinicalepisodes) as clinical,
-        max(msd.population) as population
-    FROM sim.configuration c
-        INNER JOIN sim.replicate r on r.configurationid = c.id
-        INNER JOIN sim.monthlydata md on md.replicateid = r.id
-        INNER JOIN sim.monthlysitedata msd on msd.monthlydataid = md.id
-    WHERE c.studyid = %(studyId)s
-        AND md.dayselapsed BETWEEN 4015 AND 4380
-    GROUP BY replicateid, filename) iq
-ORDER BY zone, population, access, pfpr2to10
+  SELECT md.replicateid,
+    msd.location,
+     sum(msd.population) as population
+  FROM sim.monthlydata md 
+    INNER JOIN sim.monthlysitedata msd on msd.monthlydataid = md.id
+  WHERE md.replicateid = %(replicateId)s
+    AND md.dayselapsed = 4352
+  GROUP BY md.replicateid, msd.location) one
+INNER JOIN (
+  SELECT md.replicateid,
+    msd.location,
+    sum(msd.clinicalepisodes) as clinical
+  FROM sim.monthlydata md 
+    INNER JOIN sim.monthlysitedata msd on msd.monthlydataid = md.id
+  WHERE md.replicateid = %(replicateId)s
+    AND md.dayselapsed BETWEEN 4015 AND 4380
+  GROUP BY md.replicateid, msd.location) two 
+ON one.replicateid = two.replicateid AND one.location = two.location
+ORDER BY one.location
 """
 
 if __name__ == "__main__":
