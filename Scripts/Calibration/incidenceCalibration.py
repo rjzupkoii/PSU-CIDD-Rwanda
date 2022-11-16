@@ -10,6 +10,7 @@ import sys
 
 # Import our libraries / re-usable code
 sys.path.insert(1, '../../../PSU-CIDD-MaSim-Support/Python/include')
+import ascFile as gis
 import database as db
 
 # Connection string for the database
@@ -18,28 +19,14 @@ CONNECTION = 'host=masimdb.vmhost.psu.edu dbname=rwanda user=sim password=sim co
 # Since this script is being written against this repository, we can make some 
 # assumptions about the paths.
 REFERENCE_CONFIGURATION = '../../Studies/rwa-configuration.yml'
-REFERENCE_PFPR = '../../GIS/rwa_pfpr2to10.asc'
+REFERENCE_DISTRICTS = '../../GIS/rwa_district.asc'
 REFERENCE_INCIDENCE = '../../GIS/rwa_district_incidence_2020.csv'
+REFERENCE_PFPR = '../../GIS/rwa_pfpr2to10.asc'
 
+# PLACEHOLDER default values that can be passed via command line
+ADJUSTMENT = 0.05
 TOLERANCE = 0.1
 CALIBRATION_STUDIES = 16
-
-
-
-
-def read_incidence(filename):
-  incidence, districts = {}, {}
-  with open(filename, 'r') as input:
-    # Open the CSV file and skip the header
-    reader = csv.reader(input)
-    next(reader, None)
-
-    # Create a dictionary with the reference value
-    for row in reader:
-      incidence[int(row[0])] = float(row[3])
-      districts[int(row[0])] = row[2]
-
-  return incidence, districts
 
 
 def get_incidence(replicateId):
@@ -84,9 +71,34 @@ def get_replicates(studyId):
       """
   return db.select(CONNECTION, sql, {'studyId': studyId})
 
+def adjust_pfpr(pfpr_file, district_file, locations, adjustment):
+  ADJUSTMENT_FILE = 'adjusted_pfpr.asc'
 
-def check_replicate(replicateId, reference, districts):
-  adjustments = []
+  # Load the ASC files
+  [ascHeader, pfpr] = gis.load_asc(pfpr_file)
+  [_, districts] = gis.load_asc(district_file)
+
+  # Process each district indicated
+  for district in locations:
+    # Find all of the district cells in the PfPR file
+    for row in range(0, ascHeader['nrows']):
+      for col in range(0, ascHeader['ncols']):
+        # If it's a match then apply the adjustment
+        if districts[row][col] == district:
+          if adjustments[district] < 0: 
+            pfpr[row][col] -= (pfpr[row][col] * adjustment)     # Adjust down
+          else:
+            pfpr[row][col] += (pfpr[row][col] * adjustment)     # Adjust up
+          
+  # Write the adjusted file to disk and inform the user
+  gis.write_asc(ascHeader, pfpr, ADJUSTMENT_FILE)
+  print('Used {} to prepare {} with ±{}% adjustment'.format(pfpr_file, ADJUSTMENT_FILE, adjustment * 100.0))
+
+
+# Check the replicate indicated to verify that the incidence per 1000 is within
+# the indicated tolerance of the reference data.
+def check_replicate(replicateId, reference, labels, tolerance):
+  adjustments = {}
   cases = 0
 
   # Iterate over all of the districts in the replicate
@@ -94,35 +106,59 @@ def check_replicate(replicateId, reference, districts):
     location = row[1]
     incidence = row[4]
     cases += row[2]
-    passing, output = validate(reference[location], incidence, TOLERANCE)
-    if not passing:
-      adjustments.append(location)
-    print("{:11}: {:6} v. {:6} [{}]".format(districts[location], reference[location], incidence, output))
+
+    # Check the incidence in relation to the reference and tolerance
+    status, output = validate(reference[location], incidence, tolerance)
+    if status != 0:
+      adjustments[location] = status
+    print("{:11}: {:6} v. {:6} [{}]".format(labels[location], reference[location], incidence, output))
 
   # Return the total cases and the required adjustments
   return cases, adjustments
 
 
+# Read the reference incidence data for the districts from the CSV file indicated
+def read_incidence(filename):
+  incidence, districts = {}, {}
+  with open(filename, 'r') as input:
+    # Open the CSV file and skip the header
+    reader = csv.reader(input)
+    next(reader, None)
+
+    # Create a dictionary with the reference value
+    for row in reader:
+      incidence[int(row[0])] = float(row[3])
+      districts[int(row[0])] = row[2]
+
+  return incidence, districts
+
+
+# Validate that the incidence data provided is within the acceptable tolerance
+# of the reference incidence
 def validate(reference, incidence, tolerance):
   PASS = '\033[92m'
   FAIL = '\033[91m'
   CLEAR = '\033[0m'
 
-  passing = ((reference * (1 - tolerance)) < incidence) and \
-            (incidence < (reference * (1 + tolerance)))
-  if passing:
-    return True, PASS + 'PASS' + CLEAR
-  return False, FAIL + 'FAIL' + CLEAR
+  status = 0
+  status -= (reference * (1 + tolerance)) < incidence   # Prevalence needs to be adjusted down
+  status += incidence < (reference * (1 - tolerance))   # Prevalence needs to be adjusted up
+  if status == 0:
+    return status, PASS + 'PASS' + CLEAR
+  return status, FAIL + 'FAIL' + CLEAR
 
 
 if __name__ == "__main__":
   # Read the reference data
-  reference, districts = read_incidence(REFERENCE_INCIDENCE)
+  reference, labels = read_incidence(REFERENCE_INCIDENCE)
 
   # Process the most recently completed replicate in the calibration study
   replicates = get_replicates(CALIBRATION_STUDIES)
-  cases, adjustments = check_replicate(replicates[0][0], reference, districts)
+  cases, adjustments = check_replicate(replicates[0][0], reference, labels, TOLERANCE)
 
   # Print the remainder of the processing data
   print("Total Clinical: {:,}".format(cases / 0.25))    # PLACEHOLDER adjustment
-  print("Acceptable tolerance ±{}".format(TOLERANCE))
+  print("Acceptable tolerance ±{}%".format(TOLERANCE * 100.0))
+
+  if len(adjustments) != 0:
+    adjust_pfpr(REFERENCE_PFPR, REFERENCE_DISTRICTS, adjustments, ADJUSTMENT)
