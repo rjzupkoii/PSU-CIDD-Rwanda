@@ -18,6 +18,7 @@ CONNECTION = 'host=masimdb.vmhost.psu.edu dbname=rwanda user=sim password=sim co
 
 # Since this script is being written against this repository, we can make some 
 # assumptions about the paths.
+ADJUSTMENT_FILE = 'data/adjusted_pfpr.asc'
 REFERENCE_CONFIGURATION = '../../Studies/rwa-configuration.yml'
 REFERENCE_DISTRICTS = '../../GIS/rwa_district.asc'
 REFERENCE_INCIDENCE = '../../GIS/rwa_district_incidence_2020.csv'
@@ -71,9 +72,8 @@ def get_replicates(studyId):
       """
   return db.select(CONNECTION, sql, {'studyId': studyId})
 
-def adjust_pfpr(pfpr_file, district_file, locations, adjustment):
-  ADJUSTMENT_FILE = 'adjusted_pfpr.asc'
 
+def adjust_pfpr(pfpr_file, district_file, locations, adjustment):
   # Load the ASC files
   [ascHeader, pfpr] = gis.load_asc(pfpr_file)
   [_, districts] = gis.load_asc(district_file)
@@ -85,7 +85,7 @@ def adjust_pfpr(pfpr_file, district_file, locations, adjustment):
       for col in range(0, ascHeader['ncols']):
         # If it's a match then apply the adjustment
         if districts[row][col] == district:
-          if adjustments[district] < 0: 
+          if locations[district] < 0: 
             pfpr[row][col] -= (pfpr[row][col] * adjustment)     # Adjust down
           else:
             pfpr[row][col] += (pfpr[row][col] * adjustment)     # Adjust up
@@ -148,12 +148,13 @@ def validate(reference, incidence, tolerance):
   return status, FAIL + 'FAIL' + CLEAR
 
 
-if __name__ == "__main__":
+def main():
   # Read the reference data
   reference, labels = read_incidence(REFERENCE_INCIDENCE)
 
   # Process the most recently completed replicate in the calibration study
   replicates = get_replicates(CALIBRATION_STUDIES)
+  print("Validating using replicate {}".format(replicates[0][0]))
   cases, adjustments = check_replicate(replicates[0][0], reference, labels, TOLERANCE)
 
   # Print the remainder of the processing data
@@ -161,4 +162,16 @@ if __name__ == "__main__":
   print("Acceptable tolerance ±{}%".format(TOLERANCE * 100.0))
 
   if len(adjustments) != 0:
-    adjust_pfpr(REFERENCE_PFPR, REFERENCE_DISTRICTS, adjustments, ADJUSTMENT)
+    pfpr_file = REFERENCE_PFPR
+    if os.path.exists(ADJUSTMENT_FILE):
+      pfpr_file = ADJUSTMENT_FILE
+    adjust_pfpr(pfpr_file, REFERENCE_DISTRICTS, adjustments, ADJUSTMENT)
+
+
+if __name__ == "__main__":
+  # Set up the environment
+  if not os.path.exists('data'):
+    os.makedirs('data')
+
+  # Run the main script
+  main()
