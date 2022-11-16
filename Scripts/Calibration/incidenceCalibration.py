@@ -21,21 +21,25 @@ REFERENCE_CONFIGURATION = '../../Studies/rwa-configuration.yml'
 REFERENCE_PFPR = '../../GIS/rwa_pfpr2to10.asc'
 REFERENCE_INCIDENCE = '../../GIS/rwa_district_incidence_2020.csv'
 
+TOLERANCE = 0.1
 CALIBRATION_STUDIES = 16
 
 
+
+
 def read_incidence(filename):
-  results = {}
-  with open(REFERENCE_INCIDENCE, 'r') as input:
+  incidence, districts = {}, {}
+  with open(filename, 'r') as input:
     # Open the CSV file and skip the header
     reader = csv.reader(input)
     next(reader, None)
 
     # Create a dictionary with the reference value
     for row in reader:
-      results[row[0]] = row[3]
+      incidence[int(row[0])] = float(row[3])
+      districts[int(row[0])] = row[2]
 
-  return results
+  return incidence, districts
 
 
 def get_incidence(replicateId):
@@ -81,11 +85,44 @@ def get_replicates(studyId):
   return db.select(CONNECTION, sql, {'studyId': studyId})
 
 
+def check_replicate(replicateId, reference, districts):
+  adjustments = []
+  cases = 0
+
+  # Iterate over all of the districts in the replicate
+  for row in get_incidence(replicateId):
+    location = row[1]
+    incidence = row[4]
+    cases += row[2]
+    passing, output = validate(reference[location], incidence, TOLERANCE)
+    if not passing:
+      adjustments.append(location)
+    print("{:11}: {:6} v. {:6} [{}]".format(districts[location], reference[location], incidence, output))
+
+  # Return the total cases and the required adjustments
+  return cases, adjustments
+
+
+def validate(reference, incidence, tolerance):
+  PASS = '\033[92m'
+  FAIL = '\033[91m'
+  CLEAR = '\033[0m'
+
+  passing = ((reference * (1 - tolerance)) < incidence) and \
+            (incidence < (reference * (1 + tolerance)))
+  if passing:
+    return True, PASS + 'PASS' + CLEAR
+  return False, FAIL + 'FAIL' + CLEAR
+
+
 if __name__ == "__main__":
-  incidence = read_incidence(REFERENCE_INCIDENCE)
+  # Read the reference data
+  reference, districts = read_incidence(REFERENCE_INCIDENCE)
 
+  # Process the most recently completed replicate in the calibration study
   replicates = get_replicates(CALIBRATION_STUDIES)
-  replicateId = replicates[0][0]
+  cases, adjustments = check_replicate(replicates[0][0], reference, districts)
 
-  results = get_incidence(replicateId)
-  print(results)
+  # Print the remainder of the processing data
+  print("Total Clinical: {:,}".format(cases / 0.25))    # PLACEHOLDER adjustment
+  print("Acceptable tolerance ±{}".format(TOLERANCE))
