@@ -154,8 +154,9 @@ def main():
 
   # Process the most recently completed replicate in the calibration study
   replicates = get_replicates(CALIBRATION_STUDIES)
-  print("Validating using replicate {}".format(replicates[0][0]))
-  cases, adjustments = check_replicate(replicates[0][0], reference, labels, TOLERANCE)
+  replicateId = replicates[0][0]
+  print("Validating using replicate {}".format(replicateId))
+  cases, adjustments = check_replicate(replicateId, reference, labels, TOLERANCE)
 
   # Print the remainder of the processing data
   print("Total Clinical: {:,}".format(cases / 0.25))    # PLACEHOLDER adjustment
