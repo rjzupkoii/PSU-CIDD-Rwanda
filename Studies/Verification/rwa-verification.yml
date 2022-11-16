@@ -34,7 +34,7 @@ starting_date: 2003/1/1
 # 2020 is the target calibration year, but mutations start in 2014
 start_of_comparison_period: 2020/1/1
 
-# Ending date is start of recording period plus 20 years
+# Ending date is target calibration year, plus five
 ending_date: 2025/1/1
 
 # Discard the first five years worth of data
