@@ -44,7 +44,7 @@ def get_incidence(replicateId):
         FROM sim.monthlydata md 
           INNER JOIN sim.monthlysitedata msd on msd.monthlydataid = md.id
         WHERE md.replicateid = %(replicateId)s
-          AND md.dayselapsed = 4352
+          AND md.dayselapsed = 6544
         GROUP BY md.replicateid, msd.location) one
       INNER JOIN (
         SELECT md.replicateid,
@@ -53,7 +53,7 @@ def get_incidence(replicateId):
         FROM sim.monthlydata md 
           INNER JOIN sim.monthlysitedata msd on msd.monthlydataid = md.id
         WHERE md.replicateid = %(replicateId)s
-          AND md.dayselapsed BETWEEN 4015 AND 4380
+          AND md.dayselapsed between 6209 and 6544
         GROUP BY md.replicateid, msd.location) two 
       ON one.replicateid = two.replicateid AND one.location = two.location
       ORDER BY one.location
