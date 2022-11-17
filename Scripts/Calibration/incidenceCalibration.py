@@ -5,6 +5,7 @@
 # Calibrate the beta values for Rwanda based upon the district incidence rate 
 # as opposed to the cell-specific PfPR values.
 import csv
+import math
 import os
 import sys
 
@@ -85,14 +86,11 @@ def adjust_pfpr(pfpr_file, district_file, locations, adjustment):
       for col in range(0, ascHeader['ncols']):
         # If it's a match then apply the adjustment
         if districts[row][col] == district:
-          if locations[district] < 0: 
-            pfpr[row][col] -= (pfpr[row][col] * adjustment)     # Adjust down
-          else:
-            pfpr[row][col] += (pfpr[row][col] * adjustment)     # Adjust up
+          pfpr[row][col] += (pfpr[row][col] * round(locations[district] * adjustment, 2))
           
   # Write the adjusted file to disk and inform the user
   gis.write_asc(ascHeader, pfpr, ADJUSTMENT_FILE)
-  print('Used {} to prepare {} with ±{}% adjustment'.format(pfpr_file, ADJUSTMENT_FILE, adjustment * 100.0))
+  print('Used {} to prepare {} with ±{}% base adjustment'.format(pfpr_file, ADJUSTMENT_FILE, adjustment * 100.0))
 
 
 # Check the replicate indicated to verify that the incidence per 1000 is within
@@ -104,7 +102,7 @@ def check_replicate(replicateId, reference, labels, tolerance):
   # Iterate over all of the districts in the replicate
   for row in get_incidence(replicateId):
     location = row[1]
-    incidence = row[4]
+    incidence = float(row[4])
     cases += row[2]
 
     # Check the incidence in relation to the reference and tolerance
@@ -143,9 +141,14 @@ def validate(reference, incidence, tolerance):
   status = 0
   status -= (reference * (1 + tolerance)) < incidence   # Prevalence needs to be adjusted down
   status += incidence < (reference * (1 - tolerance))   # Prevalence needs to be adjusted up
+
+  # If the status is zero then things passed
   if status == 0:
     return status, PASS + 'PASS' + CLEAR
-  return status, FAIL + 'FAIL' + CLEAR
+
+  # Calculate the percent difference so that we can apply a multiplier to the adjustment
+  multiplier = math.ceil(abs(incidence - reference) / reference)
+  return status * multiplier, FAIL + 'FAIL' + CLEAR
 
 
 def main():
