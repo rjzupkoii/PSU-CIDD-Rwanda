@@ -4,6 +4,7 @@
 #
 # Calibrate the beta values for Rwanda based upon the district incidence rate 
 # as opposed to the cell-specific PfPR values.
+import argparse
 import csv
 import math
 import os
@@ -151,7 +152,7 @@ def validate(reference, incidence, tolerance):
   return status * multiplier, FAIL + 'FAIL' + CLEAR
 
 
-def main():
+def main(update):
   # Read the reference data
   reference, labels = read_incidence(REFERENCE_INCIDENCE)
 
@@ -165,7 +166,7 @@ def main():
   print("Total Clinical: {:,}".format(cases / 0.25))    # PLACEHOLDER adjustment
   print("Acceptable tolerance ±{}%".format(TOLERANCE * 100.0))
 
-  if len(adjustments) != 0:
+  if update and len(adjustments) != 0:
     pfpr_file = REFERENCE_PFPR
     if os.path.exists(ADJUSTMENT_FILE):
       pfpr_file = ADJUSTMENT_FILE
@@ -173,9 +174,16 @@ def main():
 
 
 if __name__ == "__main__":
+  # Parse the arguments
+  parser = argparse.ArgumentParser()
+  parser.add_argument('-u', action='store', dest='update', default=0,
+    help='Update PfPR values based upon suggested adjustments (default 0)')
+  args = parser.parse_args()
+
   # Set up the environment
   if not os.path.exists('data'):
     os.makedirs('data')
 
   # Run the main script
-  main()
+  update = (args.update != 0)
+  main(update)
