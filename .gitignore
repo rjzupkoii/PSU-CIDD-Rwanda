@@ -6,6 +6,7 @@
 
 # Ignore script output files
 /**/out
+/Scripts/Calibration/GIS
 
 # Ignore data directories
 /**/data
