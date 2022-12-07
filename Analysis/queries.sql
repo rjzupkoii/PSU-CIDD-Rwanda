@@ -1,5 +1,5 @@
 -- Basic monitoring query
-select c.id as configurationid, filename, replicateid, 
+select c.id as configurationid, c.studyid, filename, replicateid, 
   starttime, now() - starttime as runningtime, 
   max(dayselapsed) as modeldays
 from sim.replicate r
