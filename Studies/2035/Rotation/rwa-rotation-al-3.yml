@@ -35,8 +35,8 @@ starting_date: 2003/1/1
 # 2020 is the target calibration year, but mutations start in 2014
 start_of_comparison_period: 2020/1/1
 
-# Ending date is start of recording period plus 20 years
-ending_date: 2033/1/1
+# Ending date is 20 years past intervention, rounded for buffer
+ending_date: 2035/1/1
 
 # Discard the first five years worth of data
 start_collect_data_day: 1826
@@ -227,7 +227,7 @@ events:
               
   - name: change_treatment_strategy
     info:
-      - day: 2023/1/1
+      - day: 2024/1/1
         strategy_id: 1
   - name: change_treatment_strategy
     info:
