@@ -23,8 +23,8 @@ DISTRICTS = {
     4  : 'Kirehe',
     5  : 'Ngoma',
     6  : 'Nyagatare',
-    7  : 'Rwamagana',
-    8  : 'Gasabo',          # Studies / Spiked
+    7  : 'Rwamagana',       # Adjacent
+    8  : 'Gasabo',          # Adjacent / Spiked
     9  : 'Kicukiro',        # Studies
     10 : 'Nyarugenge',      # Studies
     11 : 'Burera',

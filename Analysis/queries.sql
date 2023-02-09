@@ -9,6 +9,22 @@ where r.endtime is null
 group by c.id, filename, replicateid, starttime
 order by modeldays desc
 
+-- Status of replicates for manuscript revisions
+select configurationid, studyid, filename, 
+  count(id) as total,
+  sum(complete) as complete
+from (
+select c.id as configurationid, c.studyid, c.filename,
+  r.id,
+  case when r.endtime is null then 0 else 1 end as complete
+from sim.configuration c
+  inner join sim.replicate r on r.configurationid = c.id
+where c.studyid in (4, 6, 7, 8, 9, 11, 18)
+  and r.starttime > to_date('2023-01-01', 'YYYY-MM-DD')) iq
+group by configurationid, studyid, filename
+order by studyid, filename
+
+
 -- Status of all replicates
 select configurationid, studyid, filename, 
   sum(complete) as complete,

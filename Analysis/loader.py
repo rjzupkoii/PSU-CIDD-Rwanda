@@ -343,5 +343,5 @@ def main(date):
 
 
 if __name__ == '__main__':
-  main('2022-09-01')
-  process_genotype('2022-09-01')
+  main('2023-01-01')
+  process_genotype('2023-01-01')
