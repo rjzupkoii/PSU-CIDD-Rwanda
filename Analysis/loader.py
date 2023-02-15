@@ -2,7 +2,22 @@
 
 # loader.py
 # 
-# Load the relevent data for the study from the database.
+# Load the relevant data for the study from the database.
+#
+# == NOTES ==
+# This script has undergone some changes over the course of the study which has
+# resulted in the database being in an unusual state in terms of organization. 
+# When the project started the studyid field was used to organize replicates by
+# the type of study (e.g., MFT) and there was only one batch of results to 
+# contend with. However, as the project progressed it became necessary to 
+# filter on the date since multiple configurations were associated with the 
+# same studyid. With the work on the revise and resubmit, there has been a 
+# shift having specific groups of configurations and replicates be assigned a
+# single studyid. This avoids the need for filtering by date, but does mean 
+# that some configurations are still organized the old way.
+#
+# Study ID 19 - Intervention started in 2023
+# Study ID 20 - Intervention started in 2024
 import csv
 import datetime
 import os
@@ -34,7 +49,7 @@ REPLICATE_COUNT = 100
 # Flag to indicate if we are doing a manuscript run or not
 MANUSCRIPT = True
 
-def get_replicates(startDate):
+def get_replicates(startDate, studyId):
   sql = """
       SELECT c.id AS configurationid, 
         c.studyid, 
@@ -46,16 +61,9 @@ def get_replicates(startDate):
         INNER JOIN sim.configuration c ON c.id = r.configurationid
       WHERE r.starttime > to_date(%(startDate)s, 'YYYY-MM-DD')
         AND r.endtime IS NOT NULL
-        AND c.id in (
-          SELECT max(c.id)
-          FROM sim.configuration c
-          WHERE c.filename in (
-            SELECT distinct c.filename
-            FROM sim.configuration c
-            WHERE c.studyid NOT IN (1, 2, 10))
-          GROUP BY c.filename, c.studyid)
+        AND c.studyid = %(studyId)s
       ORDER BY c.studyid, c.filename, r.id"""
-  return select(CONNECTION, sql, {'startDate':startDate})
+  return select(CONNECTION, sql, {'startDate':startDate, 'studyId':studyId})
 
 
 def get_replicate(replicateId):
@@ -257,6 +265,7 @@ def process_genotype(date):
                'rwa-replacement-dhappq.yml', 
                'rwa-mft-asaq-dhappq-0.25.yml',
                'rwa-rotation-al-5.yml',
+               'rwa-seq-al-asaq.yml',
                'rwa-tact-alaq.yml']
 
   if not os.path.exists(GENOTYPE_DATASET): os.makedirs(GENOTYPE_DATASET)
@@ -343,5 +352,5 @@ def main(date):
 
 
 if __name__ == '__main__':
-  main('2023-01-01')
-  process_genotype('2023-01-01')
+  main('2022-09-01')
+  process_genotype('2022-09-01')
