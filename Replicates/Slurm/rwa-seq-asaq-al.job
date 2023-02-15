@@ -4,7 +4,6 @@
 #SBATCH --ntasks=1
 #SBATCH --mem=16gb
 #SBATCH --time=8:00:00
-#SBATCH --partition=mfb9_b_g_sc_default
 
 cd $SLURM_SUBMIT_DIR
-./MaSim -i rwa-seq-asaq-al.yml -s 18 -r DbReporterDistrict,GenotypeCarriers
+./MaSim -i rwa-seq-asaq-al.yml -s 19 -r DbReporterDistrict,GenotypeCarriers
