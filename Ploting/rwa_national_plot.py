@@ -49,6 +49,8 @@ def main(plot, verification=True, search='', breaks=[3, 5, None]):
                 continue
             elif search == 'dhappq' and not any(filter in filename for filter in ['dhappq', 'constant']):
                 continue
+            elif search == 'experimental' and not any(filter in filename for filter in ['constant', '3-4-3', 'seq', 'tact']):
+                continue
 
             # Load the data, apply the relevant filter
             print('Parsing {} ...'.format(filename))
@@ -62,11 +64,12 @@ def main(plot, verification=True, search='', breaks=[3, 5, None]):
             rwanda.plot_summary(rwanda.CONFIGURATIONS[filename], *results, prefix=prefix)   
             dataset[filename] = results[1]
 
+        EXTENSION = 'png'
         for key in rwanda.REPORT_LAYOUT:
             label = rwanda.REPORT_LAYOUT[key][rwanda.REPORT_YLABEL]
-            filename = 'plots/Comparison - {}.svg'.format(label)
+            filename = 'plots/Comparison - {}.{}'.format(label, EXTENSION)
             if years is not None:
-                filename = 'plots/Comparison, {:02d}y - {}.svg'.format(years, label)
+                filename = 'plots/Comparison, {:02d}y - {}.{}'.format(years, label, EXTENSION)
             plot_violin(dataset, key, label, filename, plot)
 
 
@@ -283,7 +286,9 @@ def plot_validation(datafile, imagefile):
 
 
 if __name__ == '__main__':
-    main(rwa_reports.STUDIES, False, 'standard')
+#    main(rwa_reports.STUDIES, False, 'standard')
+    main(rwa_reports.EXPERIMENTAL, False, 'experimental')
+
     # main(rwa_reports.COMPLIANCE, False, 'compliance')
     # main(rwa_reports.NMCP, False, 'nmcp')
     # main(rwa_reports.EXTENDED, False, 'dhappq')

@@ -53,7 +53,7 @@ DISTRICTS = {
 STUDYDATE = '2003-1-1'
 
 # Date when the policy change is introduced in the simulation
-POLICYDATE = datetime.datetime(2023, 1, 1)
+POLICYDATE = datetime.datetime(2024, 1, 1)
 
 # Reference date for replicate validation, note we are using the minimal
 # frequency for the reject threshold since there may have been spatial 
@@ -79,6 +79,9 @@ CONFIGURATIONS = {
     'rwa-ae-al-3-2-1.csv'          : 'AL 3-2-1',
     'rwa-ae-al-3-2-2.csv'          : 'AL 3-2-2',
 
+    # Community based health-workers
+    'rwa-ae-al-3-4-3.csv'           : 'AL, 4-days rest, AL',
+
     # Multiple First-line Therapies
     'rwa-mft-al-asaq-0.25.csv'     : 'MFT AL (75%) + ASAQ (25%)',
     'rwa-mft-al-asaq.csv'          : 'MFT AL (50%) + ASAQ (50%)',
@@ -103,6 +106,18 @@ CONFIGURATIONS = {
     # Triple-ACT
     'rwa-tact-alaq.csv'            : 'TACT AL + AQ',
     'rwa-tact-dhappqmq.csv'        : 'TACT DHA-PPQ + PQ',
+
+    # Sequential Treatments
+    'rwa-seq-al-asaq.csv'          : 'AL then ASAQ',
+    'rwa-seq-al-dhappq.csv'        : 'AL then DHA-PPQ',
+    'rwa-seq-dhappq-al.csv'        : 'DHA-PPQ then AL',
+    'rwa-seq-asaq-al.csv'          : 'ASAQ then AL',
+
+    # Sequential Treatments with four day pause
+    'rwa-seq-al-asaq-pause.csv'    : 'AL, 4-day pause, then ASAQ',
+    'rwa-seq-al-dhappq-pause.csv'  : 'AL, 4-day pause, then DHA-PPQ',
+    'rwa-seq-dhappq-al-pause.csv'  : 'DHA-PPQ, 4-day pause, then AL',
+    'rwa-seq-asaq-al-pause.csv'    : 'ASAQ, 4-day pause, then AL',
 
     # NMCP
     'rwa-nmcp-1a.csv'              : 'NMCP Scenario 1a',
