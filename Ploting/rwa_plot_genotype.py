@@ -3,6 +3,8 @@
 # rwa_plot_genotype.py
 #
 # Generated the more complicated overlay plots for the key manuscript figures.
+#
+# NOTE Things will crash if this is set to True and the files are not present
 import csv
 import datetime
 import matplotlib
@@ -13,6 +15,7 @@ import os
 import sys
 
 import rwanda
+import rwa_reports
 
 from matplotlib.offsetbox import AnchoredOffsetbox, TextArea, VPacker
 
@@ -37,35 +40,35 @@ INDICES = {
 }
 
 # Generate the plot using the layout provided
-def generate(layout, cached=False):
+def generate(layout, year, cached=False):
     # Load and save the data if it wasn't cached
     if not cached:          
-        dates, data = load(layout)
+        dates, data = load(layout, year)
         if not os.path.exists('np'):
             os.makedirs('np')
-        for key in data.keys():
-            filename = 'np/{}'.format(key.split('/')[-1].replace('.csv', '-parsed.csv'))
+        for key in data.keys(): 
+            filename = 'np/{}_{}'.format(year, key.split('/')[-1].replace('.csv', '-parsed.csv'))
             writeCsv(dates, data[key], filename)
-        np.save('np/{}'.format(layout['title']), data, allow_pickle=True)
-        np.save('np/rwa-dates', dates, allow_pickle=True)
+        np.save('np/{}_{}'.format(year, layout['title']), data, allow_pickle=True)
+        np.save('np/{}_rwa-dates'.format(year), dates, allow_pickle=True)
 
     # Data was cached, load it
     else:
         print('Loading  {}...'.format(layout['title']))
-        data = np.load('np/{}.npy'.format(layout['title']), allow_pickle=True)
-        dates = np.load('np/rwa-dates.npy', allow_pickle=True)    
+        data = np.load('np/{}_{}.npy'.format(year, layout['title']), allow_pickle=True)
+        dates = np.load('np/()_rwa-dates.npy'.format(year), allow_pickle=True)    
         data = dict(enumerate(data.flatten(), 0))[0]
 
     # Plot the data
-    plot(dates, data, layout)
+    plot(dates, year, data, layout)
 
 
 # Load all of the files that have been provided
-def load(layout):
+def load(layout, year):
     results = {}
-    for filename in layout['source']:
-        dates, result = parse(filename, layout['plot'])
-        results[filename] = result
+    for key in layout['source']:
+        dates, result = parse(key.format(year), layout['plot'])
+        results[key] = result
     return dates, results
 
 # Load a single file that contains genotype data
@@ -73,6 +76,7 @@ def parse(filename, plots):
     # Load the data and parse out the common data
     data = pd.read_csv(filename, header = None)
     dates = data[INDICES['dates']].unique().tolist()
+    print(dates)
     replicates = data[INDICES['replicate']].unique().tolist()
 
     # Note the project state date
@@ -127,7 +131,7 @@ def parse(filename, plots):
 
 
 # Plot using Matplotlib
-def plot(dates, data, layout):     
+def plot(dates, year, data, layout):     
     COLORS = {
         'tf' : '#fb9a99',
         'pfpr' : '#cfcfcf',
@@ -137,6 +141,7 @@ def plot(dates, data, layout):
         'freq_plasmepsin' : '#bf6ffd',
         'freq_double' : '#bf6ffd'
     }
+    print(dates)
     
     # Generate all of the graphic elements for this axis
     def handle_axis(plot, axis):
@@ -166,7 +171,8 @@ def plot(dates, data, layout):
         return scale_luminosity(color, 0.5)
 
     # Parse the dates so that we just display the year number
-    days = rwanda.POLICYDATE.date() - datetime.date(2003, 1, 1)
+    policy_date = datetime.date(year, 1, 1)
+    days = policy_date - datetime.date(2003, 1, 1)
     dates = [(value - days.days) / 365 for value in dates]
 
     # Load the plotter and prepare the axes
@@ -214,7 +220,7 @@ def plot(dates, data, layout):
   
     if not os.path.exists('plots'):
         os.makedirs('plots')
-    filename = '{}/{}.png'.format('plots/', layout['title'])
+    filename = '{}/{} - {}.png'.format('plots/', year, layout['title'])
     plt.savefig(filename)
     print('Saved, {}'.format(filename))
 
@@ -239,158 +245,18 @@ def writeCsv(dates, data, filename):
     csv.writer(open(filename, "w")).writerows(values)
         
 
+def main(year, cached):
+    # Generate all of the plots based upon the given date
+    # generate(rwa_reports.al_vs_al5, year, cached)
+    # generate(rwa_reports.al5_vs_dhappq, year, cached)
+    # generate(rwa_reports.al5_vs_dhappq_plas, year, cached)    
+    # generate(rwa_reports.al5_vs_dhappq_double, year, cached)
+    # generate(rwa_reports.al5_vs_mft, year, cached)
+    # generate(rwa_reports.al5_vs_cycling, year, cached)
+    # generate(rwa_reports.al5_vs_tact, year, cached)
+    generate(rwa_reports.al5_vs_seq_al_asaq, year, cached)
+    # generate(rwa_reports.tact_vs_seq_al_asaq, year, cached)
+
+
 if __name__ == '__main__':
-    al_vs_al5 = {
-        'source' : [ 
-            '../Analysis/data/genotype_dataset/rwa-pfpr-constant.csv',
-            '../Analysis/data/genotype_dataset/rwa-ae-al-5.csv'
-        ],
-        'name' : ['AL 3-day', 'AL 5-day'],
-
-        'plot' : ['tf', 'pfpr', 'freq_561h'],
-        'left' : ['tf', 'freq_561h'],
-        'right' : ['pfpr'],
-        'style' : ['-.', '-'],
-        'intervention' : 0.42,
-
-        'title' : 'AL 3-day vs. AL 5-day',
-        'label' : {
-            'tf' : '% Treatment Failures',
-            'pfpr' : '$\it{Pf}$PR$_{2-10}$',
-            'freq_561h' : '561H Frequency'
-        }
-    }
-    al5_vs_dhappq = {
-        'source' : [ 
-            '../Analysis/data/genotype_dataset/rwa-ae-al-5.csv',
-            '../Analysis/data/genotype_dataset/rwa-replacement-dhappq.csv'
-        ],
-        'name' : ['AL 5-day', 'DHA-PPQ' ],
-
-        'plot' : ['tf', 'pfpr', 'freq_561h'],
-        'left' : ['tf', 'freq_561h'],
-        'right' : ['pfpr'],
-        'style' : ['-.', '-'],
-        'intervention' : 0.42,
-
-        'title' : 'AL 5-day vs. DHA-PPQ',
-        'label' : {
-            'tf' : '% Treatment Failures',
-            'pfpr' : '$\it{Pf}$PR$_{2-10}$',
-            'freq_561h' : '561H Frequency',
-        }        
-    }
-    al5_vs_dhappq_plas = {
-        'source' : [ 
-            '../Analysis/data/genotype_dataset/rwa-ae-al-5.csv',
-            '../Analysis/data/genotype_dataset/rwa-replacement-dhappq.csv'
-        ],
-        'name' : ['AL 5-day', 'DHA-PPQ' ],
-
-        'plot' : ['tf', 'pfpr', 'freq_561h', 'freq_plasmepsin'],
-        'left' : ['tf', 'freq_561h', 'freq_plasmepsin'],
-        'right' : ['pfpr'],
-        'style' : ['-.', '-'],
-        'intervention' : 0.42,
-
-        'title' : 'AL 5-day vs. DHA-PPQ - Plasmepsin 2-3, 2x Copy',
-        'label' : {
-            'tf' : '% Treatment Failures',
-            'pfpr' : '$\it{Pf}$PR$_{2-10}$',
-            'freq_561h' : '561H Frequency',
-            'freq_plasmepsin' : 'Plasmepsin 2-3, 2x copy Frequency'
-        }        
-    }    
-    al5_vs_dhappq_double = {
-        'source' : [ 
-            '../Analysis/data/genotype_dataset/rwa-ae-al-5.csv',
-            '../Analysis/data/genotype_dataset/rwa-replacement-dhappq.csv'
-        ],
-        'name' : ['AL 5-day', 'DHA-PPQ' ],
-
-        'plot' : ['tf', 'pfpr', 'freq_561h', 'freq_double'],
-        'left' : ['tf', 'freq_561h', 'freq_double'],
-        'right' : ['pfpr'],
-        'style' : ['-.', '-'],
-        'intervention' : 0.42,
-
-        'title' : 'AL 5-day vs. DHA-PPQ - Double Resistance',
-        'label' : {
-            'tf' : '% Treatment Failures',
-            'pfpr' : '$\it{Pf}$PR$_{2-10}$',
-            'freq_561h' : '561H Frequency',
-            'freq_double' : 'Double Resistance Frequency'
-        }        
-    }      
-    al5_vs_mft= {
-        'source' : [ 
-            '../Analysis/data/genotype_dataset/rwa-ae-al-5.csv',
-            '../Analysis/data/genotype_dataset/rwa-mft-asaq-dhappq-0.25.csv'
-        ],
-        'name' : ['AL 5-day', 'MFT' ],
-
-        'plot' : ['tf', 'pfpr', 'freq_561h', 'freq_double'],
-        'left' : ['tf', 'freq_561h', 'freq_double'],
-        'right' : ['pfpr'],
-        'style' : ['-.', '-'],
-        'intervention' : 0.42,
-
-        'title' : 'AL 5-day vs. MFT (75% ASAQ, 25% DHA-PPQ)',
-        'label' : {
-            'tf' : '% Treatment Failures',
-            'pfpr' : '$\it{Pf}$PR$_{2-10}$',
-            'freq_561h' : '561H Frequency',
-            'freq_double' : 'Double Resistance Frequency'
-        }        
-    }      
-    al5_vs_cycling = {
-        'source' : [ 
-            '../Analysis/data/genotype_dataset/rwa-ae-al-5.csv',
-            '../Analysis/data/genotype_dataset/rwa-rotation-al-5.csv'
-        ],
-        'name' : ['AL 5-day', 'DHA-PPQ rotation to MFT' ],
-
-        'plot' : ['tf', 'pfpr', 'freq_561h', 'freq_double'],
-        'left' : ['tf', 'freq_561h', 'freq_double'],
-        'right' : ['pfpr'],
-        'style' : ['-.', '-'],
-        'intervention' : 0.40,
-
-        'title' : 'AL 5-day vs. DHA-PPQ rotation to MFT',
-        'label' : {
-            'tf' : '% Treatment Failures',
-            'pfpr' : '$\it{Pf}$PR$_{2-10}$',
-            'freq_561h' : '561H Frequency',
-            'freq_double' : 'Double Resistance Frequency'
-        }        
-    }      
-    al5_vs_tact = {
-        'source' : [ 
-            '../Analysis/data/genotype_dataset/rwa-ae-al-5.csv',
-            '../Analysis/data/genotype_dataset/rwa-tact-alaq.csv'
-        ],
-        'name' : ['AL 5-day', 'AL + AQ' ],
-
-        'plot' : ['tf', 'pfpr', 'freq_561h'],
-        'left' : ['tf', 'freq_561h'],
-        'right' : ['pfpr'],
-        'style' : ['-.', '-'],
-        'intervention' : 0.41,
-
-        'title' : 'AL 5-day vs. AL + AQ',
-        'label' : {
-            'tf' : '% Treatment Failures',
-            'pfpr' : '$\it{Pf}$PR$_{2-10}$',
-            'freq_561h' : '561H Frequency',
-        }        
-    }                  
-
-    # NOTE Things will crash if this is set to True and the files are not present
-    cached = False
-    generate(al_vs_al5, cached)
-    generate(al5_vs_dhappq, cached)
-    generate(al5_vs_dhappq_plas, cached)    
-    generate(al5_vs_dhappq_double, cached)
-    generate(al5_vs_mft, cached)
-    generate(al5_vs_cycling, cached)
-    generate(al5_vs_tact, cached)
+    main(2023, False)

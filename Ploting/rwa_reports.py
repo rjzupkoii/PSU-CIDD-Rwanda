@@ -126,3 +126,205 @@ NMCP = {
     # Scenario 4c, MFT AL (5-day), DHA-PPQ, and ASAQ / Rapid ASAQ adoption
     'rwa-nmcp-4c.csv'       : ['4c', '#A691AE'],
 }
+
+# AL vs 5-day AL treatment genotype report
+al_vs_al5 = {
+    'source' : [ 
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-pfpr-constant.csv',
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-ae-al-5.csv'
+    ],
+    'name' : ['AL 3-day', 'AL 5-day'],
+
+    'plot' : ['tf', 'pfpr', 'freq_561h'],
+    'left' : ['tf', 'freq_561h'],
+    'right' : ['pfpr'],
+    'style' : ['-.', '-'],
+    'intervention' : 0.42,
+
+    'title' : 'AL 3-day vs. AL 5-day',
+    'label' : {
+        'tf' : '% Treatment Failures',
+        'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+        'freq_561h' : '561H Frequency'
+    }
+}
+
+# 5-day AL vs DHA-PPQ treatment genotype report
+al5_vs_dhappq = {
+    'source' : [ 
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-ae-al-5.csv',
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-replacement-dhappq.csv'
+    ],
+    'name' : ['AL 5-day', 'DHA-PPQ' ],
+
+    'plot' : ['tf', 'pfpr', 'freq_561h'],
+    'left' : ['tf', 'freq_561h'],
+    'right' : ['pfpr'],
+    'style' : ['-.', '-'],
+    'intervention' : 0.42,
+
+    'title' : 'AL 5-day vs. DHA-PPQ',
+    'label' : {
+        'tf' : '% Treatment Failures',
+        'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+        'freq_561h' : '561H Frequency',
+    }        
+}
+
+# 5-day AL vs DHA-PPQ treatment genotype report, with plasmepsin genotype
+al5_vs_dhappq_plas = {
+    'source' : [ 
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-ae-al-5.csv',
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-replacement-dhappq.csv'
+    ],
+    'name' : ['AL 5-day', 'DHA-PPQ' ],
+
+    'plot' : ['tf', 'pfpr', 'freq_561h', 'freq_plasmepsin'],
+    'left' : ['tf', 'freq_561h', 'freq_plasmepsin'],
+    'right' : ['pfpr'],
+    'style' : ['-.', '-'],
+    'intervention' : 0.42,
+
+    'title' : 'AL 5-day vs. DHA-PPQ - Plasmepsin 2-3, 2x Copy',
+    'label' : {
+        'tf' : '% Treatment Failures',
+        'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+        'freq_561h' : '561H Frequency',
+        'freq_plasmepsin' : 'Plasmepsin 2-3, 2x copy Frequency'
+    }        
+}    
+
+# 5-day AL vs DHA-PPQ treatment genotype report, with double resistance data
+al5_vs_dhappq_double = {
+    'source' : [ 
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-ae-al-5.csv',
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-replacement-dhappq.csv'
+    ],
+    'name' : ['AL 5-day', 'DHA-PPQ' ],
+
+    'plot' : ['tf', 'pfpr', 'freq_561h', 'freq_double'],
+    'left' : ['tf', 'freq_561h', 'freq_double'],
+    'right' : ['pfpr'],
+    'style' : ['-.', '-'],
+    'intervention' : 0.42,
+
+    'title' : 'AL 5-day vs. DHA-PPQ - Double Resistance',
+    'label' : {
+        'tf' : '% Treatment Failures',
+        'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+        'freq_561h' : '561H Frequency',
+        'freq_double' : 'Double Resistance Frequency'
+    }        
+}      
+
+# 5-day AL vs multiple first-line therapies (MFT) genotype report
+al5_vs_mft= {
+    'source' : [ 
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-ae-al-5.csv',
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-mft-asaq-dhappq-0.25.csv'
+    ],
+    'name' : ['AL 5-day', 'MFT' ],
+
+    'plot' : ['tf', 'pfpr', 'freq_561h', 'freq_double'],
+    'left' : ['tf', 'freq_561h', 'freq_double'],
+    'right' : ['pfpr'],
+    'style' : ['-.', '-'],
+    'intervention' : 0.42,
+
+    'title' : 'AL 5-day vs. MFT (75% ASAQ, 25% DHA-PPQ)',
+    'label' : {
+        'tf' : '% Treatment Failures',
+        'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+        'freq_561h' : '561H Frequency',
+        'freq_double' : 'Double Resistance Frequency'
+    }        
+}      
+
+# 5-day AL vs drug cycling treatment genotype report
+al5_vs_cycling = {
+    'source' : [ 
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-ae-al-5.csv',
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-rotation-al-5.csv'
+    ],
+    'name' : ['AL 5-day', 'DHA-PPQ rotation to MFT' ],
+
+    'plot' : ['tf', 'pfpr', 'freq_561h', 'freq_double'],
+    'left' : ['tf', 'freq_561h', 'freq_double'],
+    'right' : ['pfpr'],
+    'style' : ['-.', '-'],
+    'intervention' : 0.40,
+
+    'title' : 'AL 5-day vs. DHA-PPQ rotation to MFT',
+    'label' : {
+        'tf' : '% Treatment Failures',
+        'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+        'freq_561h' : '561H Frequency',
+        'freq_double' : 'Double Resistance Frequency'
+    }        
+}     
+
+# 5-day AL vs triple-ACT treatment genotype report
+al5_vs_tact = {
+    'source' : [ 
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-ae-al-5.csv',
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-tact-alaq.csv'
+    ],
+    'name' : ['AL 5-day', 'AL + AQ' ],
+
+    'plot' : ['tf', 'pfpr', 'freq_561h'],
+    'left' : ['tf', 'freq_561h'],
+    'right' : ['pfpr'],
+    'style' : ['-.', '-'],
+    'intervention' : 0.41,
+
+    'title' : 'AL 5-day vs. AL + AQ',
+    'label' : {
+        'tf' : '% Treatment Failures',
+        'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+        'freq_561h' : '561H Frequency',
+    }        
+}
+
+# 5-day AL vs AL-ASAQ sequency treatment treatment genotype report
+al5_vs_seq_al_asaq = {
+    'source' : [ 
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-ae-al-5.csv',
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-seq-al-asaq.csv'
+    ],
+    'name' : ['AL 5-day', 'AL then ASAQ' ],
+
+    'plot' : ['tf', 'pfpr', 'freq_561h'],
+    'left' : ['tf', 'freq_561h'],
+    'right' : ['pfpr'],
+    'style' : ['-.', '-'],
+    'intervention' : 0.41,
+
+    'title' : 'AL 5-day vs. AL then ASAQ',
+    'label' : {
+        'tf' : '% Treatment Failures',
+        'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+        'freq_561h' : '561H Frequency',
+    }        
+}
+
+# 5-day AL vs AL-ASAQ sequency treatment treatment genotype report
+tact_vs_seq_al_asaq = {
+    'source' : [ 
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-tact-alaq.csv',
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-seq-al-asaq.csv'
+    ],
+    'name' : ['AL + AQ', 'AL then ASAQ' ],
+
+    'plot' : ['tf', 'pfpr', 'freq_561h'],
+    'left' : ['tf', 'freq_561h'],
+    'right' : ['pfpr'],
+    'style' : ['-.', '-'],
+    'intervention' : 0.41,
+
+    'title' : 'AL + AQ vs. AL then ASAQ',
+    'label' : {
+        'tf' : '% Treatment Failures',
+        'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+        'freq_561h' : '561H Frequency',
+    }        
+}

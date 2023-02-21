@@ -35,10 +35,8 @@ def main(plot, year, verification=True, summary=True, search='', breaks=[3, 5, N
     if verification:
         print('Parsing 561H verification data ...')
         os.makedirs('plots', exist_ok=True)
-        filename = os.path.join(rwanda.DATA_PATH.format(year), 'rwa-561h-verification.csv')
-        plot_validation(filename, 'plots/561H Verification.png')
-        filename = os.path.join(rwanda.DATA_PATH.format(year), 'rwa-spike.csv')
-        plot_validation(filename, 'plots/561H Spikes.png')
+        filename = os.path.join(rwanda.DATA_PATH.format(year), 'rwa-pfpr-constant.csv')
+        plot_validation(filename, 'plots/{} - 561H Verification.png'.format(year))
 
     for years in breaks:
         dataset = {}
@@ -291,12 +289,12 @@ def plot_validation(datafile, imagefile):
 
 
 if __name__ == '__main__':
-    YEAR = 2024
+    YEAR = 2023
 
     # Plot the protocols that can be implemented now
-    main(rwa_reports.STUDIES, YEAR, verification = False, summary = False, search = 'standard')
+    # main(rwa_reports.STUDIES, YEAR, verification = False, summary = False, search = 'standard')
 
     # Plot the more experimental protocols
-    main(rwa_reports.EXPERIMENTAL, YEAR, verification = False, summary = False, search = 'experimental')
+    main(rwa_reports.EXPERIMENTAL, YEAR, verification = True, summary = False, search = 'experimental')
 
     
