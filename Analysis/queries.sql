@@ -19,7 +19,7 @@ select c.id as configurationid, c.studyid, c.filename,
   case when r.endtime is null then 0 else 1 end as complete
 from sim.configuration c
   inner join sim.replicate r on r.configurationid = c.id
-where c.studyid in (4, 6, 7, 8, 9, 11, 18)
+where c.studyid in (19, 20)
   and r.starttime > to_date('2023-01-01', 'YYYY-MM-DD')) iq
 group by configurationid, studyid, filename
 order by studyid, filename

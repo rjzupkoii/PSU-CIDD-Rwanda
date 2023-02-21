@@ -257,7 +257,7 @@ def check_replicate(filename):
   return True
 
 
-def process_genotype(date):
+def process_genotype(date, studyId):
   GENOTYPE_DATASET = 'data/genotype_dataset'
   GENOTYPE_DIRECTORY = 'data/genotype'
   FILENAMES = ['rwa-ae-al-5.yml', 
@@ -272,7 +272,7 @@ def process_genotype(date):
   if not os.path.exists(GENOTYPE_DIRECTORY): os.makedirs(GENOTYPE_DIRECTORY)
 
   print("Querying for replicates list...")
-  replicates = get_replicates(date)
+  replicates = get_replicates(date, studyId)
   save_csv(REPLICATES_LIST, replicates)
   
   print("Processing replicates...")  
@@ -303,9 +303,9 @@ def process_genotype(date):
 
 
 # Process the replicates to make sure we have all of the data we need locally
-def process_replicates(date):
+def process_replicates(date, studyId):
   print("Querying for replicates list...")
-  replicates = get_replicates(date)
+  replicates = get_replicates(date, studyId)
   save_csv(REPLICATES_LIST, replicates)
   
   print("Processing replicates...")  
@@ -335,7 +335,7 @@ def save_csv(filename, data):
       writer.writerow(row)
 
 
-def main(date):
+def main(date, studyId):
   if not os.path.exists(REPLICATE_DIRECTORY): os.makedirs(REPLICATE_DIRECTORY)
   if not os.path.exists(DATASET_DIRECTORY): os.makedirs(DATASET_DIRECTORY)
 
@@ -343,7 +343,7 @@ def main(date):
   # relevant replicates to the side as the data set for plotting. Since the 
   # project is iterating quickly this will save on needing to clean-up the 
   # database.
-  process_replicates(date)
+  process_replicates(date, studyId)
 
   if MANUSCRIPT: 
     process_final_datasets(date, REPLICATE_DIRECTORY, DATASET_DIRECTORY)
@@ -352,5 +352,9 @@ def main(date):
 
 
 if __name__ == '__main__':
-  main('2022-09-01')
-  process_genotype('2022-09-01')
+  FILTER_DATE = '2022-09-01'
+  STUDY_ID = 20
+
+  print("Filter: {}, Study: {}".format(FILTER_DATE, STUDY_ID))
+  main(FILTER_DATE, STUDY_ID)
+  process_genotype(FILTER_DATE, STUDY_ID)

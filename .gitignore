@@ -10,6 +10,7 @@
 
 # Ignore data directories
 /**/data
+/**/ms_data
 /**/np
 
 # Ignore plot directories
