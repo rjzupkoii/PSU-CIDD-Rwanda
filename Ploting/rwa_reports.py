@@ -30,19 +30,9 @@ STUDIES = {
     'rwa-mft-asaq-dhappq.csv'      : ['ASAQ (50%) + DHA-PPQ (50%)', '#31a354'],
     'rwa-mft-asaq-dhappq-0.75.csv' : ['ASAQ (25%) + DHA-PPQ (75%)', '#31a354'],
 
-    # # Rotate DHA-PPQ
-    # 'rwa-rotation-al-3.csv'        : ['DHA-PPQ (3 years) then\nAL (50%) + ASAQ', '#d7b5d8'],
-    # 'rwa-rotation-al-5.csv'        : ['DHA-PPQ (3 years) then\nAL, 5 days (50%) + ASAQ', '#d7b5d8'],
-
-    # Sequential Treatments
-    'rwa-seq-al-asaq.csv'          : ['AL then ASAQ', '#d7b5d8'],
-    'rwa-seq-al-dhappq.csv'        : ['AL then DHA-PPQ', '#d7b5d8'],
-    'rwa-seq-asaq-al.csv'          : ['ASAQ then AL', '#d7b5d8'],
-    'rwa-seq-dhappq-al.csv'        : ['DHA-PPQ then AL', '#d7b5d8'],
-
-    # TACT
-    'rwa-tact-alaq.csv'            : ['AL + AQ', '#df65b0'],
-    'rwa-tact-dhappqmq.csv'        : ['DHA-PPQ + MQ', '#df65b0'],
+    # Rotate DHA-PPQ
+    'rwa-rotation-al-3.csv'        : ['DHA-PPQ (3 years) then\nAL (50%) + ASAQ', '#d7b5d8'],
+    'rwa-rotation-al-5.csv'        : ['DHA-PPQ (3 years) then\nAL, 5 days (50%) + ASAQ', '#d7b5d8'],
 }
 
 EXPERIMENTAL = {
@@ -67,7 +57,6 @@ EXPERIMENTAL = {
     # TACT
     'rwa-tact-alaq.csv'            : ['AL + AQ', '#df65b0'],
     'rwa-tact-dhappqmq.csv'        : ['DHA-PPQ + MQ', '#df65b0'],
-
 }
 
 EXTENDED = {

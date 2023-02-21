@@ -24,24 +24,27 @@ from plotting import scale_luminosity
 from utility import progressBar
 
 
-def main(plot, verification=True, search='', breaks=[3, 5, None]):
+def main(plot, year, verification=True, summary=True, search='', breaks=[3, 5, None]):
     # Make sure a plots directory is present
     if not os.path.exists('plots'):
         os.makedirs('plots')
 
+    # Note the policy date
+    policy_date = datetime.datetime(year, 1, 1)
+
     if verification:
         print('Parsing 561H verification data ...')
         os.makedirs('plots', exist_ok=True)
-        filename = os.path.join(rwanda.DATA_PATH, 'rwa-561h-verification.csv')
+        filename = os.path.join(rwanda.DATA_PATH.format(year), 'rwa-561h-verification.csv')
         plot_validation(filename, 'plots/561H Verification.png')
-        filename = os.path.join(rwanda.DATA_PATH, 'rwa-spike.csv')
+        filename = os.path.join(rwanda.DATA_PATH.format(year), 'rwa-spike.csv')
         plot_validation(filename, 'plots/561H Spikes.png')
 
     for years in breaks:
         dataset = {}
         for filename in rwanda.CONFIGURATIONS:
             # Speed things up by only parsing the data we need
-            if search == 'standard' and any (filter in filename for filter in ['-nmcp', 'high', 'moderate', 'low', '20y']):
+            if search == 'standard' and not any (filter in filename for filter in ['constant', 'ae-al', 'replacement', 'mft', 'rotation']):
                 continue
             elif search == 'nmcp' and not any(filter in filename for filter in ['-nmcp', 'constant']):
                 continue
@@ -56,12 +59,12 @@ def main(plot, verification=True, search='', breaks=[3, 5, None]):
             print('Parsing {} ...'.format(filename))
             filter, prefix = None, ''
             if years is not None:
-                filter = rwanda.POLICYDATE + relativedelta(years=years)
+                filter = policy_date + relativedelta(years=years)
                 prefix = "{} - ".format(years)
-            results = prepare_national(os.path.join(rwanda.DATA_PATH, filename), filter=filter)
+            results = prepare_national(os.path.join(rwanda.DATA_PATH.format(year), filename), year, filter=filter)
 
             # Plot the summary figure
-            rwanda.plot_summary(rwanda.CONFIGURATIONS[filename], *results, prefix=prefix)   
+            if summary: rwanda.plot_summary(rwanda.CONFIGURATIONS[filename], *results, prefix=prefix)   
             dataset[filename] = results[1]
 
         EXTENSION = 'png'
@@ -71,6 +74,7 @@ def main(plot, verification=True, search='', breaks=[3, 5, None]):
             if years is not None:
                 filename = 'plots/Comparison, {:02d}y - {}.{}'.format(years, label, EXTENSION)
             plot_violin(dataset, key, label, filename, plot)
+            print("Created {}...".format(filename))
 
 
 def plot_violin(dataset, filter, label, imagefile, plot):
@@ -134,10 +138,11 @@ def plot_violin(dataset, filter, label, imagefile, plot):
         plt.savefig(imagefile)
         
 
-def prepare_national(filename, filter=None):
+def prepare_national(filename, year, filter=None):
     REPLICATE, DATES, DISTRICT, INDIVIDUALS, WEIGHTED = 1, 2, 3, 4, 8
 
     # Load the data, note the unique dates, replicates
+    policy_date = datetime.datetime(year, 1, 1)
     data = pd.read_csv(filename, header = None)
     dates = data[DATES].unique().tolist()
     replicates = data[REPLICATE].unique().tolist()
@@ -177,7 +182,7 @@ def prepare_national(filename, filter=None):
 
             # If we are filtering then check the date
             if filter is not None:
-                if currentDate < rwanda.POLICYDATE: continue
+                if currentDate < policy_date: continue
                 if currentDate > filter: break
 
             # Store the appropriate data
@@ -208,7 +213,7 @@ def prepare_national(filename, filter=None):
         start, end = 0, 0
         for ndx in range(len(dates)):
             currentDate = startDate + datetime.timedelta(days=dates[ndx])
-            if currentDate == rwanda.POLICYDATE: 
+            if currentDate == policy_date: 
                 start = ndx
             if currentDate == filter:
                 end = ndx
@@ -286,10 +291,12 @@ def plot_validation(datafile, imagefile):
 
 
 if __name__ == '__main__':
-#    main(rwa_reports.STUDIES, False, 'standard')
-    main(rwa_reports.EXPERIMENTAL, False, 'experimental')
+    YEAR = 2024
 
-    # main(rwa_reports.COMPLIANCE, False, 'compliance')
-    # main(rwa_reports.NMCP, False, 'nmcp')
-    # main(rwa_reports.EXTENDED, False, 'dhappq')
+    # Plot the protocols that can be implemented now
+    main(rwa_reports.STUDIES, YEAR, verification = False, summary = False, search = 'standard')
+
+    # Plot the more experimental protocols
+    main(rwa_reports.EXPERIMENTAL, YEAR, verification = False, summary = False, search = 'experimental')
+
     

@@ -52,9 +52,6 @@ DISTRICTS = {
 # Start of simulation
 STUDYDATE = '2003-1-1'
 
-# Date when the policy change is introduced in the simulation
-POLICYDATE = datetime.datetime(2024, 1, 1)
-
 # Reference date for replicate validation, note we are using the minimal
 # frequency for the reject threshold since there may have been spatial 
 # clustering when the study was performed.
@@ -63,7 +60,7 @@ REFERENCEDISTRICT = 8
 REFERENCEFREQUENCY = 0.01
 
 # The path for the summary data set
-DATA_PATH = '../Analysis/data/datasets'
+DATA_PATH = '../Analysis/ms_data/{}/datasets'
 
 # The various configurations that are run for the simulation
 CONFIGURATIONS = {
@@ -151,9 +148,6 @@ CONFIGURATIONS = {
     'rwa-dhappq-high.csv'     : 'DHA-PPQ, High',
     'rwa-dhappq-moderate.csv' : 'DHA-PPQ, Moderate',
     'rwa-dhappq-low.csv'      : 'DHA-PPQ, Low',
-
-    # AL Replacement, extended model
-    'rwa-replacement-dhappq-20y.csv'   : '100% DHA-PPQ Deployment, 20 years',
 }
 
 # Index defintions for spikes
