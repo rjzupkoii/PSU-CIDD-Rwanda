@@ -134,6 +134,7 @@ def plot_violin(dataset, filter, label, imagefile, plot):
         plt.savefig(imagefile, dpi=300, format="tiff", pil_kwargs={"compression": "tiff_lzw"})
     else:
         plt.savefig(imagefile)
+    plt.close()
         
 
 def prepare_national(filename, year, filter=None):
