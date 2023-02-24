@@ -19,10 +19,28 @@ select c.id as configurationid, c.studyid, c.filename,
   case when r.endtime is null then 0 else 1 end as complete
 from sim.configuration c
   inner join sim.replicate r on r.configurationid = c.id
-where c.studyid in (19, 20)
+where c.studyid in (19, 20, 21)
   and r.starttime > to_date('2023-01-01', 'YYYY-MM-DD')) iq
 group by configurationid, studyid, filename
 order by studyid, filename
+
+-- All of the genotype frequencies for the given replicate
+SELECT replicateid, dayselapsed, year, substring(g.name, 1, 7) as name, frequency
+FROM (
+	SELECT mgd.replicateid, mgd.genomeid, mgd.dayselapsed, 
+		TO_CHAR(TO_DATE('2007-01-01', 'YYYY-MM-DD') + interval '1' day * mgd.dayselapsed, 'YYYY') AS year,
+		mgd.weightedoccurrences / msd.infectedindividuals AS frequency
+	FROM (
+		SELECT md.replicateid, md.id, md.dayselapsed, mgd.genomeid, sum(mgd.weightedoccurrences) AS weightedoccurrences
+		FROM sim.monthlydata md INNER JOIN sim.monthlygenomedata mgd ON mgd.monthlydataid = md.id
+		WHERE md.replicateid = 51703 AND md.dayselapsed > 4015
+		GROUP BY md.id, md.dayselapsed, mgd.genomeid) mgd
+	INNER JOIN (
+		SELECT md.id, sum(msd.infectedindividuals) AS infectedindividuals
+		FROM sim.monthlydata md INNER JOIN sim.monthlysitedata msd ON msd.monthlydataid = md.id
+		WHERE md.replicateid = 51703 AND md.dayselapsed > 4015
+		GROUP BY md.id) msd 
+	ON msd.id = mgd.id) frequency inner join sim.genotype g on g.id = frequency.genomeid
 
 
 -- Status of all replicates
