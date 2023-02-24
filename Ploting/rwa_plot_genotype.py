@@ -76,7 +76,6 @@ def parse(filename, plots):
     # Load the data and parse out the common data
     data = pd.read_csv(filename, header = None)
     dates = data[INDICES['dates']].unique().tolist()
-    print(dates)
     replicates = data[INDICES['replicate']].unique().tolist()
 
     # Note the project state date
@@ -141,7 +140,6 @@ def plot(dates, year, data, layout):
         'freq_plasmepsin' : '#bf6ffd',
         'freq_double' : '#bf6ffd'
     }
-    print(dates)
     
     # Generate all of the graphic elements for this axis
     def handle_axis(plot, axis):
@@ -247,15 +245,15 @@ def writeCsv(dates, data, filename):
 
 def main(year, cached):
     # Generate all of the plots based upon the given date
-    # generate(rwa_reports.al_vs_al5, year, cached)
-    # generate(rwa_reports.al5_vs_dhappq, year, cached)
-    # generate(rwa_reports.al5_vs_dhappq_plas, year, cached)    
-    # generate(rwa_reports.al5_vs_dhappq_double, year, cached)
-    # generate(rwa_reports.al5_vs_mft, year, cached)
-    # generate(rwa_reports.al5_vs_cycling, year, cached)
-    # generate(rwa_reports.al5_vs_tact, year, cached)
+    generate(rwa_reports.al_vs_al5, year, cached)
+    generate(rwa_reports.al5_vs_dhappq, year, cached)
+    generate(rwa_reports.al5_vs_dhappq_plas, year, cached)    
+    generate(rwa_reports.al5_vs_dhappq_double, year, cached)
+    generate(rwa_reports.al5_vs_mft, year, cached)
+    generate(rwa_reports.al5_vs_cycling, year, cached)
+    generate(rwa_reports.al5_vs_tact, year, cached)
     generate(rwa_reports.al5_vs_seq_al_asaq, year, cached)
-    # generate(rwa_reports.tact_vs_seq_al_asaq, year, cached)
+    generate(rwa_reports.tact_vs_seq_al_asaq, year, cached)
 
 
 if __name__ == '__main__':
