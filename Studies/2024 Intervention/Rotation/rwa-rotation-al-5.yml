@@ -231,7 +231,7 @@ events:
         strategy_id: 1
   - name: change_treatment_strategy
     info:
-      - day: 2026/1/1
+      - day: 2027/1/1
         strategy_id: 2
 
   - name: introduce_mutant_event
