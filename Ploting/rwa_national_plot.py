@@ -20,7 +20,6 @@ import rwa_reports
 
 # From the PSU-CIDD-MaSim-Support repository
 sys.path.insert(1, '../../PSU-CIDD-MaSim-Support/Python/include')
-from plotting import scale_luminosity
 from utility import progressBar
 
 
@@ -36,7 +35,7 @@ def main(plot, year, verification=True, summary=True, search='', breaks=[3, 5, N
         print('Parsing 561H verification data ...')
         os.makedirs('plots', exist_ok=True)
         filename = os.path.join(rwanda.DATA_PATH.format(year), 'rwa-pfpr-constant.csv')
-        plot_validation(filename, 'plots/{} - 561H Verification.png'.format(year))
+        rwanda.plot_validation(filename, 'plots/{} - 561H Verification.png'.format(year))
 
     for years in breaks:
         dataset = {}
@@ -248,46 +247,6 @@ def prepare_validation(filename):
 
     # Return the results
     return dates, frequencies
-
-
-def plot_validation(datafile, imagefile):
-    # Prepare the data
-    dates, frequencies = prepare_validation(datafile)
-
-    # Format the dates
-    startDate = datetime.datetime.strptime(rwanda.STUDYDATE, "%Y-%m-%d")
-    dates = [startDate + datetime.timedelta(days=x) for x in dates]
-
-    # Calculate the bounds
-    upper = np.percentile(frequencies, 97.5, axis=0)
-    median = np.percentile(frequencies, 50, axis=0)
-    lower = np.percentile(frequencies, 2.5, axis=0)
-
-    # Format the plot
-    matplotlib.rc_file('matplotlibrc-line')
-    axes = plt.axes()
-    axes.set_xlim([min(dates), max(dates)])
-    axes.set_title('Rwanda 561H Frequency Validation')
-    axes.set_ylabel('561H Genotype Frequency')
-    axes.set_xlabel('Model Year')
-
-    # Plot the 561H frequency
-    plt.plot(dates, median)
-    color = scale_luminosity(plt.gca().lines[-1].get_color(), 1)
-    plt.fill_between(dates, lower, upper, alpha=0.5, facecolor=color)
-
-    # Add the spike annotations
-    plt.scatter(rwanda.SPIKES[:, rwanda.SPIKE_X], rwanda.SPIKES[:, rwanda.SPIKE_Y], color='black', s=50)
-    for district, label, x, y in rwanda.SPIKES:
-        plt.annotate(label, (x, y), textcoords='offset points', xytext=(0,10), ha='center', fontsize=18)
-
-    # Finalize the image as proof (png) or print (tif)
-    if imagefile.endswith('tif'):
-        plt.savefig(imagefile, dpi=300, format="tiff", pil_kwargs={"compression": "tiff_lzw"})
-    else:
-        plt.savefig(imagefile)
-    plt.close()
-
 
 if __name__ == '__main__':
     YEAR = 2023

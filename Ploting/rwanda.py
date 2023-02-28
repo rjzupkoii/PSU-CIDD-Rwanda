@@ -8,12 +8,14 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import pandas as pd
 import re
 import sys
 
 # From the PSU-CIDD-MaSim-Support repository
 sys.path.insert(1, '../../PSU-CIDD-MaSim-Support/Python/include')
 from plotting import scale_luminosity
+from utility import progressBar
 
 
 DISTRICTS = {
@@ -150,7 +152,7 @@ CONFIGURATIONS = {
     'rwa-dhappq-low.csv'      : 'DHA-PPQ, Low',
 }
 
-# Index defintions for spikes
+# Index definitions for spikes
 SPIKE_DISTRICT, SPIKE_LABEL, SPIKE_X, SPIKE_Y = range(4)
 
 # Points at which 561H was spiked into the population
@@ -263,3 +265,68 @@ def plot_summary(title, dates, figureData, district = None, studies = False, ext
     else:
         plt.savefig(imagefile)        
     plt.close()
+
+
+def plot_validation(datafile, imagefile, title='Rwanda 561H Frequency Validation'):
+    # Prepare the data
+    dates, frequencies = prepare_validation(datafile)
+
+    # Format the dates
+    startDate = datetime.datetime.strptime(STUDYDATE, "%Y-%m-%d")
+    dates = [startDate + datetime.timedelta(days=x) for x in dates]
+
+    # Calculate the bounds
+    upper = np.percentile(frequencies, 97.5, axis=0)
+    median = np.percentile(frequencies, 50, axis=0)
+    lower = np.percentile(frequencies, 2.5, axis=0)
+
+    # Format the plot
+    matplotlib.rc_file('matplotlibrc-line')
+    axes = plt.axes()
+    axes.set_xlim([min(dates), max(dates)])
+    axes.set_title(title)
+    axes.set_ylabel('561H Genotype Frequency')
+    axes.set_xlabel('Model Year')
+
+    # Plot the 561H frequency
+    plt.plot(dates, median)
+    color = scale_luminosity(plt.gca().lines[-1].get_color(), 1)
+    plt.fill_between(dates, lower, upper, alpha=0.5, facecolor=color)
+
+    # Add the spike annotations
+    plt.scatter(SPIKES[:, SPIKE_X], SPIKES[:, SPIKE_Y], color='black', s=50)
+    for district, label, x, y in SPIKES:
+        plt.annotate(label, (x, y), textcoords='offset points', xytext=(0,10), ha='center', fontsize=18)
+
+    # Finalize the image as proof (png) or print (tif)
+    if imagefile.endswith('tif'):
+        plt.savefig(imagefile, dpi=300, format="tiff", pil_kwargs={"compression": "tiff_lzw"})
+    else:
+        plt.savefig(imagefile)
+    plt.close()    
+
+def prepare_validation(filename):
+    REPLICATE, DATES, INDIVIDUALS, WEIGHTED = 1, 2, 4, 8
+
+    # Load the data, note the unique dates, replicates
+    data = pd.read_csv(filename, header = None)
+    dates = data[DATES].unique().tolist()
+    replicates = data[REPLICATE].unique().tolist()
+
+    # Calculate the 561H frequency for each date, replicate
+    count, frequencies = 0, []
+    for replicate in replicates:
+        byReplicate = data[data[REPLICATE] == replicate]
+        frequency = []
+        for date in dates:
+            byDate = byReplicate[byReplicate[DATES] == date]
+            frequency.append(sum(byDate[WEIGHTED]) / sum(byDate[INDIVIDUALS]))
+        if len(frequencies) != 0: frequencies = np.vstack((frequencies, frequency))
+        else: frequencies = frequency
+
+        # Update the progress bar
+        count += 1
+        progressBar(count, len(replicates))
+
+    # Return the results
+    return dates, frequencies

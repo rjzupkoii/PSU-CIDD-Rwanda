@@ -19,14 +19,32 @@ sys.path.insert(1, '../../PSU-CIDD-MaSim-Support/Python/include')
 from plotting import scale_luminosity
 from utility import progressBar
 
-def main():
-    print('Generating spiking plots...')
-    plot_spikes('rwa-561h-verification.csv', 'png')
+def main(year):
+    filenames = [
+        'rwa-pfpr-constant.csv',
+        'rwa-movement-0.3x.csv',
+        'rwa-movement-0.5x.csv',
+        'rwa-movement-2x.csv',
+        'rwa-movement-3x.csv',
+    ]
 
-    for filename in rwanda.CONFIGURATIONS:
-        print('Parsing {} ...'.format(filename))
-        results = prepare(os.path.join('../Analysis/data/datasets', filename))
-        report(rwanda.CONFIGURATIONS[filename], *results)    
+    os.makedirs('plots', exist_ok=True)
+
+    for filename in filenames:        
+        if 'x' in filename:
+            rate = filename[13:].replace('.csv', '')
+            title = 'National 561H Frequency with {} Increase in Movement'.format(rate)
+        else:
+            rate = '1x'
+            title = 'National 561H Frequency'
+        print('Preparing {} plots...'.format(rate))
+
+        # Start by preparing the national summary plot
+        filename = os.path.join(rwanda.DATA_PATH.format(year), filename)
+        rwanda.plot_validation(filename, 'plots/{} - Movement {}.png'.format(year, rate), title=title)
+
+        # Now prepare the district spiking plot
+        plot_spikes(filename, year, rate, 'png')
 
 
 def prepare(filename):
@@ -78,13 +96,7 @@ def prepare(filename):
     return dates, districtData
 
 
-def report(title, dates, districtData):
-    for district in rwanda.DISTRICTS:
-        rwanda.plot_summary(title, dates, districtData[district], district=district)
-        progressBar(district, len(rwanda.DISTRICTS))
-
-
-def plot_spikes(filename, extension):
+def plot_spikes(filename, year, rate, extension):
     LOCATIONS = {
         8: [0, 0],  3: [0, 1],
         9: [1, 0], 10: [1, 1], 17: [1, 2],
@@ -98,7 +110,7 @@ def plot_spikes(filename, extension):
             districts.append(row[rwanda.SPIKE_DISTRICT])
 
     # Generate the standard four-panel summary plot
-    dates, districtData = prepare(os.path.join('../Analysis/data/datasets', filename))
+    dates, districtData = prepare(filename)
     for id in districts:
         rwanda.plot_summary('District 561H Validation', dates, districtData[id], district=id, studies=True)
 
@@ -139,15 +151,16 @@ def plot_spikes(filename, extension):
         ax.set_xlim([datetime.datetime(2014, 1, 1), max(dates)])
     axes[0, 2].set_visible(False)
     
-    figure.suptitle('Districts with 561H Frequency Studies')
+    figure.suptitle('District 561H Frequency with {} movement rate'.format(rate))
     
     # Save the plot based upon the supplied extension
-    imagefile = 'plots/District Spikes.{}'.format(extension)
+    imagefile = 'plots/{} - District Movement {}.{}'.format(year, rate, extension)
     if 'tif' == extension:
         plt.savefig(imagefile, dpi=300, format="tiff", pil_kwargs={"compression": "tiff_lzw"})
     else:
-        plt.savefig(imagefile, dpi=150)     
+        plt.savefig(imagefile, dpi=150)
+    plt.close()
 
 
 if __name__ == '__main__':
-    main()
+    main(2023)
