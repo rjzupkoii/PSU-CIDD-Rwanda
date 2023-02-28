@@ -18,6 +18,7 @@
 #
 # Study ID 19 - Intervention started in 2023
 # Study ID 20 - Intervention started in 2024
+import argparse
 import csv
 import datetime
 import os
@@ -352,9 +353,12 @@ def main(date, studyId):
 
 
 if __name__ == '__main__':
-  FILTER_DATE = '2022-09-01'
-  STUDY_ID = 20
+  # Parse the arguments
+  parser = argparse.ArgumentParser()
+  parser.add_argument('-d', action='store', dest='filter_date', default='2022-09-01', help='The date to filter the replicates on')
+  parser.add_argument('-s', action='store', dest='study_id', required=True, help='The ide of the study to get the replicates for')
+  args = parser.parse_args()
 
-  print("Filter: {}, Study: {}".format(FILTER_DATE, STUDY_ID))
-  main(FILTER_DATE, STUDY_ID)
-  process_genotype(FILTER_DATE, STUDY_ID)
+  print("Filter: {}, Study: {}".format(args.filter_date, args.study_id))
+  main(args.filter_date, args.study_id)
+  process_genotype(args.filter_date, args.study_id)
