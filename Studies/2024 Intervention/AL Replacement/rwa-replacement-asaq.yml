@@ -236,6 +236,10 @@ events:
         fraction: 0.06
         locus: 2
         mutant_allele: 1  
+  - name: update_beta_raster_event
+    info: 
+      - day: 2021/01/01
+        beta_raster: "rwa_beta_incidence.asc"
 
 # Drug Information
 #
