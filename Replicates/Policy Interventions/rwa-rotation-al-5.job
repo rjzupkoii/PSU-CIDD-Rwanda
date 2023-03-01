@@ -8,4 +8,4 @@
 #SBATCH --account=mfb9
 
 cd $SLURM_SUBMIT_DIR
-./MaSim -i rwa-rotation-al-5.yml -s 9 -r DbReporterDistrict,GenotypeCarriers
+./MaSim -i rwa-rotation-al-5.yml -s 20 -r DbReporterDistrict,GenotypeCarriers

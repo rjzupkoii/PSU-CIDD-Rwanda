@@ -8,4 +8,4 @@
 #SBATCH --account=mfb9
 
 cd $SLURM_SUBMIT_DIR
-./MaSim -i rwa-mft-asaq-dhappq.yml -s 6 -r DbReporterDistrict,GenotypeCarriers
+./MaSim -i rwa-mft-asaq-dhappq.yml -s 20 -r DbReporterDistrict,GenotypeCarriers
