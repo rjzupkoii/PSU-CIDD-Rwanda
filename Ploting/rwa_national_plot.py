@@ -3,6 +3,7 @@
 # rwa_561H_plot.py
 #
 # Plot the 561H validation replicates, within spiking studies labeled.
+import argparse
 import datetime
 import matplotlib
 import matplotlib.pyplot as plt
@@ -23,7 +24,7 @@ sys.path.insert(1, '../../PSU-CIDD-MaSim-Support/Python/include')
 from utility import progressBar
 
 
-def main(plot, year, verification=True, summary=True, search='', breaks=[3, 5, None]):
+def main(plot, year, verification, search, summary=False, breaks=[3, 5, None]):
     # Make sure a plots directory is present
     if not os.path.exists('plots'):
         os.makedirs('plots')
@@ -43,13 +44,18 @@ def main(plot, year, verification=True, summary=True, search='', breaks=[3, 5, N
             # Speed things up by only parsing the data we need
             if search == 'standard' and not any (filter in filename for filter in ['constant', 'ae-al', 'replacement', 'mft', 'rotation']):
                 continue
-            elif search == 'nmcp' and not any(filter in filename for filter in ['-nmcp', 'constant']):
-                continue
             elif search == 'compliance' and not any(filter in filename for filter in ['high', 'moderate', 'low']):
                 continue
             elif search == 'dhappq' and not any(filter in filename for filter in ['dhappq', 'constant']):
                 continue
             elif search == 'experimental' and not any(filter in filename for filter in ['constant', '3-4-3', 'seq', 'tact']):
+                continue
+            elif search == 'nmcp' and not any(filter in filename for filter in ['-nmcp', 'constant']):
+                continue
+
+            # Pass if the file does not exist, this should only happen if we are actively running replicates
+            if not os.path.exists(os.path.join(rwanda.DATA_PATH.format(year), filename)):
+                print('Skipping {} ...'.format(filename))
                 continue
 
             # Load the data, apply the relevant filter
@@ -67,9 +73,9 @@ def main(plot, year, verification=True, summary=True, search='', breaks=[3, 5, N
         EXTENSION = 'png'
         for key in rwanda.REPORT_LAYOUT:
             label = rwanda.REPORT_LAYOUT[key][rwanda.REPORT_YLABEL]
-            filename = 'plots/Comparison - {}.{}'.format(label, EXTENSION)
+            filename = 'plots/{} - {}.{}'.format(search.capitalize(), label, EXTENSION)
             if years is not None:
-                filename = 'plots/Comparison, {:02d}y - {}.{}'.format(years, label, EXTENSION)
+                filename = 'plots/{} - {:02d}y - {}.{}'.format(search.capitalize(), years, label, EXTENSION)
             plot_violin(dataset, key, label, filename, plot)
             print("Created {}...".format(filename))
 
@@ -85,6 +91,8 @@ def plot_violin(dataset, filter, label, imagefile, plot):
     data, labels, colors, prefix = [], [], [], ''
     for key in plot:
         # Filter to the data we want
+        if key not in dataset: 
+            continue
         temp = np.matrix(dataset[key][filter])
 
         # If the filter is for frequency then just reshape
@@ -249,12 +257,22 @@ def prepare_validation(filename):
     return dates, frequencies
 
 if __name__ == '__main__':
-    YEAR = 2023
+    # Parse the arguments
+    plots_list = ', '.join(rwa_reports.PLOTS.keys())
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-v', action='store_true', dest='verification', help='Plot the verification data')
+    parser.add_argument('-y', action='store', dest='year', required=True, help='Year filter for the studies')
+    parser.add_argument('-p', action='store', dest='plot', default='standard', 
+                        help='The plot to generate, must one of: {}. Default: standard'.format(plots_list))
+    args = parser.parse_args()
 
-    # Plot the protocols that can be implemented now
-    # main(rwa_reports.STUDIES, YEAR, verification = False, summary = False, search = 'standard')
-
+    # Check the inputs
+    plot = args.plot.lower()
+    if plot not in rwa_reports.PLOTS.keys():
+        sys.stderr.write('The plot {} does not appear in the list of plots ({}).\n'.format(args.plot, plots_list))
+        sys.exit(1)
+    
     # Plot the more experimental protocols
-    main(rwa_reports.EXPERIMENTAL, YEAR, verification = True, summary = False, search = 'experimental')
+    main(rwa_reports.PLOTS[args.plot.lower()], int(args.year), args.verification, plot)
 
     

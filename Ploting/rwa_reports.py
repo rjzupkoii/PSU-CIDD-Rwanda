@@ -6,9 +6,15 @@ STUDIES = {
     # Status Quo
     'rwa-pfpr-constant.csv'        : ['Status Quo', '#bdd7e7'],
 
-    # Extend AL
+    # Extend AL, simple regime
     'rwa-ae-al-4.csv'              : ['AL, 4 days', '#bdd7e7'],
     'rwa-ae-al-5.csv'              : ['AL, 5 days', '#bdd7e7'],
+
+    # Extend AL, more complex regime
+    'rwa-ae-al-3-1-1.csv'          : ['AL, 1-day pause, then AL (1 dose)', '#bdd7e7'],
+    'rwa-ae-al-3-1-2.csv'          : ['AL, 1-day pause, then AL (2 doses)', '#bdd7e7'],
+    'rwa-ae-al-3-2-1.csv'          : ['AL, 2-day pause, then AL (1 dose)', '#bdd7e7'],
+    'rwa-ae-al-3-2-2.csv'          : ['AL, 2-day pause, then AL (2 doses)', '#bdd7e7'],
     'rwa-ae-al-3-4-3.csv'          : ['AL, 4 days rest, AL', '#bdd7e7'],
 
     # Replace AL
@@ -59,7 +65,7 @@ EXPERIMENTAL = {
     'rwa-tact-dhappqmq.csv'        : ['DHA-PPQ + MQ', '#df65b0'],
 }
 
-EXTENDED = {
+DHAPPQ = {
     # Status Quo
     'rwa-pfpr-constant.csv'        : ['Status Quo', '#bdd7e7'],
 
@@ -126,6 +132,15 @@ NMCP = {
     # Scenario 4c, MFT AL (5-day), DHA-PPQ, and ASAQ / Rapid ASAQ adoption
     'rwa-nmcp-4c.csv'       : ['4c', '#A691AE'],
 }
+
+# List of the plots and their mappings
+PLOTS = {
+    'standard'     : STUDIES,
+    'compliance'   : COMPLIANCE,
+    'dhappq'       : DHAPPQ,
+    'experimental' : EXPERIMENTAL,
+    'nmcp'         : NMCP
+    }
 
 # AL vs 5-day AL treatment genotype report
 al_vs_al5 = {
