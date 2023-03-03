@@ -37,10 +37,13 @@ def main(year):
         else:
             rate = '1x'
             title = 'National 561H Frequency'
+
+        # Verify that the file exists
+        filename = os.path.join(rwanda.DATA_PATH.format(year), filename)
+        if not os.path.exists(filename): continue
         print('Preparing {} plots...'.format(rate))
 
         # Start by preparing the national summary plot
-        filename = os.path.join(rwanda.DATA_PATH.format(year), filename)
         rwanda.plot_validation(filename, 'plots/{} - Movement {}.png'.format(year, rate), title=title)
 
         # Now prepare the district spiking plot
