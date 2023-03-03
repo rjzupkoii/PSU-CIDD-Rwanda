@@ -18,9 +18,10 @@
 % 11: Genotype Carriers
 clear;
 
-generate_reports(0.25);
+PATH = 'ms_data/2023/datasets/';
+generate_reports(PATH, 0.25);
 
-function [] = generate_reports(scaling)
+function [] = generate_reports(path, scaling)
     ENDPOINTS = 'out/rwa-endpoints.csv';
     
     % Open the endpoints for output
@@ -31,8 +32,7 @@ function [] = generate_reports(scaling)
     fprintf(output, '%s,\n', repmat(',Clinical Cases,Treatments,Treatment Failures,Treatment Failures,561H Frequency', 1, 3));
     
     % Get the frequency data from the files
-    files = dir('data/datasets/rwa-*.csv');
-    frequencies = zeros(size(files, 2), 30);
+    files = dir(strcat(path, 'rwa-*.csv'));
     for ndx = 1:length(files)
         if files(ndx).name == "rwa-561h-verification.csv"
             continue
