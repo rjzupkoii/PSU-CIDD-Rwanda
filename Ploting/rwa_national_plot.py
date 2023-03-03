@@ -3,6 +3,11 @@
 # rwa_561H_plot.py
 #
 # Plot the 561H validation replicates, within spiking studies labeled.
+#
+# NOTE As a convenience all of the data processing is cached and the loaded 
+# by default in order to "clear" the cache, the files in /np that start with
+# the violin-cache-* prefix. The remainder of the filename is based upon 
+# filtering and should produce a unique file name.
 import argparse
 import datetime
 import matplotlib
@@ -29,55 +34,77 @@ def main(plot, year, verification, search, summary=False, breaks=[3, 5, None]):
     if not os.path.exists('plots'):
         os.makedirs('plots')
 
-    # Note the policy date
-    policy_date = datetime.datetime(year, 1, 1)
-
     if verification:
         print('Parsing 561H verification data ...')
         os.makedirs('plots', exist_ok=True)
         filename = os.path.join(rwanda.DATA_PATH.format(year), 'rwa-pfpr-constant.csv')
         rwanda.plot_validation(filename, 'plots/{} - 561H Verification.png'.format(year))
 
-    for years in breaks:
-        dataset = {}
-        for filename in rwanda.CONFIGURATIONS:
-            # Speed things up by only parsing the data we need
-            if search == 'standard' and not any (filter in filename for filter in ['constant', 'ae-al', 'replacement', 'mft', 'rotation']):
-                continue
-            elif search == 'compliance' and not any(filter in filename for filter in ['high', 'moderate', 'low']):
-                continue
-            elif search == 'dhappq' and not any(filter in filename for filter in ['dhappq', 'constant']):
-                continue
-            elif search == 'experimental' and not any(filter in filename for filter in ['constant', '3-4-3', 'seq', 'tact']):
-                continue
-            elif search == 'nmcp' and not any(filter in filename for filter in ['-nmcp', 'constant']):
-                continue
-
-            # Pass if the file does not exist, this should only happen if we are actively running replicates
-            if not os.path.exists(os.path.join(rwanda.DATA_PATH.format(year), filename)):
-                print('Skipping {} ...'.format(filename))
-                continue
-
-            # Load the data, apply the relevant filter
-            print('Parsing {} ...'.format(filename))
-            filter, prefix = None, ''
-            if years is not None:
-                filter = policy_date + relativedelta(years=years)
-                prefix = "{} - ".format(years)
-            results = prepare_national(os.path.join(rwanda.DATA_PATH.format(year), filename), year, filter=filter)
-
-            # Plot the summary figure
-            if summary: rwanda.plot_summary(rwanda.CONFIGURATIONS[filename], *results, prefix=prefix)   
-            dataset[filename] = results[1]
+    for filter_year in breaks:
+        dataset = generate(year, filter_year, search, summary)
 
         EXTENSION = 'png'
         for key in rwanda.REPORT_LAYOUT:
             label = rwanda.REPORT_LAYOUT[key][rwanda.REPORT_YLABEL]
             filename = 'plots/{} - {}.{}'.format(search.capitalize(), label, EXTENSION)
-            if years is not None:
-                filename = 'plots/{} - {:02d}y - {}.{}'.format(search.capitalize(), years, label, EXTENSION)
+            if filter_year is not None:
+                filename = 'plots/{} - {:02d}y - {}.{}'.format(search.capitalize(), filter_year, label, EXTENSION)
             plot_violin(dataset, key, label, filename, plot)
             print("Created {}...".format(filename))
+
+
+def generate(study_year, filter_year, search, summary):
+    CACHE_FILE = 'np/violin-cache-{}-{}-{}.npy'
+
+    # If the data was cached, return it
+    cache = CACHE_FILE.format(study_year, filter_year, search)
+    if summary:
+        print('Generating national summary plots...')
+    elif os.path.exists(cache):
+        print('Loading {} ...'.format(cache))
+        data = np.load(cache, allow_pickle=True)
+        return dict(enumerate(data.flatten(), 0))[0]
+    else:
+        print('No cached data found for {}, filtering on {}, for the {} plot'.format(study_year, filter_year, search))    
+
+    dataset = {}
+    for filename in rwanda.CONFIGURATIONS:
+        # Speed things up by only parsing the data we need
+        if search == 'standard' and not any (filter in filename for filter in ['constant', 'ae-al', 'replacement', 'mft', 'rotation']):
+            continue
+        elif search == 'compliance' and not any(filter in filename for filter in ['high', 'moderate', 'low']):
+            continue
+        elif search == 'dhappq' and not any(filter in filename for filter in ['dhappq', 'constant']):
+            continue
+        elif search == 'experimental' and not any(filter in filename for filter in ['constant', '3-4-3', 'seq', 'tact']):
+            continue
+        elif search == 'nmcp' and not any(filter in filename for filter in ['-nmcp', 'constant']):
+            continue
+
+        # Pass if the file does not exist, this should only happen if we are actively running replicates
+        if not os.path.exists(os.path.join(rwanda.DATA_PATH.format(study_year), filename)):
+            print('Skipping {} ...'.format(filename))
+            continue
+
+        # Load the data, apply the relevant filter
+        print('Parsing {} ...'.format(filename))
+        filter, prefix = None, ''
+        if filter_year is not None:
+            policy_date = datetime.datetime(study_year, 1, 1)
+            filter = policy_date + relativedelta(years=filter_year)
+            prefix = "{} - ".format(filter_year)
+        results = prepare_national(os.path.join(rwanda.DATA_PATH.format(study_year), filename), study_year, filter=filter)
+
+        # Plot the summary figure, this is mostly for sanity checks, so it only gets plotted when  parsing all data
+        if summary: rwanda.plot_summary(rwanda.CONFIGURATIONS[filename], *results, prefix=prefix)   
+        dataset[filename] = results[1]
+
+    # Cache the data before returning
+    if not os.path.exists('np'):
+        os.makedirs('np')
+    np.save(cache, dataset, allow_pickle=True)
+    return dataset
+
 
 
 def plot_violin(dataset, filter, label, imagefile, plot):
