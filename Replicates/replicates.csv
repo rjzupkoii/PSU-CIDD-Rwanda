@@ -1,3 +1,4 @@
+rwa-pfpr-constant.job,129
 rwa-ae-al-3-1-1.job,129
 rwa-ae-al-3-1-2.job,129
 rwa-ae-al-3-2-1.job,129
@@ -14,7 +15,6 @@ rwa-mft-al-dhappq.job,129
 rwa-mft-asaq-dhappq-0.25.job,129
 rwa-mft-asaq-dhappq-0.75.job,129
 rwa-mft-asaq-dhappq.job,129
-rwa-pfpr-constant.job,129
 rwa-replacement-asaq.job,129
 rwa-replacement-dhappq.job,129
 rwa-rotation-al-3.job,129
@@ -29,8 +29,3 @@ rwa-seq-dhappq-al-pause.job,129
 rwa-seq-dhappq-al.job,129
 rwa-tact-alaq.job,129
 rwa-tact-dhappqmq.job,129
-
-rwa-movement-0.3x.job,129
-rwa-movement-0.5x.job,129
-rwa-movement-2x.job,129
-rwa-movement-3x.job,129
