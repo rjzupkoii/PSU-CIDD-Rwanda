@@ -54,6 +54,9 @@ DISTRICTS = {
 # Start of simulation
 STUDYDATE = '2003-1-1'
 
+# The population scaling that was applied to the configuration
+POPULATIONSCALING = 0.25
+
 # Reference date for replicate validation, note we are using the minimal
 # frequency for the reject threshold since there may have been spatial 
 # clustering when the study was performed.
@@ -304,6 +307,7 @@ def plot_validation(datafile, imagefile, title='Rwanda 561H Frequency Validation
     else:
         plt.savefig(imagefile)
     plt.close()    
+
 
 def prepare_validation(filename):
     REPLICATE, DATES, INDIVIDUALS, WEIGHTED = 1, 2, 4, 8

@@ -125,10 +125,11 @@ def plot_violin(dataset, filter, label, imagefile, plot):
             temp = np.asarray(temp).reshape(-1)
             prefix = 'Percent'
 
-        # Otherwise we want the monthly average of the last 12 months
+        # Otherwise we want the monthly average of the last 12 months with the
+        # correct population scaling applied
         else:
             temp = np.sum(temp[:, -12:], axis=1) / 12
-            temp = np.asarray(temp).reshape(-1)
+            temp = np.asarray(temp).reshape(-1) / rwanda.POPULATIONSCALING
             prefix = 'Monthly'
  
         # Append to the working data and update the labels            
