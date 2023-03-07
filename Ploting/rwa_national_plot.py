@@ -29,35 +29,40 @@ sys.path.insert(1, '../../PSU-CIDD-MaSim-Support/Python/include')
 from utility import progressBar
 
 
-def main(plot, year, verification, search, summary=False, breaks=[3, 5, None]):
+def main(plot, year, verification, type, summary=False, breaks=[3, 5, 10]):
     # Make sure a plots directory is present
     if not os.path.exists('plots'):
         os.makedirs('plots')
 
+    # Load the verification data and plot if requested
     if verification:
         print('Parsing 561H verification data ...')
         os.makedirs('plots', exist_ok=True)
         filename = os.path.join(rwanda.DATA_PATH.format(year), 'rwa-pfpr-constant.csv')
         rwanda.plot_validation(filename, 'plots/{} - 561H Verification.png'.format(year))
 
+    # Generate the requested violin plot
     for filter_year in breaks:
-        dataset = generate(year, filter_year, search, summary)
+        dataset = generate(year, filter_year, summary)
 
         EXTENSION = 'png'
         for key in rwanda.REPORT_LAYOUT:
             label = rwanda.REPORT_LAYOUT[key][rwanda.REPORT_YLABEL]
-            filename = 'plots/{} - {}.{}'.format(search.capitalize(), label, EXTENSION)
+            filename = 'plots/{} - {}.{}'.format(type.capitalize(), label, EXTENSION)
             if filter_year is not None:
-                filename = 'plots/{} - {:02d}y - {}.{}'.format(search.capitalize(), filter_year, label, EXTENSION)
+                filename = 'plots/{} - {:02d}y - {}.{}'.format(type.capitalize(), filter_year, label, EXTENSION)
             plot_violin(dataset, key, label, filename, plot)
             print("Created {}...".format(filename))
 
 
-def generate(study_year, filter_year, search, summary):
-    CACHE_FILE = 'np/violin-cache-{}-{}-{}.npy'
+# Generate the dataset that will be used for plotting. The first time this runs
+# it involves parsing out the data from the loaded data in the relevant directory,
+# after that it will read from the cached data.
+def generate(study_year, filter_year, summary):
+    CACHE_FILE = 'np/violin-cache-{}-{}-all.npy'
 
     # If the data was cached, return it
-    cache = CACHE_FILE.format(study_year, filter_year, search)
+    cache = CACHE_FILE.format(study_year, filter_year)
     if summary:
         print('Generating national summary plots...')
     elif os.path.exists(cache):
@@ -65,27 +70,14 @@ def generate(study_year, filter_year, search, summary):
         data = np.load(cache, allow_pickle=True)
         return dict(enumerate(data.flatten(), 0))[0]
     else:
-        print('No cached data found for {}, filtering on {}, for the {} plot'.format(study_year, filter_year, search))    
+        if filter_year is not None:
+            message = 'Parsing intervention year {}, filter on year {}.'.format(study_year, filter_year)
+        else:
+            message = 'Parsing intervention year {}, with no filter.'.format(study_year)
+        print(message)
 
     dataset = {}
-    for filename in rwanda.CONFIGURATIONS:
-        # Speed things up by only parsing the data we need
-        if search == 'standard' and not any (filter in filename for filter in ['constant', 'ae-al', 'replacement', 'mft', 'rotation']):
-            continue
-        elif search == 'compliance' and not any(filter in filename for filter in ['high', 'moderate', 'low']):
-            continue
-        elif search == 'dhappq' and not any(filter in filename for filter in ['dhappq', 'constant']):
-            continue
-        elif search == 'experimental' and not any(filter in filename for filter in ['constant', '3-4-3', 'seq', 'tact']):
-            continue
-        elif search == 'nmcp' and not any(filter in filename for filter in ['-nmcp', 'constant']):
-            continue
-
-        # Pass if the file does not exist, this should only happen if we are actively running replicates
-        if not os.path.exists(os.path.join(rwanda.DATA_PATH.format(study_year), filename)):
-            print('Skipping {} ...'.format(filename))
-            continue
-
+    for filename in os.listdir(rwanda.DATA_PATH.format(study_year)):
         # Load the data, apply the relevant filter
         print('Parsing {} ...'.format(filename))
         filter, prefix = None, ''
@@ -104,7 +96,6 @@ def generate(study_year, filter_year, search, summary):
         os.makedirs('np')
     np.save(cache, dataset, allow_pickle=True)
     return dataset
-
 
 
 def plot_violin(dataset, filter, label, imagefile, plot):
