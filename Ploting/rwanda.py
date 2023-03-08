@@ -287,6 +287,7 @@ def plot_validation(datafile, imagefile, title='Rwanda 561H Frequency Validation
     matplotlib.rc_file('matplotlibrc-line')
     axes = plt.axes()
     axes.set_xlim([min(dates), max(dates)])
+    axes.set_ylim([0, 1.0])
     axes.set_title(title)
     axes.set_ylabel('561H Genotype Frequency')
     axes.set_xlabel('Model Year')

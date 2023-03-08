@@ -19,35 +19,45 @@ sys.path.insert(1, '../../PSU-CIDD-MaSim-Support/Python/include')
 from plotting import scale_luminosity
 from utility import progressBar
 
-def main(year):
+def main():
+    root = '../Analysis/ms_data/'
     filenames = [
-        'rwa-pfpr-constant.csv',
-        'rwa-movement-0.3x.csv',
-        'rwa-movement-0.5x.csv',
-        'rwa-movement-2x.csv',
-        'rwa-movement-3x.csv',
+        '2023/datasets/rwa-pfpr-constant.csv',
+        'sensitivity/rwa-movement-0.3x.csv',
+        'sensitivity/rwa-movement-0.5x.csv',
+        'sensitivity/rwa-movement-2x.csv',
+        'sensitivity/rwa-movement-3x.csv',
+        'sensitivity/rwa-fitness-10x.csv',
+        'sensitivity/rwa-fitness-50x.csv'
     ]
 
     os.makedirs('plots', exist_ok=True)
 
-    for filename in filenames:        
-        if 'x' in filename:
-            rate = filename[13:].replace('.csv', '')
-            title = 'National 561H Frequency with {} Increase in Movement'.format(rate)
-        else:
+    for filename in filenames:
+        # Prepare the filenames
+        prefix = 'Movement'; suffix = 'movement rate'
+        if 'constant' in filename:
             rate = '1x'
             title = 'National 561H Frequency'
+        elif 'movement' in filename:
+            rate = filename[25:].replace('.csv', '')
+            title = 'National 561H Frequency with {} Increase in Movement'.format(rate)
+        else:
+            rate = filename[24:].replace('.csv', '')
+            prefix = 'Fitness'
+            suffix = 'fitness penalty'
+            title = 'National 561H Frequency with {} Increase in Fitness Penalty'.format(rate)
 
         # Verify that the file exists
-        filename = os.path.join(rwanda.DATA_PATH.format(year), filename)
+        filename = os.path.join(root, filename)
         if not os.path.exists(filename): continue
         print('Preparing {} plots...'.format(rate))
 
         # Start by preparing the national summary plot
-        rwanda.plot_validation(filename, 'plots/{} - Movement {}.png'.format(year, rate), title=title)
+        rwanda.plot_validation(filename, 'plots/{} Sensitivity - {}.png'.format(prefix, rate), title=title)
 
         # Now prepare the district spiking plot
-        plot_spikes(filename, year, rate, 'png')
+        plot_spikes(filename, rate, prefix, suffix, 'png')
 
 
 def prepare(filename):
@@ -99,7 +109,7 @@ def prepare(filename):
     return dates, districtData
 
 
-def plot_spikes(filename, year, rate, extension):
+def plot_spikes(filename, rate, prefix, suffix, extension):
     LOCATIONS = {
         8: [0, 0],  3: [0, 1],
         9: [1, 0], 10: [1, 1], 17: [1, 2],
@@ -154,10 +164,10 @@ def plot_spikes(filename, year, rate, extension):
         ax.set_xlim([datetime.datetime(2014, 1, 1), max(dates)])
     axes[0, 2].set_visible(False)
     
-    figure.suptitle('District 561H Frequency with {} movement rate'.format(rate))
+    figure.suptitle('District 561H Frequency with {} {}'.format(rate, suffix))
     
     # Save the plot based upon the supplied extension
-    imagefile = 'plots/{} - District Movement {}.{}'.format(year, rate, extension)
+    imagefile = 'plots/District {} {}.{}'.format(prefix, rate, extension)
     if 'tif' == extension:
         plt.savefig(imagefile, dpi=300, format="tiff", pil_kwargs={"compression": "tiff_lzw"})
     else:
@@ -166,4 +176,4 @@ def plot_spikes(filename, year, rate, extension):
 
 
 if __name__ == '__main__':
-    main(2023)
+    main()
