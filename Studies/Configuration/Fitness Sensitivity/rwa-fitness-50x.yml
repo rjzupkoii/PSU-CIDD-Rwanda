@@ -514,7 +514,7 @@ genotype_info:
           short_name: "H"
           can_mutate_to: [0]
           mutation_level: 1
-          daily_cost_of_resistance: 0.0005
+          daily_cost_of_resistance: 0.025
     - locus_name: "Plasmepsin 2-3"
       position: 3
       alleles:
@@ -529,7 +529,7 @@ genotype_info:
           short_name: "2"
           can_mutate_to: [0]
           mutation_level: 1
-          daily_cost_of_resistance: 0.0005
+          daily_cost_of_resistance: 0.025
 
 # --- DISABLED FEATURES ---
 
