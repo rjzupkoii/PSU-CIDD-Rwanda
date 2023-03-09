@@ -28,6 +28,7 @@ def main():
         'sensitivity/rwa-movement-2x.csv',
         'sensitivity/rwa-movement-3x.csv',
         'sensitivity/rwa-fitness-10x.csv',
+        'sensitivity/rwa-fitness-25x.csv',
         'sensitivity/rwa-fitness-50x.csv'
     ]
 
