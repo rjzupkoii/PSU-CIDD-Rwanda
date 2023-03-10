@@ -15,14 +15,14 @@ for year in `seq 2003 1 2014`; do
     
     # Prepare the files
     configuration="rwa-spike-$year-$fraction.yml"
-    sed 's/#YEAR#/'"$year"'/g' rwa-spike-template.yml > $configuration
+    sed 's/#YEAR#/'"$year"'/g' rwa-spike-template-10x.yml > $configuration
     sed -i 's/#FRACTION#/'"$fraction"'/g' $configuration
     job="rwa-spike-$year-$fraction.job"
     sed 's/#FILENAME#/'"$configuration"'/g' rwa-spike.job > $job
 
     # Queue the job
     check_delay $user
-    qsub $job
+    sbatch $job
     let "replicates+=1"
   done
 done
