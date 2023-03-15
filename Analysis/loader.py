@@ -47,9 +47,6 @@ REPLICATES_LIST = 'data/rwa-replicates.csv'
 # The number of replicates to pull to the size as our data set
 REPLICATE_COUNT = 100
 
-# Flag to indicate if we are doing a manuscript run or not
-MANUSCRIPT = True
-
 def get_replicates(startDate, studyId):
   sql = """
       SELECT c.id AS configurationid, 
@@ -336,7 +333,7 @@ def save_csv(filename, data):
       writer.writerow(row)
 
 
-def main(date, studyId):
+def main(date, studyId, manuscript):
   if not os.path.exists(REPLICATE_DIRECTORY): os.makedirs(REPLICATE_DIRECTORY)
   if not os.path.exists(DATASET_DIRECTORY): os.makedirs(DATASET_DIRECTORY)
 
@@ -346,7 +343,7 @@ def main(date, studyId):
   # database.
   process_replicates(date, studyId)
 
-  if MANUSCRIPT: 
+  if manuscript: 
     process_final_datasets(date, REPLICATE_DIRECTORY, DATASET_DIRECTORY)
   else:
     process_datasets()
@@ -356,9 +353,10 @@ if __name__ == '__main__':
   # Parse the arguments
   parser = argparse.ArgumentParser()
   parser.add_argument('-d', action='store', dest='filter_date', default='2022-09-01', help='The date to filter the replicates on')
-  parser.add_argument('-s', action='store', dest='study_id', required=True, help='The ide of the study to get the replicates for')
+  parser.add_argument('-m', action='store_true', dest='manuscript', help='Flag to select dataset processing type')
+  parser.add_argument('-s', action='store', dest='study_id', required=True, help='The id of the study to get the replicates for')
   args = parser.parse_args()
-
+  
   print("Filter: {}, Study: {}".format(args.filter_date, args.study_id))
-  main(args.filter_date, args.study_id)
+  main(args.filter_date, args.study_id, args.manuscript)
   process_genotype(args.filter_date, args.study_id)
