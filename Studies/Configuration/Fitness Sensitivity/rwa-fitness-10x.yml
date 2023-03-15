@@ -221,7 +221,7 @@ events:
     info:
       - day: 2004/09/30
         district: 8                 # Gasabo
-        fraction: 0.06
+        fraction: 0.07
         locus: 2
         mutant_allele: 1
   - name: update_beta_raster_event
