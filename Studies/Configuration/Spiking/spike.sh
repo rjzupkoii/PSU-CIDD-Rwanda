@@ -10,7 +10,7 @@ user='rbz5100'
 replicates=0
 
 # Iterate over all of the key variables and create the replicates
-for year in `seq 2003 1 2014`; do
+for year in `seq 2003 1 2013`; do
   for fraction in `seq 0.005 0.005 0.1`; do
     
     # Prepare the files

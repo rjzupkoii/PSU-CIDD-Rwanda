@@ -1,8 +1,14 @@
 % rwa_spike_calibration.m
 % 
 % Generate a six panel plot with the national and regional spike
-% calibration results.
-addpath('include');
+% calibration results. Data data for the spikes can be loaded
+% via the loader.py script.
+%
+% Spike Calibration Runs:
+% 2022-03-14 - Original calibration
+% 2023-03-10 - 10x increase in fitness cost
+% 2023-03-15 - 25x increase in fitness cost
+addpath('../include');
 clear;
 
 STARTDATE = '2003-01-01';
@@ -19,10 +25,11 @@ warning('off', 'MATLAB:MKDIR:DirectoryExists');
 mkdir('plots/spikes');
 
 % Iterate over all of the spike calibration files and generate the plots
-files = dir('data/spikes');
+files = dir('../data/datasets');
 for ndx = 1:length(files)
     if files(ndx).isdir, continue; end
-    if strcmp(files(ndx).name(1), '.'), continue; end    
+    if strcmp(files(ndx).name(1), '.'), continue; end
+    if ~contains(files(ndx).name, 'spike'), continue; end
     filename = fullfile(files(ndx).folder, files(ndx).name);
     output = sprintf('plots/spikes/%s', strrep(files(ndx).name, 'csv', 'png'));
     report(filename, output, STARTDATE, CONFIGURATION);
@@ -79,6 +86,11 @@ end
 
 function [] = plot_district(data, startdate, district, name)
     filtered = data(data(:, 4) == district, :);
+
+    one = unique(filtered(:, 3)) + datenum(startdate);
+    two = filtered(:, 9) ./ filtered(:, 5);
+    if size(one, 1) ~= size(two, 1), return; end
+
     plot(unique(filtered(:, 3)) + datenum(startdate), filtered(:, 9) ./ filtered(:, 5));
     title(name);
 end
