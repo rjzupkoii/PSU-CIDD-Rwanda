@@ -160,6 +160,7 @@ def plot_spikes(filename, rate, prefix, suffix, extension):
         ymax = max(limit, ymax)
 
     # Format the subplots, hide the empty subplot
+    if ymax > 0.8: ymax = 1.0
     for ax in axes.flat:
         ax.set_ylim([0, ymax])
         ax.set_xlim([datetime.datetime(2014, 1, 1), max(dates)])
