@@ -60,7 +60,7 @@ def get_replicates(startDate, studyId):
       WHERE r.starttime > to_date(%(startDate)s, 'YYYY-MM-DD')
         AND r.endtime IS NOT NULL
         AND c.studyid = %(studyId)s
-      ORDER BY c.studyid, c.filename, r.id"""
+      ORDER BY c.id desc, c.studyid, c.filename, r.id"""
   return select(CONNECTION, sql, {'startDate':startDate, 'studyId':studyId})
 
 
