@@ -50,14 +50,15 @@ EXPERIMENTAL = {
 
     # Sequential Treatments
     'rwa-seq-al-asaq.csv'          : ['AL then ASAQ', '#d7b5d8'],
-    'rwa-seq-al-dhappq.csv'        : ['AL then DHA-PPQ', '#d7b5d8'],
-    'rwa-seq-asaq-al.csv'          : ['ASAQ then AL', '#d7b5d8'],
-    'rwa-seq-dhappq-al.csv'        : ['DHA-PPQ then AL', '#d7b5d8'],
-
-    # Sequential Treatments with four day pause
     'rwa-seq-al-asaq-pause.csv'    : ['AL, 4-day pause, then ASAQ', '#d7b5d8'],
+
+    'rwa-seq-al-dhappq.csv'        : ['AL then DHA-PPQ', '#d7b5d8'],
     'rwa-seq-al-dhappq-pause.csv'  : ['AL, 4-day pause, then DHA-PPQ', '#d7b5d8'],
+
+    'rwa-seq-asaq-al.csv'          : ['ASAQ then AL', '#d7b5d8'],
     'rwa-seq-asaq-al-pause.csv'    : ['ASAQ, 4-day pause, then AL', '#d7b5d8'],
+    
+    'rwa-seq-dhappq-al.csv'        : ['DHA-PPQ then AL', '#d7b5d8'],
     'rwa-seq-dhappq-al-pause.csv'  : ['DHA-PPQ, 4-day pause, then AL', '#d7b5d8'],    
 
     # TACT
