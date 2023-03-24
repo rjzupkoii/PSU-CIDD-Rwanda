@@ -19,7 +19,7 @@ STUDIES = {
     }
 
 
-def make_plot(filename, output, threshold = 1e-5):
+def make_plot(filename, output, threshold = 1e-3):
     START_YEAR = 2018
     
     # Load the data
