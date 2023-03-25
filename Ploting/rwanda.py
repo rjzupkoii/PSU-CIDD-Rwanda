@@ -22,8 +22,8 @@ DISTRICTS = {
     1  : 'Bugesera',
     2  : 'Gatsibo',
     3  : 'Kayonza',         # Studies
-    4  : 'Kirehe',
-    5  : 'Ngoma',
+    4  : 'Kirehe',          # DHS blood samples
+    5  : 'Ngoma',           # DHS blood samples
     6  : 'Nyagatare',
     7  : 'Rwamagana',       # Adjacent
     8  : 'Gasabo',          # Adjacent / Spiked

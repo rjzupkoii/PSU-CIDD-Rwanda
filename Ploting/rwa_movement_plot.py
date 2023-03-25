@@ -22,7 +22,7 @@ from utility import progressBar
 def main():
     root = '../Analysis/ms_data/'
     filenames = [
-        '2023/datasets/rwa-pfpr-constant.csv',
+        '2024/datasets/rwa-pfpr-constant.csv',
         'sensitivity/rwa-movement-0.3x.csv',
         'sensitivity/rwa-movement-0.5x.csv',
         'sensitivity/rwa-movement-2x.csv',
@@ -112,13 +112,19 @@ def prepare(filename):
 
 def plot_spikes(filename, rate, prefix, suffix, extension):
     LOCATIONS = {
-        8: [0, 0],  3: [0, 1],
-        9: [1, 0], 10: [1, 1], 17: [1, 2],
+        8: [0, 0], 3: [0, 1], 17: [0, 2],
+        4: [1, 0], 5: [1, 1], 
     }
+    DHS_DATA = np.array([
+        # Kirby et al. 2022
+        [4, 'Kirehe (0.05556)', datetime.datetime(2015,9,30), 0.05556],
+        [5, 'Ngoma (0.01923)', datetime.datetime(2015,9,30), 0.01923],
+    ])
 
-    # Get the unique spikes
+    # Get the clinical data
+    data_points = np.append(rwanda.SPIKES, DHS_DATA, axis=0)
     districts = []
-    for row in rwanda.SPIKES:
+    for row in data_points:
         if row[rwanda.SPIKE_DISTRICT] == 0: continue
         if row[rwanda.SPIKE_DISTRICT] not in districts:
             districts.append(row[rwanda.SPIKE_DISTRICT])
@@ -140,6 +146,7 @@ def plot_spikes(filename, rate, prefix, suffix, extension):
     ymax = 0
     for id in districts:
         # Load the data and calculate the bounds      
+        if id not in LOCATIONS: continue
         row, col = LOCATIONS[id][0], LOCATIONS[id][1]
         axes[row, col], limit = rwanda.plot_data(districtData[id]['frequency'], dates, axes[row, col])
         axes[row, col].title.set_text(rwanda.DISTRICTS[id])
@@ -147,10 +154,9 @@ def plot_spikes(filename, rate, prefix, suffix, extension):
         # Label the axis as needed
         plt.sca(axes[row, col])
         if col == 0: plt.ylabel('561H Frequency')
-        if row == 1: plt.xlabel('Model Year')
 
-        # Add the 561H data points if requested
-        for spikeId, label, x, y in rwanda.SPIKES:
+        # Add the 561H data points
+        for spikeId, label, x, y in data_points:           
             if id == spikeId:
                 plt.scatter(x, y, color='black', s=50)
                 match = re.search('(\d\.\d*)', label)
@@ -164,7 +170,7 @@ def plot_spikes(filename, rate, prefix, suffix, extension):
     for ax in axes.flat:
         ax.set_ylim([0, ymax])
         ax.set_xlim([datetime.datetime(2014, 1, 1), max(dates)])
-    axes[0, 2].set_visible(False)
+    axes[1, 2].set_visible(False)
     
     figure.suptitle('District 561H Frequency with {} {}'.format(rate, suffix))
     
