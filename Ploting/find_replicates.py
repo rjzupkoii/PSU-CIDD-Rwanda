@@ -3,8 +3,13 @@
 # find_replicates.py
 # 
 # Find replicates that approximate the mean and IQR provided.
+#
+# NOTE This script can only be run after data is cached by the 
+#      rwa_nationa_plot.py script.
+import numpy as np
 import os
 import pandas as pd
+import sys
 
 # Number of replicates to report
 COUNT = 3
@@ -12,8 +17,32 @@ COUNT = 3
 # The offset is the last month, ten years after intervention
 OFFSET = 12
 
+# The path for the cache file created by rwa_national_plot.py
+CACHE_FILE = 'np/violin-cache-2024-10-all.npy'
+
 # The path to the data sets
 PATH = '../Analysis/ms_data/2024/datasets/'
+
+def get_percentiles(filename):
+
+    # Verify that the cache exists
+    if not os.path.isfile(filename):
+        print('Cache file {} does not exist!'.format(filename))
+        sys.exit(1)
+
+    # Load the cache file
+    data = np.load(filename, allow_pickle=True)
+    data = dict(enumerate(data.flatten(), 0))[0]
+
+    # Generate a dictionary of files and the percentiles
+    results = {}
+    for key in data.keys():
+        frequency = []
+        for row in data[key]['frequency']:
+            frequency.append(row[-1])
+        results[key] = np.percentile(frequency, [25, 50, 75])
+    return results
+
 
 def scan(filename, lower, mean, upper):
     REPLICATE, DATES,  INDIVIDUALS, WEIGHTED = 1, 2, 4, 8
@@ -54,15 +83,13 @@ def scan(filename, lower, mean, upper):
 
     # Print the results
     print(filename)
-    print('Lower: {} / Mean: {} / Upper: {}'.format(lower, mean, upper))
+    print('Lower: {:.5f} - {:.5f} / Mean: {:.5f} - {:.5f} / Upper: {:.5f} - {:.5f}'.format(
+        lower[0], lower[1], mean[0], mean[1], upper[0], upper[1]))
     print('Lower ({}): {}'.format(len(report_lower), '; '.join(report_lower)))
     print('Mean  ({}): {}'.format(len(report_mean), '; '.join(report_mean)))
     print('Upper ({}): {}\n'.format(len(report_upper), '; '.join(report_upper)))
 
 if __name__ == '__main__':
-    scan('rwa-pfpr-constant.csv', 0.9689, 0.9819, 0.9893)
-    scan('rwa-ae-al-5.csv', 0.8809, 0.9388, 0.9599)
-    scan('rwa-tact-alaq.csv', 0.4125, 0.5183, 0.6552)
-    scan('rwa-replacement-dhappq.csv', 0.9983, 0.9989, 0.9993)
-    scan('rwa-mft-asaq-dhappq-0.25.csv', 0.8523, 0.9221, 0.9444)
-    scan('rwa-seq-al-asaq.csv', 0.5856, 0.7018, 0.7652)
+    percentiles = get_percentiles(CACHE_FILE)
+    for key in percentiles.keys():
+        scan(key, percentiles[key][0], percentiles[key][1], percentiles[key][2])
