@@ -161,21 +161,21 @@ SPIKE_DISTRICT, SPIKE_LABEL, SPIKE_X, SPIKE_Y = range(4)
 # Points at which 561H was spiked into the population
 SPIKES = np.array([
     # Uwimana et al. 2020 
-    [8, 'Gasabo (0.12069)', datetime.datetime(2014,9,30), 0.12069],
-    [3, 'Kayonza (0.00746)', datetime.datetime(2015,9,30), 0.00746],
-    [8, 'Gasabo (0.0603)', datetime.datetime(2015,9,30), 0.0603],
+    [8, 'Gasabo (0.121)', datetime.datetime(2014,9,30), 0.12069],
+    [3, 'Kayonza (0.007)', datetime.datetime(2015,9,30), 0.00746],
+    [8, 'Gasabo (0.060)', datetime.datetime(2015,9,30), 0.0603],
     
     # Uwimana et al. 2021
-    [8, 'Gasabo (0.19608)', datetime.datetime(2018,9,30), 0.19608],
-    [3, 'Kayonza (0.09756)', datetime.datetime(2018,9,30), 0.09756],
+    [8, 'Gasabo (0.196)', datetime.datetime(2018,9,30), 0.19608],
+    [3, 'Kayonza (0.098)', datetime.datetime(2018,9,30), 0.09756],
 
     # Straimer et al. 2021, note 
-    [8, 'Kigali City (0.21918)', datetime.datetime(2019,9,30), 0.21918],
-    [9, 'Kigali City (0.21918)', datetime.datetime(2019,9,30), 0.21918],
-    [10, 'Kigali City (0.21918)', datetime.datetime(2019,9,30), 0.21918],
+    [8, 'Kigali City (0.219)', datetime.datetime(2019,9,30), 0.21918],
+    [9, 'Kigali City (0.219)', datetime.datetime(2019,9,30), 0.21918],
+    [10, 'Kigali City (0.219)', datetime.datetime(2019,9,30), 0.21918],
 
     # Bergmann et al. 2021 
-    [17, 'Hyue (0.04545)', datetime.datetime(2019,9,30), 0.04545],
+    [17, 'Hyue (0.045)', datetime.datetime(2019,9,30), 0.04545],
 ])
 
 # Index definitions for the four-panel report layout

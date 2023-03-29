@@ -117,8 +117,8 @@ def plot_spikes(filename, rate, prefix, suffix, extension):
     }
     DHS_DATA = np.array([
         # Kirby et al. 2022
-        [4, 'Kirehe (0.05556)', datetime.datetime(2015,9,30), 0.05556],
-        [5, 'Ngoma (0.01923)', datetime.datetime(2015,9,30), 0.01923],
+        [4, 'Kirehe (0.056)', datetime.datetime(2015,9,30), 0.05556],
+        [5, 'Ngoma (0.019)', datetime.datetime(2015,9,30), 0.01923],
     ])
 
     # Get the clinical data
