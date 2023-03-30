@@ -66,6 +66,42 @@ EXPERIMENTAL = {
     'rwa-tact-dhappqmq.csv'        : ['DHA-PPQ + MQ', '#df65b0'],
 }
 
+MANUSCRIPT = {
+    # Status Quo
+    'rwa-pfpr-constant.csv'        : ['Status Quo', '#bdd7e7'],
+
+    # Extend AL, simple regime
+    'rwa-ae-al-4.csv'              : ['AL, 4 days', '#bdd7e7'],
+    'rwa-ae-al-5.csv'              : ['AL, 5 days', '#bdd7e7'],
+
+    # Replace AL
+    'rwa-replacement-asaq.csv'     : ['100% ASAQ', '#6baed6'],
+    'rwa-replacement-dhappq.csv'   : ['100% DHA-PPQ', '#6baed6'],
+
+    # AL / ASAQ MFT
+    'rwa-mft-al-asaq-0.25.csv'     : ['AL (75%) + ASAQ (25%)', '#bae4b3'],
+    'rwa-mft-al-asaq.csv'          : ['AL (50%) + ASAQ (50%)', '#bae4b3'],
+    'rwa-mft-al-asaq-0.75.csv'     : ['AL (25%) + ASAQ (75%)', '#bae4b3'],
+
+    # AL / DHA-PPQ MFT
+    'rwa-mft-al-dhappq-0.25.csv'   : ['AL (75%) + DHA-PPQ (25%)', '#74c476'],
+    'rwa-mft-al-dhappq.csv'        : ['AL (50%) + DHA-PPQ (50%)', '#74c476'],
+    'rwa-mft-al-dhappq-0.75.csv'   : ['AL (25%) + DHA-PPQ (75%)', '#74c476'],
+
+    # ASAQ / DHA-PPQ MFT
+    'rwa-mft-asaq-dhappq-0.25.csv' : ['ASAQ (75%) + DHA-PPQ (25%)', '#31a354'],
+    'rwa-mft-asaq-dhappq.csv'      : ['ASAQ (50%) + DHA-PPQ (50%)', '#31a354'],
+    'rwa-mft-asaq-dhappq-0.75.csv' : ['ASAQ (25%) + DHA-PPQ (75%)', '#31a354'],
+
+    # Rotate DHA-PPQ
+    'rwa-rotation-al-3.csv'        : ['DHA-PPQ (3 years) then\nAL (50%) + ASAQ', '#d7b5d8'],
+    'rwa-rotation-al-5.csv'        : ['DHA-PPQ (3 years) then\nAL, 5 days (50%) + ASAQ', '#d7b5d8'],
+
+    # TACT
+    'rwa-tact-alaq.csv'            : ['AL + AQ', '#df65b0'],
+    'rwa-tact-dhappqmq.csv'        : ['DHA-PPQ + MQ', '#df65b0'],
+}
+
 DHAPPQ = {
     # Status Quo
     'rwa-pfpr-constant.csv'        : ['Status Quo', '#bdd7e7'],
@@ -137,9 +173,11 @@ NMCP = {
 # List of the plots and their mappings
 PLOTS = {
     'standard'     : STUDIES,
+    'experimental' : EXPERIMENTAL,
+    'manuscript'   : MANUSCRIPT,
+
     'compliance'   : COMPLIANCE,
     'dhappq'       : DHAPPQ,
-    'experimental' : EXPERIMENTAL,
     'nmcp'         : NMCP
     }
 
