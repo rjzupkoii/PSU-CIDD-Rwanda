@@ -5,7 +5,7 @@ font.monospace  : Ubuntu Mono, DejaVu Sans Mono, Andale Mono, monospace
 
 lines.linewidth : 1.5
 
-axes.grid          : False      # display grid or not
+axes.grid          : True      # display grid or not
 axes.titlesize     : 24         # fontsize of the axes title
 axes.titlepad      : 18         # pad between axes and title in points
 axes.labelsize     : 24         # fontsize of the x any y labels

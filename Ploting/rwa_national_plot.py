@@ -149,9 +149,18 @@ def plot_violin(dataset, filter, label, imagefile, plot):
 
     # Format the plot for the data
     axis.set_yticklabels(labels)
-    axis.set_xlabel("{} {}".format(prefix, label))   
+    axis.set_xlabel("{} {}".format(prefix, label))
+
+    # Set the overall tick formatter
     if prefix != '':
         axis.xaxis.set_major_formatter(ticker.EngFormatter())
+
+    # Apply custom formatting for the treatment failures
+    if 'Treatment Failures, Count' in imagefile:
+        axis.set_xlim([0, axis.get_xlim()[1]])
+        axis.xaxis.set_major_locator(ticker.MultipleLocator(3000))
+    elif 'Treatment Failures' in imagefile: 
+        axis.xaxis.set_major_formatter(ticker.PercentFormatter())
     
     # Finalize the image as proof (png) or print (tif)
     if imagefile.endswith('svg'):
