@@ -253,7 +253,8 @@ def main(year, cached):
     generate(rwa_reports.al5_vs_cycling, year, cached)
     generate(rwa_reports.al5_vs_tact, year, cached)
     generate(rwa_reports.al5_vs_seq_al_asaq, year, cached)
-    generate(rwa_reports.al5_vs_seq_al_dhappq, year, cached)
+    generate(rwa_reports.al5_vs_seq_al_dhappq_345, year, cached)
+    generate(rwa_reports.al5_vs_seq_al_dhappq_789, year, cached)
     generate(rwa_reports.tact_vs_seq_al_asaq, year, cached)
 
 

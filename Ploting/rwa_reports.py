@@ -362,7 +362,7 @@ al5_vs_seq_al_asaq = {
 }
 
 # 5-day AL vs. AL + DHA-PPQ sequential treatment genotype report
-al5_vs_seq_al_dhappq = {
+al5_vs_seq_al_dhappq_345 = {
     'source' : [ 
         '../Analysis/ms_data/{}/genotype_dataset/rwa-ae-al-5.csv',
         '../Analysis/ms_data/{}/genotype_dataset/rwa-seq-al-dhappq.csv'
@@ -375,7 +375,29 @@ al5_vs_seq_al_dhappq = {
     'style' : ['-.', '-'],
     'intervention' : 0.41,
 
-    'title' : 'AL 5-day vs. AL then DHA-PPQ',
+    'title' : 'AL 5-day vs. AL then DHA-PPQ (345)',
+    'label' : {
+        'tf' : '% Treatment Failures',
+        'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+        'freq_561h' : '561H Frequency',
+    }        
+}
+
+# 5-day AL vs. AL, pause, then DHA-PPQ sequential treatment genotype report
+al5_vs_seq_al_dhappq_789 = {
+    'source' : [ 
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-ae-al-5.csv',
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-seq-al-dhappq-pause.csv'
+    ],
+    'name' : ['AL 5-day', 'AL then DHA-PPQ' ],
+
+    'plot' : ['tf', 'pfpr', 'freq_561h'],
+    'left' : ['tf', 'freq_561h'],
+    'right' : ['pfpr'],
+    'style' : ['-.', '-'],
+    'intervention' : 0.41,
+
+    'title' : 'AL 5-day vs. AL then DHA-PPQ (789)',
     'label' : {
         'tf' : '% Treatment Failures',
         'pfpr' : '$\it{Pf}$PR$_{2-10}$',
