@@ -63,7 +63,7 @@ EXPERIMENTAL = {
 
     # TACT
     'rwa-tact-alaq.csv'            : ['AL + AQ', '#df65b0'],
-    'rwa-tact-dhappqmq.csv'        : ['DHA-PPQ + MQ', '#df65b0'],
+    'rwa-tact-dhappqmq.csv'        : ['ASMQ + PPQ', '#df65b0'],
 }
 
 MANUSCRIPT = {
@@ -99,7 +99,7 @@ MANUSCRIPT = {
 
     # TACT
     'rwa-tact-alaq.csv'            : ['AL + AQ', '#df65b0'],
-    'rwa-tact-dhappqmq.csv'        : ['DHA-PPQ + MQ', '#df65b0'],
+    'rwa-tact-dhappqmq.csv'        : ['ASMQ + PPQ', '#df65b0'],
 }
 
 DHAPPQ = {
@@ -339,7 +339,7 @@ al5_vs_tact = {
     }        
 }
 
-# 5-day AL vs AL-ASAQ sequency treatment treatment genotype report
+# 5-day AL vs AL-ASAQ sequential treatment genotype report
 al5_vs_seq_al_asaq = {
     'source' : [ 
         '../Analysis/ms_data/{}/genotype_dataset/rwa-ae-al-5.csv',
@@ -361,7 +361,29 @@ al5_vs_seq_al_asaq = {
     }        
 }
 
-# 5-day AL vs AL-ASAQ sequency treatment treatment genotype report
+# 5-day AL vs. AL + DHA-PPQ sequential treatment genotype report
+al5_vs_seq_al_dhappq = {
+    'source' : [ 
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-ae-al-5.csv',
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-seq-al-dhappq.csv'
+    ],
+    'name' : ['AL 5-day', 'AL then DHA-PPQ' ],
+
+    'plot' : ['tf', 'pfpr', 'freq_561h'],
+    'left' : ['tf', 'freq_561h'],
+    'right' : ['pfpr'],
+    'style' : ['-.', '-'],
+    'intervention' : 0.41,
+
+    'title' : 'AL 5-day vs. AL then DHA-PPQ',
+    'label' : {
+        'tf' : '% Treatment Failures',
+        'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+        'freq_561h' : '561H Frequency',
+    }        
+}
+
+# 5-day AL vs AL-ASAQ sequential treatment genotype report
 tact_vs_seq_al_asaq = {
     'source' : [ 
         '../Analysis/ms_data/{}/genotype_dataset/rwa-tact-alaq.csv',

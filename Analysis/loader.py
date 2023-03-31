@@ -264,6 +264,7 @@ def process_genotype(date, studyId):
                'rwa-mft-asaq-dhappq-0.25.yml',
                'rwa-rotation-al-5.yml',
                'rwa-seq-al-asaq.yml',
+               'rwa-seq-al-dhappq.yml',
                'rwa-tact-alaq.yml']
 
   if not os.path.exists(GENOTYPE_DATASET): os.makedirs(GENOTYPE_DATASET)
