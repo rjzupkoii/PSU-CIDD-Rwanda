@@ -10,13 +10,13 @@ import seaborn as sns
 
 
 STUDIES = {
-    'al 3-day': 'AL',
-    'al 5-day': 'AL (5-day course)',
-    'alaq' : 'ALAQ',
-    'dhappq' : 'DHA-PPQ',
-    'mft asaq-dhappqq - 75-25' : 'ASAQ (75%) + DHA-PPQ (25%)',
-    'seq al-asaq' : 'AL (3-day course) followed by ASAQ'
-    }
+    'rwa-pfpr-constant'        : 'AL (3-day course)', 
+    'rwa-ae-al-5'              : 'AL (5-day course)',
+    'rwa-replacement-dhappq'   : 'DHA-PPQ',
+    'rwa-mft-asaq-dhappq-0.25' : 'ASAQ (75%) + DHA-PPQ (25%)',
+    'rwa-tact-alaq'            : 'ALAQ',
+    'rwa-seq-al-asaq'          : 'AL then ASAQ (456)'
+}
 
 
 def make_plot(filename, output, threshold = 1e-3):
@@ -46,8 +46,9 @@ def make_plot(filename, output, threshold = 1e-3):
     plot = sns.heatmap(data, xticklabels=years, cmap=cmap, center=0.1, vmin=threshold, vmax=1.0)
     plot.set_facecolor('white')
     
-    key = output.split(',')[0]
-    plt.title('{}, frequency > {}'.format(STUDIES[key], threshold))
+    title = filename.split('/')[4].replace('.csv', '').split('_')
+    key = title[0]
+    plt.title('{} [{} - {}], frequency > {}'.format(STUDIES[key], title[1], title[2], threshold))
     plt.ylabel('Genotype')
     plt.xlabel('')
     plt.xticks(rotation=90)
@@ -66,4 +67,4 @@ def main(directory):
 
 
 if __name__ == '__main__':
-    main('../Analysis/data/working')
+    main('../Analysis/data/heatmaps')

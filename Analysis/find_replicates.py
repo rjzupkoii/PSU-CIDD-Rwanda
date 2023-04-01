@@ -5,24 +5,43 @@
 # Find replicates that approximate the mean and IQR provided.
 #
 # NOTE This script can only be run after data is cached by the 
-#      rwa_nationa_plot.py script.
+#      rwa_national_plot.py script.
+import csv
 import numpy as np
 import os
 import pandas as pd
 import sys
 
+# From the PSU-CIDD-MaSim-Support repository
+sys.path.insert(1, '../../PSU-CIDD-MaSim-Support/Python/include')
+from database import select
+
 # Number of replicates to report
-COUNT = 3
+COUNT = 5
 
 # The offset is the last month, ten years after intervention
 OFFSET = 12
 
 # The path for the cache file created by rwa_national_plot.py
-CACHE_FILE = 'np/violin-cache-2024-10-all.npy'
+CACHE_FILE = '../Ploting/np/violin-cache-2024-10-all.npy'
 
-# The path to the data sets
-PATH = '../Analysis/ms_data/2024/datasets/'
+# Connection string for the database
+CONNECTION = 'host=masimdb.vmhost.psu.edu dbname=rwanda user=sim password=sim connect_timeout=60'
 
+# The path to the data sets, genotype outputs
+DATASET_PATH = 'ms_data/2024/datasets/'
+GENOTYPE_PATH = 'data/heatmaps/'
+
+PLOTS = [
+    'rwa-pfpr-constant.csv',            # AL (3-day course)
+    'rwa-ae-al-5.csv',                  # AL (5-day course)
+    'rwa-replacement-dhappq.csv',       # DHA-PPQ
+    'rwa-mft-asaq-dhappq-0.25.csv',     # ASAQ (75%) + DHA-PPQ (25%)
+    'rwa-tact-alaq.csv',                # ALAQ
+    'rwa-seq-al-asaq.csv'               # AL then ASAQ (456)
+]
+
+# Get the percentile data from the cache file
 def get_percentiles(filename):
 
     # Verify that the cache exists
@@ -44,11 +63,27 @@ def get_percentiles(filename):
     return results
 
 
+def load_data(report, type, postfix):
+    HEADER = ["replicateid","dayselapsed","year","name","frequency"]
+
+    for row in report:
+        replicate = int(row.split(',')[1].strip())
+        data = select_frequencies(replicate)
+        filename = os.path.join(GENOTYPE_PATH, '{}_{}_{}.csv'.format(type, postfix, replicate))
+        with open(filename, 'w') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(HEADER)
+            for row in data:
+                writer.writerow(row)
+        print('Saved {}...'.format(filename))
+
+
+# Scan the replicate data to see if it is within the relevant bounds
 def scan(filename, lower, mean, upper):
     REPLICATE, DATES,  INDIVIDUALS, WEIGHTED = 1, 2, 4, 8
     
     # Load the data
-    dataset = pd.read_csv(os.path.join(PATH, filename), header = None)
+    dataset = pd.read_csv(os.path.join(DATASET_PATH, filename), header = None)
 
     # Calculate the bounds
     lower = [lower, lower * 1.025]
@@ -81,13 +116,43 @@ def scan(filename, lower, mean, upper):
             if len(report_upper) == COUNT: continue
             report_upper.append('{:.4f}, {}'.format(frequency, replicate))
 
-    # Print the results
-    print(filename)
-    print('Lower: {:.5f} - {:.5f} / Mean: {:.5f} - {:.5f} / Upper: {:.5f} - {:.5f}'.format(
-        lower[0], lower[1], mean[0], mean[1], upper[0], upper[1]))
-    print('Lower ({}): {}'.format(len(report_lower), '; '.join(report_lower)))
-    print('Mean  ({}): {}'.format(len(report_mean), '; '.join(report_mean)))
-    print('Upper ({}): {}\n'.format(len(report_upper), '; '.join(report_upper)))
+    # If the dataset is one that we are going to plot, then get the data and save it
+    if filename in PLOTS:
+        load_data(report_mean, filename.replace('.csv', ''), 'mean')
+        if len(report_lower) > 0:
+            load_data(report_lower, filename.replace('.csv', ''), 'lower')
+        if len(report_upper) > 0:
+            load_data(report_upper, filename.replace('.csv', ''), 'upper')        
+    else:
+        print(filename)
+        print('Lower: {:.5f} - {:.5f} / Mean: {:.5f} - {:.5f} / Upper: {:.5f} - {:.5f}'.format(
+            lower[0], lower[1], mean[0], mean[1], upper[0], upper[1]))
+        print('Lower ({}): {}'.format(len(report_lower), '; '.join(report_lower)))
+        print('Mean  ({}): {}'.format(len(report_mean), '; '.join(report_mean)))
+        print('Upper ({}): {}\n'.format(len(report_upper), '; '.join(report_upper)))
+
+
+# Get the relevant genotype data from the database
+def select_frequencies(replicate):
+    sql = """
+    SELECT replicateid, dayselapsed, year, substring(g.name, 1, 7) as name, frequency
+    FROM (
+        SELECT mgd.replicateid, mgd.genomeid, mgd.dayselapsed, 
+            TO_CHAR(TO_DATE('2007-01-01', 'YYYY-MM-DD') + interval '1' day * mgd.dayselapsed, 'YYYY') AS year,
+            mgd.weightedoccurrences / msd.infectedindividuals AS frequency
+        FROM (
+            SELECT md.replicateid, md.id, md.dayselapsed, mgd.genomeid, sum(mgd.weightedoccurrences) AS weightedoccurrences
+            FROM sim.monthlydata md INNER JOIN sim.monthlygenomedata mgd ON mgd.monthlydataid = md.id
+            WHERE md.replicateid = %(replicate)s AND md.dayselapsed > 4015
+            GROUP BY md.id, md.dayselapsed, mgd.genomeid) mgd
+        INNER JOIN (
+            SELECT md.id, sum(msd.infectedindividuals) AS infectedindividuals
+            FROM sim.monthlydata md INNER JOIN sim.monthlysitedata msd ON msd.monthlydataid = md.id
+            WHERE md.replicateid = %(replicate)s AND md.dayselapsed > 4015
+            GROUP BY md.id) msd 
+        ON msd.id = mgd.id) frequency inner join sim.genotype g on g.id = frequency.genomeid"""
+    return select(CONNECTION, sql, {'replicate': replicate})
+
 
 if __name__ == '__main__':
     percentiles = get_percentiles(CACHE_FILE)
