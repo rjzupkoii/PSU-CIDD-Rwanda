@@ -157,9 +157,13 @@ def plot_violin(dataset, filter, label, imagefile, plot):
 
     # Apply custom formatting for the treatment failures
     if 'Treatment Failures, Count' in imagefile:
-        axis.set_xlim([0, axis.get_xlim()[1]])
+        # axis.set_xlim([0, axis.get_xlim()[1]])
+        axis.set_xlabel('Treatment Failure, Count (Thousands)')
+        axis.set_xlim([0, 16000])
         axis.xaxis.set_major_locator(ticker.MultipleLocator(3000))
     elif 'Treatment Failures' in imagefile: 
+        axis.set_xlim([0, 13.0])
+        axis.xaxis.set_major_locator(ticker.MultipleLocator(3))
         axis.xaxis.set_major_formatter(ticker.PercentFormatter())
     
     # Finalize the image as proof (png) or print (tif)
