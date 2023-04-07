@@ -1,0 +1,11 @@
+#!/bin/bash
+
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --mem=16gb
+#SBATCH --time=8:00:00
+#SBATCH --partition=sla-prio
+#SBATCH --account=mfb9
+
+cd $SLURM_SUBMIT_DIR
+./MaSim -i rwa-al-4-low.yml -s 13 -r DbReporterDistrict,GenotypeCarriers

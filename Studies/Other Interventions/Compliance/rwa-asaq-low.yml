@@ -34,8 +34,8 @@ starting_date: 2003/1/1
 # 2020 is the target calibration year, but mutations start in 2014
 start_of_comparison_period: 2020/1/1
 
-# Ending date is start of recording period plus 20 years
-ending_date: 2033/1/1
+# Ending date is 20 years past intervention, rounded for buffer
+ending_date: 2035/1/1
 
 # Discard the first five years worth of data
 start_collect_data_day: 1826
@@ -235,7 +235,11 @@ events:
         district: 8                 # Gasabo
         fraction: 0.06
         locus: 2
-        mutant_allele: 1  
+        mutant_allele: 1 
+  - name: update_beta_raster_event
+    info: 
+      - day: 2021/01/01
+        beta_raster: "rwa_beta_incidence.asc" 
 
 # Drug Information
 #
