@@ -14,10 +14,10 @@ function [] = process(offset)
     fprintf('----- Rank Sum vs. Status Quo (Year %d) -----\n', 10 - offset);
 
     % Every thing is against the status quo
-    [sq_failures, sq_frequency] = calculate('data/datasets/rwa-pfpr-constant.csv', offset);
+    [sq_failures, sq_frequency] = calculate('ms_data/2024/datasets/rwa-pfpr-constant.csv', offset);
     
     % Iterate overall of the other datasets
-    files = dir('data/datasets/rwa-*.csv');
+    files = dir('ms_data/2024/datasets/rwa-*.csv');
     for ndx = 1:length(files)
         if files(ndx).name == "rwa-561h-verification.csv"
             continue

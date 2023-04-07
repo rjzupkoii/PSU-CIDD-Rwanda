@@ -18,7 +18,7 @@
 % 11: Genotype Carriers
 clear;
 
-PATH = 'ms_data/2023/datasets/';
+PATH = 'ms_data/2024/datasets/';
 generate_reports(PATH, 0.25);
 
 function [] = generate_reports(path, scaling)
@@ -50,6 +50,10 @@ end
 function [] = endpoints(filename, scaling, study, output) 
     REPLICATE = 2; DAYSELAPSED = 3;
     INFECTIONS = 5; CLINICAL = 6; OCCURRENCES = 9; TREATMENTS = 10; FAILURES = 11;
+    
+    % We have 11 years of data following intervention, but only care about
+    % T+3, T+5, and T+10 years post intervention.
+    OFFSETS = [8, 6, 1];
 
     % Note the filename
     fprintf(output, '%s,', study);
@@ -58,7 +62,7 @@ function [] = endpoints(filename, scaling, study, output)
     data = readmatrix(filename);
     replicates = transpose(unique(data(:, REPLICATE)));
 
-    for offset = [7, 5, 0]
+    for offset = OFFSETS
         % Filter on the dates
         days = unique(data(:, DAYSELAPSED));
         days = days(end - (11 + 12 * offset):end - (12 * offset));

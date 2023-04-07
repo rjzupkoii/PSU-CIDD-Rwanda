@@ -3,17 +3,18 @@
 % Calculate the treatment failure for the last 11 years of the study.
 clear;
 
-calculate('data/datasets/rwa-pfpr-constant.csv', 0.25);
+calculate('ms_data/2024/datasets/rwa-ae-al-3-4-3.csv', 0.25);
 
 function [] = calculate(filename, scaling)
     REPLICATE = 2; DAYSELAPSED = 3; CLINICAL = 6; TREATMENTS = 10; FAILURES = 11;
+    YEARS = 12; ENDPOINT = 2035;
 
     % Read the data
     data = readmatrix(filename);
     replicates = transpose(unique(data(:, REPLICATE)));
     
     % Filter on the dates
-    for offset = 10:-1:0
+    for offset = YEARS:-1:0
         % Filter on the dates
         days = unique(data(:, DAYSELAPSED));
         days = days(end - (11 + 12 * offset):end - (12 * offset));
@@ -35,7 +36,7 @@ function [] = calculate(filename, scaling)
         end
     
          fprintf('Year: %d | Monthly: %.0f (%.0f - %.0f) | Yearly: %.0f (%.0f - %.0f) | %%: %.2f (%.2f - %.2f)\n', ...
-             10 - offset, prctile(failures_abs(:), [50 25 75]), prctile(failures_sum(:), [50 25 75]), prctile(failures_prct(:), [50 25 75]));
-        fprintf('Year: %d | Clinical: %.0f (IQR: %.0f - %.0f)\n', 10 - offset, prctile(clinical_sum(:), [50 25 75]))
+             ENDPOINT - offset, prctile(failures_abs(:), [50 25 75]), prctile(failures_sum(:), [50 25 75]), prctile(failures_prct(:), [50 25 75]));
+        fprintf('Year: %d | Clinical: %.0f (IQR: %.0f - %.0f)\n', ENDPOINT - offset, prctile(clinical_sum(:), [50 25 75]))
     end
 end
