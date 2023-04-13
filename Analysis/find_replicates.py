@@ -140,7 +140,7 @@ def select_frequencies(replicate):
     SELECT replicateid, dayselapsed, year, substring(g.name, 1, 7) as name, frequency
     FROM (
         SELECT mgd.replicateid, mgd.genomeid, mgd.dayselapsed, 
-            TO_CHAR(TO_DATE('2007-01-01', 'YYYY-MM-DD') + interval '1' day * mgd.dayselapsed, 'YYYY') AS year,
+            TO_CHAR(TO_DATE('2003-01-01', 'YYYY-MM-DD') + interval '1' day * mgd.dayselapsed, 'YYYY') AS year,
             mgd.weightedoccurrences / msd.infectedindividuals AS frequency
         FROM (
             SELECT md.replicateid, md.id, md.dayselapsed, mgd.genomeid, sum(mgd.weightedoccurrences) AS weightedoccurrences

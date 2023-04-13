@@ -22,15 +22,15 @@ STUDIES = {
 
 
 def make_plot(filename, output, threshold = 1e-3):
-    START_YEAR = 2018
-    
+        
     # Load the data
     data = pd.read_csv(filename)
 
     # Prepare the years
+    start_year = min(data['year'])
     days = data["dayselapsed"].unique()
     days.sort()
-    years = [round(START_YEAR + i / 12) if i % 12 == 0 else '' for i, x in enumerate(days)]
+    years = [round(start_year + i / 12) if i % 12 == 0 else '' for i, x in enumerate(days)]
     
     # Update the frequency based upon our threshold, prepare to plot
     data.loc[data['frequency'] < threshold, 'frequency'] = None
