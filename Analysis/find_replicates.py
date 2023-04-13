@@ -38,7 +38,9 @@ PLOTS = [
     'rwa-replacement-dhappq.csv',       # DHA-PPQ
     'rwa-mft-asaq-dhappq-0.25.csv',     # ASAQ (75%) + DHA-PPQ (25%)
     'rwa-tact-alaq.csv',                # ALAQ
-    'rwa-seq-al-asaq.csv'               # AL then ASAQ (456)
+    'rwa-seq-al-asaq.csv',              # AL then ASAQ (456)
+    'rwa-rotation-al-5.csv',            # DHA-PPQ three years, then AL (5-day course) + ASAQ
+    'rwa-mft-al-dhappq-0.25.csv'        # AL (75%) + DHA-PPQ (25%)
 ]
 
 # Get the percentile data from the cache file

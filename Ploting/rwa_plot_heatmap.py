@@ -15,7 +15,9 @@ STUDIES = {
     'rwa-replacement-dhappq'   : 'DHA-PPQ',
     'rwa-mft-asaq-dhappq-0.25' : 'ASAQ (75%) + DHA-PPQ (25%)',
     'rwa-tact-alaq'            : 'ALAQ',
-    'rwa-seq-al-asaq'          : 'AL then ASAQ (456)'
+    'rwa-seq-al-asaq'          : 'AL, then ASAQ345',
+    'rwa-rotation-al-5'        : 'DHA-PPQ three years, then AL (5-day course, 50%) + ASAQ (50%)',
+    'rwa-mft-al-dhappq-0.25'   : 'AL (75%) + DHA-PPQ (25%)',
 }
 
 
