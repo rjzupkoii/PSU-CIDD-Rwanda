@@ -2,7 +2,7 @@
 #
 # Boni Lab
 #
-# Multiple first-line therapies scenario, ASAQ and DHA-PPQ
+# Replacement with DHA-PPQ, moderate compliance.
 #
 # ---------------------------------------------------------------
 
@@ -226,7 +226,7 @@ events:
               
   - name: change_treatment_strategy
     info:
-      - day: 2023/1/1
+      - day: 2024/1/1
         strategy_id: 1
         
   - name: introduce_mutant_event
