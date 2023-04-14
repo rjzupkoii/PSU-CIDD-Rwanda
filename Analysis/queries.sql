@@ -185,6 +185,7 @@ GROUP BY configurationid, studyid, filename
 ORDER BY studyid, filename
 
 -- Validation study query, constrained to model year 2020
+-- Date span for model year 2022: AND md.dayselapsed between 6939 and 7274
 SELECT c.id as configurationid, sd.replicateid, sd.district, 
 max(population) / 0.25 as population, 
 sum(clinicalepisodes) / 0.25 as clinicalepisodes,
@@ -201,12 +202,12 @@ SELECT md.replicateid, md.dayselapsed, msd.location AS district,
   sum(msd.treatmentfailures) as treatmentfailures
 FROM sim.monthlydata md
   INNER JOIN sim.monthlysitedata msd on msd.monthlydataid = md.id
-WHERE md.replicateid = 35656
+WHERE md.replicateid = 53336
   AND md.dayselapsed between 6209 and 6544
 GROUP BY md.replicateid, md.dayselapsed, msd.location) sd
 INNER JOIN sim.replicate r on r.id = sd.replicateid
 INNER JOIN sim.configuration c on c.id = r.configurationid
 WHERE r.endtime is not null
-AND r.id = 35656
+AND r.id = 53336
 GROUP BY c.id, sd.replicateid, sd.district
 ORDER BY district
