@@ -10,7 +10,7 @@ warning('off', 'MATLAB:MKDIR:DirectoryExists');
 minima = 0.4;
 
 % Load the data, drop the Google Earth Engine column
-raw = readmatrix('data/rwa-rainfall.csv');
+raw = readmatrix('../GIS/rwa_rainfall.csv');
 raw = raw(:, 1:2);
 
 % Shift the data to account for the Anopheles gambiae life cycle of about 10 - 11 days
@@ -29,7 +29,7 @@ format('Mean Rainfall, 10 Year Mean');
 subplot(2, 1, 2);
 plot(raw(:, 1) + 1, daily);
 xlim([1 365]);
-format('Daily Beta Adjustment');
+format('Relative Transmission Level');
 
 % Write the data to disk
 mkdir('out');
