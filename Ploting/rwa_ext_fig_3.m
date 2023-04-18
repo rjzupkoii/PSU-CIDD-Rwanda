@@ -13,32 +13,42 @@ data = readmatrix('../Analysis/ms_data/2024/datasets/rwa-pfpr-constant.csv');
 % Plot the district data for Gasabo
 subplot(2, 2, 1);
 plot_district(data, STARTDATE, 8, 'Gasabo');
+    xline(datenum('2014-09-30'), ':', 'LineWidth', 1.5);    
     scatter(datenum('2014-09-30'), 0.12, 25, 'black', 'filled');
-    text(datenum('2014-09-30') + 75, 0.125, '\leftarrow 0.12', 'FontWeight', 'bold');
+    text(datenum('2014-09-30') + 75, 0.125, '0.12', 'FontWeight', 'bold');
+
+    xline(datenum('2015-09-30'), ':', 'LineWidth', 1.5);
     scatter(datenum('2015-09-30'), 0.06, 25, 'black', 'filled');
-    text(datenum('2015-09-30') + 75, 0.065, '\leftarrow 0.06', 'FontWeight', 'bold');
+    text(datenum('2015-09-30') + 75, 0.065, '0.06', 'FontWeight', 'bold');
+
+    xline(datenum('2018-09-30'), ':', 'LineWidth', 1.5);
     scatter(datenum('2018-09-30'), 0.20, 25, 'black', 'filled');
-    text(datenum('2018-09-30') - 575, 0.205, '0.20 \rightarrow', 'FontWeight', 'bold');
+    text(datenum('2018-09-30') - 375, 0.205, '0.20', 'FontWeight', 'bold');
+
+    xline(datenum('2019-09-30'), ':', 'LineWidth', 1.5);
     scatter(datenum('2019-09-30'), 0.22, 25, 'black', 'filled');
-    text(datenum('2019-09-30') + 75, 0.225, '\leftarrow 0.22', 'FontWeight', 'bold');
+    text(datenum('2019-09-30') + 75, 0.225, '0.22', 'FontWeight', 'bold');
 
 % Plot the district data for Kayonza
 subplot(2, 2, 2);
 plot_district(data, STARTDATE, 3, 'Kayonza');
+    xline(datenum('2018-09-30'), ':', 'LineWidth', 1.5);
     scatter(datenum('2018-09-30'), 0.10, 25, 'black', 'filled');
-    text(datenum('2018-09-30') + 75, 0.105, '\leftarrow 0.10', 'FontWeight', 'bold');
+    text(datenum('2018-09-30') + 75, 0.105, '0.10', 'FontWeight', 'bold');
 
 % Plot the district data for Kirehe
 subplot(2, 2, 3);
 plot_district(data, STARTDATE, 4, 'Kirehe');
+    xline(datenum('2015-09-30'), ':', 'LineWidth', 1.5);
     scatter(datenum('2015-09-30'), 0.06, 25, 'black', 'filled');
-    text(datenum('2015-09-30') + 75, 0.065, '\leftarrow 0.06', 'FontWeight', 'bold');
+    text(datenum('2015-09-30') + 75, 0.065, '0.06', 'FontWeight', 'bold');
 
 % Plot the district data for Ngoma
 subplot(2, 2, 4);
 plot_district(data, STARTDATE, 5, 'Ngoma');
+    xline(datenum('2015-09-30'), ':', 'LineWidth', 1.5);
     scatter(datenum('2015-09-30'), 0.02, 25, 'black', 'filled');
-    text(datenum('2015-09-30') + 75, 0.025, '\leftarrow 0.02', 'FontWeight', 'bold');
+    text(datenum('2015-09-30') + 75, 0.025, '0.02', 'FontWeight', 'bold');
 
 % Format all of the plots
 format();
