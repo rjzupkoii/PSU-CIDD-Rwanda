@@ -19,7 +19,7 @@ sys.path.insert(1, '../../PSU-CIDD-MaSim-Support/Python/include')
 from plotting import scale_luminosity
 from utility import progressBar
 
-def main():
+def main(extension):
     root = '../Analysis/ms_data/'
     filenames = [
         '2024/datasets/rwa-pfpr-constant.csv',
@@ -58,7 +58,7 @@ def main():
         rwanda.plot_validation(filename, 'plots/{} Sensitivity - {}.png'.format(prefix, rate), title=title)
 
         # Now prepare the district spiking plot
-        plot_spikes(filename, rate, prefix, suffix, 'png')
+        plot_spikes(filename, rate, prefix, suffix, extension)
 
 
 def prepare(filename):
@@ -178,10 +178,12 @@ def plot_spikes(filename, rate, prefix, suffix, extension):
     imagefile = 'plots/District {} {}.{}'.format(prefix, rate, extension)
     if 'tif' == extension:
         plt.savefig(imagefile, dpi=300, format="tiff", pil_kwargs={"compression": "tiff_lzw"})
+    elif 'svg' == extension:
+        plt.savefig(imagefile, dpi=1200, format="svg")
     else:
         plt.savefig(imagefile, dpi=150)
     plt.close()
 
 
 if __name__ == '__main__':
-    main()
+    main('png')
