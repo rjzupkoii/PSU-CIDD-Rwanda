@@ -290,7 +290,6 @@ def plot_validation(datafile, imagefile, title='Rwanda 561H Frequency Validation
     axes.set_ylim([0, 1.0])
     axes.set_title(title)
     axes.set_ylabel('561H Genotype Frequency')
-    axes.set_xlabel('Model Year')
 
     # Plot the 561H frequency
     plt.plot(dates, median)
@@ -305,6 +304,8 @@ def plot_validation(datafile, imagefile, title='Rwanda 561H Frequency Validation
     # Finalize the image as proof (png) or print (tif)
     if imagefile.endswith('tif'):
         plt.savefig(imagefile, dpi=300, format="tiff", pil_kwargs={"compression": "tiff_lzw"})
+    elif imagefile.endswith('svg'):
+        plt.savefig(imagefile, dpi=1200, format="svg")
     else:
         plt.savefig(imagefile)
     plt.close()    

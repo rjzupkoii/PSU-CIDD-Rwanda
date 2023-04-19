@@ -55,7 +55,7 @@ def main(extension):
         print('Preparing {} plots...'.format(rate))
 
         # Start by preparing the national summary plot
-        rwanda.plot_validation(filename, 'plots/{} Sensitivity - {}.png'.format(prefix, rate), title=title)
+        rwanda.plot_validation(filename, 'plots/{} Sensitivity - {}.{}'.format(prefix, rate, extension), title=title)
 
         # Now prepare the district spiking plot
         plot_spikes(filename, rate, prefix, suffix, extension)
