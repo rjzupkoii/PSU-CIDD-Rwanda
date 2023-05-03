@@ -12,15 +12,15 @@ clear all;
 
 all_labels_blank = true;
 
-AL3=csvread('data/rwa-AL3-parsed.csv',1,0);
-AL5=csvread('data/rwa-AL5-parsed.csv',1,0);
+AL3=csvread('./March_31_2023/rwa-AL3-parsed.csv',1,0);
+AL5=csvread('./March_31_2023/rwa-AL5-parsed.csv',1,0);
 nr = size(AL3,1);
 
-x1=AL3(1,1)+730;
-x2=AL3(nr,1);
+x1=AL3(1,1)+730+365;
+x2=AL3(nr,1)-365;
 
 day0 = 7305;
-xticks = [7305:365:10590];
+xticks = [7305:365:10955];
 
 my_face_alpha = 0.33;
 my_face_alpha2 = 0.33;
@@ -51,7 +51,8 @@ yticks_l = 0.1:0.1:0.9;
 AL3 = AL3(trm:nr-trm+1,:);
 AL5 = AL5(trm:nr-trm+1,:);
 
-subplot(3,2,1)
+lw=2;
+
 
 %
 % columns 
@@ -59,6 +60,9 @@ subplot(3,2,1)
 %   1       2      3        4       5       6           7       8
 % date	tf-25	tf-50	tf-75	pfpr-25	 pfpr-50	pfpr-75	freq_561h-25	freq_561h-50	freq_561h-75
 
+
+
+subplot(3,2,1)
 
 fg = figure(1);
 fg.Renderer='Painters'; % this ensures that the figure renders as vector;
@@ -98,7 +102,7 @@ yy1 = transpose(AL3(:,5));
 %fill([xx fliplr(xx)], [yy2 yy1], [0.7 0.7 0.7]); 
 fill([xx fliplr(xx)], [yy1 fliplr(yy2)], gray1, 'FaceAlpha', my_face_alpha, 'LineStyle', 'none', 'Marker', 'none'); 
 
-plot( AL3(:,1), AL3(:,6), 'Color', gray1, 'LineStyle', '-', 'Marker', 'none' );
+%plot( AL3(:,1), AL3(:,6), 'Color', gray1, 'LineStyle', '-', 'Marker', 'none' );
 plot( AL5(:,1), AL5(:,6), 'Color', gray2, 'LineStyle', '-', 'Marker', 'none' );
 
 %xlabel('Year');
@@ -123,8 +127,8 @@ yy2 = transpose(AL3(:,10));
 yy1 = transpose(AL3(:,8));
 fill([xx fliplr(xx)], [yy1 fliplr(yy2)], blue1, 'FaceAlpha', my_face_alpha2, 'LineStyle', 'none', 'Marker', 'none'); 
 
-plot( AL5(:,1), AL5(:,9), 'Color', blue2 , 'LineWidth', 3 , 'LineStyle', '-' , 'Marker', 'none' ); 
-plot( AL3(:,1), AL3(:,9), 'Color', blue1 , 'LineWidth', 3 , 'LineStyle', '-' , 'Marker', 'none' ); 
+plot( AL5(:,1), AL5(:,9), 'Color', blue2 , 'LineWidth', lw , 'LineStyle', '-' , 'Marker', 'none' ); 
+plot( AL3(:,1), AL3(:,9), 'Color', blue1 , 'LineWidth', lw , 'LineStyle', '-' , 'Marker', 'none' ); 
 
 set(gca, 'YTick', yticks_l );
 if( all_labels_blank )
@@ -150,8 +154,8 @@ yy2 = transpose(AL3(:,4));
 yy1 = transpose(AL3(:,2));
 fill([xx fliplr(xx)], [yy1 fliplr(yy2)], red1, 'FaceAlpha', my_face_alpha2, 'LineStyle', 'none', 'Marker', 'none'); 
 
-plot( AL5(:,1), AL5(:,3), 'Color', red2 , 'LineWidth', 3, 'LineStyle', '-' );
-plot( AL3(:,1), AL3(:,3), 'Color', red1 , 'LineWidth', 3, 'LineStyle', '-' ); 
+plot( AL5(:,1), AL5(:,3), 'Color', red2 , 'LineWidth', lw, 'LineStyle', '-' );
+plot( AL3(:,1), AL3(:,3), 'Color', red1 , 'LineWidth', lw, 'LineStyle', '-' ); 
 
 
 axis([x1 x2 0.0 1.0]);
@@ -166,26 +170,29 @@ grid on;
 
 
 
-for spi=2:5
+for spi=2:6
 
     odd = false;
     bottom = false;
     
     subplot(3,2,spi)
     if spi==2
-        C = csvread('data/rwa-DHAPPQ-parsed.csv',1,0);
+        C = csvread('./March_31_2023/rwa-DHAPPQ-parsed.csv',1,0);
     end
     if spi==3
-        C = csvread('data/rwa-MFT-parsed.csv',1,0);
+        C = csvread('./March_31_2023/rwa-MFT-parsed.csv',1,0);
         odd = true;
     end
     if spi==4
-        C = csvread('data/rwa-ROTATION-parsed.csv',1,0);
-        bottom = true;
+        C = csvread('./March_31_2023/rwa-ROTATION-parsed.csv',1,0);
     end
     if spi==5
-        C = csvread('data/rwa-ALAQ-parsed.csv',1,0);
+        C = csvread('./March_31_2023/rwa-ALAQ-parsed.csv',1,0);
         odd = true;
+        bottom = true;
+    end
+    if spi==6
+        C = csvread('./March_31_2023/rwa-AL-THEN-DHAPPQ-789-parsed.csv',1,0);
         bottom = true;
     end
     C = C(trm:nr-trm+1,:);
@@ -245,8 +252,8 @@ for spi=2:5
     yy1 = transpose(C(:,8));
     fill([xx fliplr(xx)], [yy1 fliplr(yy2)], blue3, 'FaceAlpha', my_face_alpha2, 'LineStyle', 'none', 'Marker', 'none'); 
 
-    plot( AL5(:,1), AL5(:,9), 'Color', blue2 , 'LineWidth', 3 , 'LineStyle', '-' , 'Marker', 'none' ); 
-    plot( C(:,1), C(:,9), 'Color', blue3 , 'LineWidth', 3 , 'LineStyle', '-' , 'Marker', 'none' ); 
+    plot( AL5(:,1), AL5(:,9), 'Color', blue2 , 'LineWidth', lw , 'LineStyle', '-' , 'Marker', 'none' ); 
+    plot( C(:,1), C(:,9), 'Color', blue3 , 'LineWidth', lw , 'LineStyle', '-' , 'Marker', 'none' ); 
 
     set(gca, 'YTick', yticks_l );
     if( spi==2 || spi==4 || all_labels_blank )
@@ -272,8 +279,8 @@ for spi=2:5
     yy1 = transpose(C(:,2));
     fill([xx fliplr(xx)], [yy1 fliplr(yy2)], red3, 'FaceAlpha', my_face_alpha2, 'LineStyle', 'none', 'Marker', 'none'); 
 
-    plot( C(:,1), C(:,3), 'Color', red3 , 'LineWidth', 3, 'LineStyle', '-', 'Marker', 'none' ); 
-    plot( AL5(:,1), AL5(:,3), 'Color', red2 , 'LineWidth', 3, 'LineStyle', '-', 'Marker', 'none' );
+    plot( C(:,1), C(:,3), 'Color', red3 , 'LineWidth', lw, 'LineStyle', '-', 'Marker', 'none' ); 
+    plot( AL5(:,1), AL5(:,3), 'Color', red2 , 'LineWidth', lw, 'LineStyle', '-', 'Marker', 'none' );
 
     axis([x1 x2 0.0 1.0]);
     op = get( gca, 'outerposition');
@@ -282,10 +289,3 @@ for spi=2:5
 
 
 end
-
-
-
-
-
-
-
