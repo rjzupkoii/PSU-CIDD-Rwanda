@@ -276,10 +276,10 @@ def process_genotype(date, studyId):
   save_csv(REPLICATES_LIST, replicates)
   
   print("Processing replicates...")  
-  count = 0
+  count = 0; finalize = False
   progressBar(count, len(replicates))
   for row in replicates:
-    # Pass if the replicate is too old or a
+    # Pass if the replicate is too old or one that we care about
     if (row[4].date() < datetime.datetime.strptime(date, '%Y-%m-%d').date()) or (row[2] not in FILENAMES):
       continue
 
@@ -290,6 +290,7 @@ def process_genotype(date, studyId):
     # Query and store the data
     replicate = get_genotype_replicate(row[3])
     save_csv(filename, replicate)
+    finalize = True
 
     # Update the progress bar
     count = count + 1
@@ -298,8 +299,9 @@ def process_genotype(date, studyId):
   # Complete progress bar for replicates
   if count != len(replicates): progressBar(len(replicates), len(replicates))  
 
-  # Merge the data sets
-  process_final_datasets(date, GENOTYPE_DIRECTORY, GENOTYPE_DATASET)
+  # Merge the data sets if they need to be finalized
+  if finalize: 
+    process_final_datasets(date, GENOTYPE_DIRECTORY, GENOTYPE_DATASET)
 
 
 # Process the replicates to make sure we have all of the data we need locally
