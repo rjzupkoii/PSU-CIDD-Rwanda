@@ -86,8 +86,8 @@ def sensitivity_mutation_figure(rows, cols, layout, title, filename):
         plt.axvline(x = datetime.datetime(2024, 1, 1), linestyle = ':', color = 'gray')
         
         # Format the axis
-        axes[row, col].set_ylim([0, 1])
-        axes[row, col].set_xlim([datetime.datetime(2014, 1, 1), max(dates)])
+        axes[row, col].set_ylim([0.35, 1])
+        axes[row, col].set_xlim([datetime.datetime(2023, 1, 1), max(dates)])
         if col == 0: plt.ylabel('561H Frequency')
         
     # Set the main title
