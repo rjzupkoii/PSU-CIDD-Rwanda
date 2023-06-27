@@ -56,7 +56,7 @@ def generate(layout, year, cached=False):
     else:
         print('Loading  {}...'.format(layout['title']))
         data = np.load('np/{}_{}.npy'.format(year, layout['title']), allow_pickle=True)
-        dates = np.load('np/()_rwa-dates.npy'.format(year), allow_pickle=True)    
+        dates = np.load('np/{}_rwa-dates.npy'.format(year), allow_pickle=True)    
         data = dict(enumerate(data.flatten(), 0))[0]
 
     # Plot the data
@@ -246,6 +246,7 @@ def writeCsv(dates, data, filename):
 def main(year, cached):
     # Generate all of the plots based upon the given date
     generate(rwa_reports.al_vs_al5, year, cached)
+    generate(rwa_reports.al5_vs_asaq, year, cached)
     generate(rwa_reports.al5_vs_dhappq, year, cached)
     generate(rwa_reports.al5_vs_dhappq_plas, year, cached)    
     generate(rwa_reports.al5_vs_dhappq_double, year, cached)
@@ -256,6 +257,7 @@ def main(year, cached):
     generate(rwa_reports.al5_vs_seq_al_dhappq_345, year, cached)
     generate(rwa_reports.al5_vs_seq_al_dhappq_789, year, cached)
     generate(rwa_reports.tact_vs_seq_al_asaq, year, cached)
+    generate(rwa_reports.asaq_vs_dhappq, year, cached)
 
 
 if __name__ == '__main__':

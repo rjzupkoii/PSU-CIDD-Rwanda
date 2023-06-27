@@ -203,6 +203,28 @@ al_vs_al5 = {
     }
 }
 
+# 5-day AL vs ASAQ treatment genotype report
+al5_vs_asaq = {
+    'source' : [ 
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-ae-al-5.csv',
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-replacement-asaq.csv'
+    ],
+    'name' : ['AL 5-day', 'ASAQ' ],
+
+    'plot' : ['tf', 'pfpr', 'freq_561h'],
+    'left' : ['tf', 'freq_561h'],
+    'right' : ['pfpr'],
+    'style' : ['-.', '-'],
+    'intervention' : 0.42,
+
+    'title' : 'AL 5-day vs. ASAQ',
+    'label' : {
+        'tf' : '% Treatment Failures',
+        'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+        'freq_561h' : '561H Frequency',
+    }        
+}
+
 # 5-day AL vs DHA-PPQ treatment genotype report
 al5_vs_dhappq = {
     'source' : [ 
@@ -420,6 +442,28 @@ tact_vs_seq_al_asaq = {
     'intervention' : 0.41,
 
     'title' : 'AL + AQ vs. AL then ASAQ',
+    'label' : {
+        'tf' : '% Treatment Failures',
+        'pfpr' : '$\it{Pf}$PR$_{2-10}$',
+        'freq_561h' : '561H Frequency',
+    }        
+}
+
+# ASAQ vs DHA-PPQ treatment genotype report
+asaq_vs_dhappq = {
+    'source' : [ 
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-replacement-asaq.csv',
+        '../Analysis/ms_data/{}/genotype_dataset/rwa-replacement-dhappq.csv'
+    ],
+    'name' : ['ASAQ', 'DHA-PPQ' ],
+
+    'plot' : ['tf', 'pfpr', 'freq_561h'],
+    'left' : ['tf', 'freq_561h'],
+    'right' : ['pfpr'],
+    'style' : ['-.', '-'],
+    'intervention' : 0.42,
+
+    'title' : 'ASAQ vs. DHA-PPQ',
     'label' : {
         'tf' : '% Treatment Failures',
         'pfpr' : '$\it{Pf}$PR$_{2-10}$',

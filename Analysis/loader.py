@@ -260,7 +260,8 @@ def process_genotype(date, studyId):
   GENOTYPE_DIRECTORY = 'data/genotype'
   FILENAMES = ['rwa-ae-al-5.yml', 
                'rwa-pfpr-constant.yml',
-               'rwa-replacement-dhappq.yml', 
+               'rwa-replacement-dhappq.yml',
+               'rwa-replacement-asaq.yml',
                'rwa-mft-asaq-dhappq-0.25.yml',
                'rwa-rotation-al-5.yml',
                'rwa-seq-al-asaq.yml',
