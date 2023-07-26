@@ -281,7 +281,7 @@ def process_genotype(date, studyId):
   progressBar(count, len(replicates))
   for row in replicates:
     # Pass if the replicate is too old or one that we care about
-    if (row[4].date() < datetime.datetime.strptime(date, '%Y-%m-%d').date()) or (row[2] not in FILENAMES):
+    if (row[4].date() < datetime.datetime.strptime(date, '%Y-%m-%d').date()) or not (row[2] in FILENAMES or 'rwa-cycling-' in row[2]):
       continue
 
     # Check to see if we already have the data
