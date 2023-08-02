@@ -18,6 +18,57 @@ from plotting import scale_luminosity
 from utility import progressBar
 
 
+def box_plot(path, offset = 0):
+  
+  # Prepare the figure
+  matplotlib.rc_file('matplotlibrc-line')
+  figure, axes = plt.subplots(2, 3)
+  
+  # Prepare the common values
+  startDate = datetime.datetime.strptime(rwanda.STUDYDATE, "%Y-%m-%d")
+  
+  row, col = 0, 0
+  for days in [90, 180, 270, 365, 545, 730]:
+    dates, replicates = load('../Analysis/data/{}/rwa-cycling-{}.csv'.format(path, days), 'failures')
+    dates = [startDate + datetime.timedelta(days=x) for x in dates]
+    
+    # Parse the data into something the box plot can work with
+    data, years, start = [], [], offset
+    for end in range(12 + offset, len(dates), 12):
+      data.append(np.mean(replicates[: , start:end], axis=1))
+      years.append("'" + str(dates[end].year)[2:])
+      start = end
+  
+    # Add the data to the plot along with any formatting
+    axes[row, col].boxplot(data)
+    axes[row, col].set_xticklabels(years)
+    axes[row, col].title.set_text('{} days'.format(days))
+    axes[row, col].set_ylim([0, 0.6])
+    if col == 0: 
+      plt.sca(axes[row, col])
+      plt.ylabel('Treatment Failures')
+    
+    # Only show every other tick label
+    for label in axes[row, col].xaxis.get_ticklabels()[1::2]:
+      label.set_visible(False)
+    
+    # Move to the next subplot
+    row, col = increment(row, col)
+    
+  # Set the main label and save the plot
+  fig = plt.gcf()
+  fig.suptitle('DHA-PPQ then AL Cycling')
+  plt.savefig('plots/box_plots.png')    
+  
+
+def increment(row, col):
+  col += 1
+  if col % 3 == 0:
+    row += 1
+    col = 0
+  return row, col
+
+
 def load(filename, plot_type):
   if plot_type in ['frequency', 'failures']:
     REPLICATE, DATES, INFECTIONS, WEIGHTED, TREATMENTS, TREATMENT_FAILURES = 1, 2, 4, 8, 9, 10
@@ -93,10 +144,7 @@ def plot(plot_type, path, ylabel):
     ymax = max(ymax, ranges[1])
     
     # Move to the next subplot
-    col += 1
-    if col % 3 == 0:
-      row += 1
-      col = 0
+    row, col = increment(row, col)
       
   # Update the figures
   for row in [0, 1]:
@@ -114,7 +162,7 @@ def plot(plot_type, path, ylabel):
   # Set the main label and save the plot
   fig = plt.gcf()
   fig.suptitle('DHA-PPQ then AL Cycling')
-  plt.savefig('{}.png'.format(plot_type))
+  plt.savefig('plots/{}.png'.format(plot_type))
 
 
 if __name__ == '__main__':
@@ -123,3 +171,4 @@ if __name__ == '__main__':
   plot('pfpr', 'genotype_dataset', '$Pf$PR$_{2-10}$')
   plot('ppq', 'genotype_dataset', 'Plasmepsin Double Copy Frequency')
   plot('double', 'genotype_dataset', 'Double Mutant Frequency')
+  box_plot('datasets', offset=12*9)
