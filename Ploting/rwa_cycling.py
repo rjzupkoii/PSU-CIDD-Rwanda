@@ -18,7 +18,7 @@ from plotting import scale_luminosity
 from utility import progressBar
 
 
-def box_plot(path, offset = 0):
+def box_plot(path, plot_type='treatments', offset = 0):
   
   # Prepare the figure
   matplotlib.rc_file('matplotlibrc-line')
@@ -26,10 +26,16 @@ def box_plot(path, offset = 0):
   
   # Prepare the common values
   startDate = datetime.datetime.strptime(rwanda.STUDYDATE, "%Y-%m-%d")
+  if plot_type == 'failures':
+    ylabel = 'Percent Treatment Failures'
+    ylim = [0, 0.6]
+  elif plot_type == 'ntf':
+    ylabel = 'Number Treatment Failures'
+    ylim = [0, 25000]
   
   row, col = 0, 0
   for days in [90, 180, 270, 365, 545, 730]:
-    dates, replicates = load('../Analysis/data/{}/rwa-cycling-{}.csv'.format(path, days), 'failures')
+    dates, replicates = load('../Analysis/data/{}/rwa-cycling-{}.csv'.format(path, days), plot_type)
     dates = [startDate + datetime.timedelta(days=x) for x in dates]
     
     # Parse the data into something the box plot can work with
@@ -43,10 +49,10 @@ def box_plot(path, offset = 0):
     axes[row, col].boxplot(data)
     axes[row, col].set_xticklabels(years)
     axes[row, col].title.set_text('{} days'.format(days))
-    axes[row, col].set_ylim([0, 0.6])
+    axes[row, col].set_ylim(ylim)
     if col == 0: 
       plt.sca(axes[row, col])
-      plt.ylabel('Treatment Failures')
+      plt.ylabel(ylabel)
     
     # Only show every other tick label
     for label in axes[row, col].xaxis.get_ticklabels()[1::2]:
@@ -58,7 +64,7 @@ def box_plot(path, offset = 0):
   # Set the main label and save the plot
   fig = plt.gcf()
   fig.suptitle('DHA-PPQ then AL Cycling')
-  plt.savefig('plots/box_plots.png')    
+  plt.savefig('plots/box_{}.png'.format(plot_type))    
   
 
 def increment(row, col):
@@ -70,7 +76,7 @@ def increment(row, col):
 
 
 def load(filename, plot_type):
-  if plot_type in ['frequency', 'failures']:
+  if plot_type in ['frequency', 'failures', 'ntf']:
     REPLICATE, DATES, INFECTIONS, WEIGHTED, TREATMENTS, TREATMENT_FAILURES = 1, 2, 4, 8, 9, 10
   elif plot_type in ['double', 'pfpr', 'ppq']:
     REPLICATE, DATES, PFPR, INFECTIONS, WEIGHTED, DOUBLE_WEIGHTED = 0, 1, 7, 3, 13, 16
@@ -97,6 +103,7 @@ def load(filename, plot_type):
         byDate = byReplicate[byReplicate[DATES] == date]
         if plot_type == 'frequency': temp.append(sum(byDate[WEIGHTED]) / sum(byDate[INFECTIONS]))
         elif plot_type == 'failures': temp.append(sum(byDate[TREATMENT_FAILURES]) / sum(byDate[TREATMENTS]))
+        elif plot_type == 'ntf': temp.append(sum(byDate[TREATMENT_FAILURES]))
     
     # Update the data to be returned
     if len(plot_data) != 0: plot_data = np.vstack((plot_data, temp))
@@ -171,4 +178,5 @@ if __name__ == '__main__':
   plot('pfpr', 'genotype_dataset', '$Pf$PR$_{2-10}$')
   plot('ppq', 'genotype_dataset', 'Plasmepsin Double Copy Frequency')
   plot('double', 'genotype_dataset', 'Double Mutant Frequency')
-  box_plot('datasets', offset=12*9)
+  box_plot('datasets', plot_type='ntf', offset=12*9)
+  box_plot('datasets', plot_type='failures', offset=12*9)
