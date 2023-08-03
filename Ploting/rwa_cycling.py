@@ -1,8 +1,11 @@
-#!/usr/bin env python3
+#!/usr/bin/env python3
 
 # rwa_cycling.py
 #
 # Produce a basic plot of 561H frequency based upon the cycling time frames.
+#
+# Abbreviations: number of treatment failures (NTF)
+import argparse
 import datetime
 import math
 import matplotlib
@@ -18,13 +21,13 @@ from plotting import scale_luminosity
 from utility import progressBar
 
 
-def box_plot(path, plot_type='treatments', offset = 0):
+def box_plot(path, plot_type, offset = 0):
   
   # Prepare the figure
   matplotlib.rc_file('matplotlibrc-line')
   figure, axes = plt.subplots(2, 3)
   
-  # Prepare the common values
+  # Prepare the common values, or error if the plot isn't known
   startDate = datetime.datetime.strptime(rwanda.STUDYDATE, "%Y-%m-%d")
   if plot_type == 'failures':
     ylabel = 'Percent Treatment Failures'
@@ -32,6 +35,8 @@ def box_plot(path, plot_type='treatments', offset = 0):
   elif plot_type == 'ntf':
     ylabel = 'Number Treatment Failures'
     ylim = [0, 25000]
+  else:
+    sys.exit('Unknown box plot type, {}'.format(plot_type))
   
   row, col = 0, 0
   for days in [90, 180, 270, 365, 545, 730]:
@@ -44,7 +49,7 @@ def box_plot(path, plot_type='treatments', offset = 0):
       data.append(np.mean(replicates[: , start:end], axis=1))
       years.append("'" + str(dates[end].year)[2:])
       start = end
-  
+    
     # Add the data to the plot along with any formatting
     axes[row, col].boxplot(data)
     axes[row, col].set_xticklabels(years)
@@ -61,10 +66,11 @@ def box_plot(path, plot_type='treatments', offset = 0):
     # Move to the next subplot
     row, col = increment(row, col)
     
-  # Set the main label and save the plot
+  # Set the main title and save the plot
   fig = plt.gcf()
   fig.suptitle('DHA-PPQ then AL Cycling')
-  plt.savefig('plots/box_{}.png'.format(plot_type))    
+  plt.savefig('plots/box_{}.png'.format(plot_type))
+  plt.close()
   
 
 def increment(row, col):
@@ -115,6 +121,56 @@ def load(filename, plot_type):
   
   # Return the results
   return dates, plot_data 
+
+
+def metrics(offset):
+  # Prepare the common variables
+  REPLICATE, DATES, POPULATION, FAILURES = 0, 1, 2, 6
+  DAYS = [90, 180, 270, 365, 545, 730]
+
+  ndx = 0
+  ntf, ntf_per_100 = [], []
+  for days in DAYS:
+    # Load the data and filter it to the subset indicated by the offset
+    replicates = pd.read_csv('../Analysis/data/genotype_dataset/rwa-cycling-{}.csv'.format(days), header = None)
+    dates = replicates[DATES].unique().tolist()
+    replicates = replicates[(replicates[DATES] >= dates[offset * 12]) & (replicates[DATES] <= dates[-1])]
+    
+    # Apply the calculation to each replicate
+    ntf.append([])
+    ntf_per_100.append([])
+    for replicate in replicates[REPLICATE].unique().tolist():
+      # Filter some more for performance
+      data = replicates[replicates[REPLICATE] == replicate]
+
+      # Gather the per replicate data
+      ntf[ndx].append(sum(data[FAILURES]))
+      ntf_per_100[ndx].append(round(((sum(data[FAILURES]) / np.mean(data[POPULATION])) / 5) * 100, 3))
+
+    # Update our index
+    ndx += 1
+    
+  # Prepare the figure
+  matplotlib.rc_file('matplotlibrc-line')
+  figure, axes = plt.subplots(1, 2)
+
+  # Prepare the NTF box plot
+  axes[0].boxplot(ntf)
+  axes[0].set_ylabel('Absolute Count')
+  axes[0].set_xlabel('Rotation Days')
+  axes[0].set_xticklabels(DAYS)
+  
+  # Prepare the NTF per 100 box plot
+  axes[1].boxplot(ntf_per_100)
+  axes[1].set_ylabel('Per 100 Population')
+  axes[1].set_xlabel('Rotation Days')
+  axes[1].set_xticklabels(DAYS)
+  
+  # Set the main title and save
+  fig = plt.gcf()
+  fig.suptitle('Number of Treatment Failures, {} years'.format(abs(offset)))
+  plt.savefig('plots/metrics - {} years.png'.format(abs(offset)))
+  plt.close()
 
 
 def plot(plot_type, path, ylabel):
@@ -173,10 +229,22 @@ def plot(plot_type, path, ylabel):
 
 
 if __name__ == '__main__':
-  plot('frequency', 'datasets', '561H Frequency')
-  plot('failures', 'datasets', 'Treatment Failures')
-  plot('pfpr', 'genotype_dataset', '$Pf$PR$_{2-10}$')
-  plot('ppq', 'genotype_dataset', 'Plasmepsin Double Copy Frequency')
-  plot('double', 'genotype_dataset', 'Double Mutant Frequency')
-  box_plot('datasets', plot_type='ntf', offset=12*9)
-  box_plot('datasets', plot_type='failures', offset=12*9)
+  parser = argparse.ArgumentParser()
+  parser.add_argument('-m', action='store', dest='metrics', help='The number of years (from end of dataset) to calculate metrics for')
+  parser.add_argument('-p', action='store', dest='plot', help='The data to plot, values depend on the plot type')
+  parser.add_argument('-t', action='store', dest='type', default='line', help='Plot type, either line (default) or box')
+  args = parser.parse_args()
+
+  if args.metrics:    
+    metrics(-int(args.metrics))
+  elif args.type == 'line':
+    if args.plot == 'frequency': plot('frequency', 'datasets', '561H Frequency')
+    elif args.plot == 'failures': plot('failures', 'datasets', 'Treatment Failures')
+    elif args.plot == 'pfpr': plot('pfpr', 'genotype_dataset', '$Pf$PR$_{2-10}$')
+    elif args.plot == 'ppq': plot('ppq', 'genotype_dataset', 'Plasmepsin Double Copy Frequency')
+    elif args.plot == 'double': plot('double', 'genotype_dataset', 'Double Mutant Frequency')
+    else: sys.exit('Unknown plot type, {}'.format(args.plot))
+  elif args.type == 'box':
+    box_plot('datasets', args.plot, offset=12*9)
+  else:
+    sys.exit('Unknown type argument, {}'.format(args.type))
