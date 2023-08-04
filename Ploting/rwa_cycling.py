@@ -124,52 +124,56 @@ def load(filename, plot_type):
 
 
 def metrics(offset):
-  # Prepare the common variables
-  REPLICATE, DATES, POPULATION, FAILURES = 0, 1, 2, 6
-  DAYS = [90, 180, 270, 365, 545, 730]
-
-  ndx = 0
-  ntf, ntf_per_100 = [], []
-  for days in DAYS:
+ 
+  def load_data(filename, offset):
+    REPLICATE, DATES, POPULATION, FAILURES = 0, 1, 2, 6
+    
     # Load the data and filter it to the subset indicated by the offset
-    replicates = pd.read_csv('../Analysis/data/genotype_dataset/rwa-cycling-{}.csv'.format(days), header = None)
+    replicates = pd.read_csv(filename, header = None)
     dates = replicates[DATES].unique().tolist()
-    replicates = replicates[(replicates[DATES] >= dates[offset * 12]) & (replicates[DATES] <= dates[-1])]
-    
-    # Apply the calculation to each replicate
-    ntf.append([])
-    ntf_per_100.append([])
+
+    # Filter to the date range
+    if offset < 0: end = dates[-1]
+    else: end = dates[(offset + 5) * 12 - 1]
+    replicates = replicates[(replicates[DATES] >= dates[offset * 12]) & (replicates[DATES] <= end)]
+        
+    # Calcluate the NTF per 100 population for each replicate on the date range
+    results = []
     for replicate in replicates[REPLICATE].unique().tolist():
-      # Filter some more for performance
       data = replicates[replicates[REPLICATE] == replicate]
-
-      # Gather the per replicate data
-      ntf[ndx].append(sum(data[FAILURES]))
-      ntf_per_100[ndx].append(round(((sum(data[FAILURES]) / np.mean(data[POPULATION])) / 5) * 100, 3))
-
-    # Update our index
-    ndx += 1
+      results.append(round(((sum(data[FAILURES]) / np.mean(data[POPULATION])) / 5) * 100, 3))
+    return results
+      
+  
+  def parse_data(offset, plot):
+    labels, results = [], []
     
+    # Itterate over the date range, but note the reversed order studies
+    for days in [90, 180, 270, 365, 545, 730]:
+      results.append(load_data('../Analysis/data/genotype_dataset/rwa-cycling-{}.csv'.format(days), offset))
+      labels.append('{}'.format(days))
+      if days in [90, 180]:
+        results.append(load_data('../Analysis/data/genotype_dataset/rwa-cycling-{}-rv.csv'.format(days), offset))
+        labels.append('{} (AL)'.format(days))
+        
+    # Prepare the NTF box plot
+    axes[plot].boxplot(results)
+    axes[plot].set_ylabel('Per 100 Population')
+    axes[plot].set_xlabel('Rotation Days')
+    axes[plot].set_xticklabels(labels)    
+    if offset < 0: axes[plot].title.set_text('Last Five Years')
+    else: axes[plot].title.set_text('First Five Years')
+      
   # Prepare the figure
   matplotlib.rc_file('matplotlibrc-line')
   figure, axes = plt.subplots(1, 2)
-
-  # Prepare the NTF box plot
-  axes[0].boxplot(ntf)
-  axes[0].set_ylabel('Absolute Count')
-  axes[0].set_xlabel('Rotation Days')
-  axes[0].set_xticklabels(DAYS)
-  
-  # Prepare the NTF per 100 box plot
-  axes[1].boxplot(ntf_per_100)
-  axes[1].set_ylabel('Per 100 Population')
-  axes[1].set_xlabel('Rotation Days')
-  axes[1].set_xticklabels(DAYS)
-  
+  parse_data(9, 0)
+  parse_data(-5, 1)
+      
   # Set the main title and save
   fig = plt.gcf()
-  fig.suptitle('Number of Treatment Failures, {} years'.format(abs(offset)))
-  plt.savefig('plots/metrics - {} years.png'.format(abs(offset)))
+  fig.suptitle('Number of Treatment Failures')
+  plt.savefig('plots/ntf_comparision.png')
   plt.close()
 
 
