@@ -8,4 +8,4 @@
 #SBATCH --account=mfb9
 
 cd $SLURM_SUBMIT_DIR
-./MaSim -i #FILENAME# -s 24 -r DbReporterDistrict,GenotypeCarriers
+./MaSim -i #FILENAME# -s 24 -r DbReporterDistrict,TherapyRecord
