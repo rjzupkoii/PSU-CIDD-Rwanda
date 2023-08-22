@@ -47,6 +47,14 @@ REPLICATES_LIST = 'data/rwa-replicates.csv'
 # The number of replicates to pull to the size as our data set
 REPLICATE_COUNT = 100
 
+def check_therapy_records(replicateId):
+  sql = """
+        SELECT count(*) FROM public.v_therapyrecords tr
+        WHERE tr.replicateid = %(replicateId)s"""
+  result = select(CONNECTION, sql, {'replicateId':replicateId})
+  return (result[0][0] > 0)
+
+
 def get_replicates(startDate, studyId):
   sql = """
       SELECT c.id AS configurationid, 
@@ -86,6 +94,60 @@ def get_replicate(replicateId):
         WHERE md.replicateid = %(replicateId)s
           AND md.dayselapsed > (11 * 365)
         GROUP BY md.replicateid, md.dayselapsed, msd.location) sd
+      LEFT JOIN (
+        SELECT md.replicateid, md.dayselapsed, mgd.location AS district,
+        sum(mgd.occurrences) AS occurrences,
+          sum(mgd.clinicaloccurrences) AS clinicaloccurrences,
+          sum(mgd.weightedoccurrences) AS weightedoccurrences
+        FROM sim.monthlydata md
+          INNER JOIN sim.monthlygenomedata mgd on mgd.monthlydataid = md.id
+          INNER JOIN sim.genotype g on g.id = mgd.genomeid
+        WHERE md.replicateid = %(replicateId)s
+          AND md.dayselapsed > (11 * 365)
+          AND g.name ~ '^.....H.'
+        GROUP BY md.replicateid, md.dayselapsed, mgd.location) gd ON (gd.replicateid = sd.replicateid 
+          AND gd.dayselapsed = sd.dayselapsed
+          AND gd.district = sd.district)
+        INNER JOIN sim.replicate r on r.id = sd.replicateid
+        INNER JOIN sim.configuration c on c.id = r.configurationid
+      WHERE r.endtime is not null
+        AND r.id = %(replicateId)s
+      ORDER BY replicateid, dayselapsed"""
+  return select(CONNECTION, sql, {'replicateId':replicateId})  
+
+
+# Get the replicate with therapy record data. 
+def get_replicate_tr(replicateId):
+  sql = """
+      SELECT c.id as configurationid, sd.replicateid, sd.dayselapsed,
+        sd.district, infectedindividuals,  clinicalepisodes, 
+        CASE WHEN gd.occurrences IS NULL THEN 0 else gd.occurrences END AS occurrences,
+        CASE WHEN gd.clinicaloccurrences IS NULL THEN 0 else gd.clinicaloccurrences END AS clinicaloccurrences,
+        CASE WHEN gd.weightedoccurrences IS NULL THEN 0 else gd.weightedoccurrences END AS weightedoccurrences,
+        treatmentscompleted,
+        treatmentfailures,
+        genotypecarriers
+      FROM (
+        SELECT md.replicateid, md.dayselapsed, msd.location AS district,
+          sum(msd.infectedindividuals) AS infectedindividuals, 
+          sum(msd.clinicalepisodes) AS clinicalepisodes,	  
+          sum(genotypecarriers) as genotypecarriers
+        FROM sim.monthlydata md
+          INNER JOIN sim.monthlysitedata msd on msd.monthlydataid = md.id
+        WHERE md.replicateid = %(replicateId)s
+          AND md.dayselapsed > (11 * 365)
+        GROUP BY md.replicateid, md.dayselapsed, msd.location) sd
+	  LEFT JOIN (
+        SELECT md.replicateid, md.dayselapsed, tr.locationid as district,
+          sum(tr.completed) AS treatmentscompleted, 
+          sum(tr.failure) AS treatmentfailures
+        FROM sim.monthlydata md
+          INNER JOIN sim.therapyrecord tr on tr.monthlydataid = md.id
+        WHERE md.replicateid = %(replicateId)s
+          AND md.dayselapsed > (11 * 365)
+        GROUP BY md.replicateid, md.dayselapsed, tr.locationid) trd ON (trd.replicateid = sd.replicateid 
+          AND trd.dayselapsed = sd.dayselapsed
+          AND trd.district = sd.district)
       LEFT JOIN (
         SELECT md.replicateid, md.dayselapsed, mgd.location AS district,
         sum(mgd.occurrences) AS occurrences,
@@ -312,7 +374,7 @@ def process_replicates(date, studyId):
   save_csv(REPLICATES_LIST, replicates)
   
   print("Processing replicates...")  
-  count = 0
+  count = 0; therapy_records = False
   progressBar(count, len(replicates))
   for row in replicates:
     # Check to see if we already have the data
@@ -320,7 +382,12 @@ def process_replicates(date, studyId):
     if os.path.exists(filename): continue
 
     # Query and store the data
-    replicate = get_replicate(row[3])
+    replicateId = row[3]
+    if check_therapy_records(replicateId):
+      replicate = get_replicate_tr(replicateId)
+      therapy_records = True
+    else:
+      replicate = get_replicate(replicateId)
     save_csv(filename, replicate)
 
     # Update the progress bar
@@ -329,6 +396,9 @@ def process_replicates(date, studyId):
 
   # Complete progress bar for replicates
   if count != len(replicates): progressBar(len(replicates), len(replicates))
+
+  # Note the use of therapy records
+  if therapy_records: print('Used the therapyrecord table')
 
 
 def save_csv(filename, data):
