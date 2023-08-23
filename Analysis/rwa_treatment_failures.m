@@ -3,7 +3,7 @@
 % Calculate the treatment failure for the last 11 years of the study.
 clear;
 
-calculate('ms_data/2024/datasets/rwa-ae-al-3-4-3.csv', 0.25);
+calculate('ms_data/2024/datasets/rwa-pfpr-constant.csv', 0.25);
 
 function [] = calculate(filename, scaling)
     REPLICATE = 2; DAYSELAPSED = 3; CLINICAL = 6; TREATMENTS = 10; FAILURES = 11;
