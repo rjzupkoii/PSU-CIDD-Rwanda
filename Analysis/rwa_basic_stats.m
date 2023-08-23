@@ -49,7 +49,7 @@ end
 
 function [] = endpoints(filename, scaling, study, output) 
     REPLICATE = 2; DAYSELAPSED = 3;
-    INFECTIONS = 5; CLINICAL = 6; OCCURRENCES = 9; TREATMENTS = 10; FAILURES = 11;
+    INFECTIONS = 5; CLINICAL = 6; WEIGHTEDOCCURRENCES = 9; TREATMENTS = 10; FAILURES = 11;
     
     % We have 11 years of data following intervention, but only care about
     % T+3, T+5, and T+10 years post intervention.
@@ -82,7 +82,9 @@ function [] = endpoints(filename, scaling, study, output)
             treatments(ndx) = sum(temp(:, TREATMENTS) / scaling) / 12;                            % Monthly average
             failures_abs(ndx) = sum(temp(:, FAILURES) / scaling) / 12;                            % Monthly average
             failures_prct(ndx) = (sum(temp(:, FAILURES)) / sum(temp(:, TREATMENTS))) * 100.0;     % Annual percentage
-            frequency(ndx) = sum(temp(:, OCCURRENCES)) / sum(temp(:, INFECTIONS));                % Annual frequency
+
+             % Frequency is reported based upon the December values
+            frequency(ndx) = sum(temp(temp(:, DAYSELAPSED) == days(12), WEIGHTEDOCCURRENCES)) / sum(temp(temp(:, DAYSELAPSED) == days(12), INFECTIONS));
         end
 
         % Write the data points
