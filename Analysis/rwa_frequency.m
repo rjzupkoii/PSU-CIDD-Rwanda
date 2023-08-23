@@ -18,7 +18,7 @@ function [] = calculate(filename)
         % Filter on the dates
         days = unique(data(:, DAYSELAPSED));
         days = days(end - (11 + 12 * offset):end - (12 * offset));
-        filtered = data(ismember(data(:, DAYSELAPSED), days), :);
+        filtered = data(data(:, DAYSELAPSED) == days(12), :);
     
         % Get the values for each replicate
         frequency = zeros(size(replicates, 2), 1);
