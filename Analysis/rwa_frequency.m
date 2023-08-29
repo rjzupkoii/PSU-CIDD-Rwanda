@@ -3,11 +3,11 @@
 % Calculate the 561H frequency for the the last 11 years of the study.
 clear;
 
-calculate('ms_data/2024/datasets/rwa-pfpr-constant.csv');
+calculate('2003-01-01', 'ms_data/2024/datasets/rwa-pfpr-constant.csv');
 
-function [] = calculate(filename)
+function [] = calculate(model_start, filename)
     REPLICATE = 2; DAYSELAPSED = 3; INFECTIONS = 5; WEIGHTED = 9;
-    YEARS = 12; ENDPOINT = 2035;
+    YEARS = 12;
 
     % Read the data
     data = readmatrix(filename);
@@ -26,6 +26,8 @@ function [] = calculate(filename)
             frequency(ndx) = (sum(filtered(filtered(:, REPLICATE) == replicates(ndx), WEIGHTED)) / sum(filtered(filtered(:, REPLICATE) == replicates(ndx), INFECTIONS)));
         end
     
-        fprintf('Year: %d | 561H: %.2f (%.2f - %.2f)\n', ENDPOINT - offset, prctile(frequency(:), [50 25 75]));
+        fprintf('%s | 561H: %.2f (%.2f - %.2f)\n', ...
+            datestr(datetime(model_start) + days(12), 'yyyy-mm-dd'), ...
+            prctile(frequency(:), [50 25 75]));
     end
 end
