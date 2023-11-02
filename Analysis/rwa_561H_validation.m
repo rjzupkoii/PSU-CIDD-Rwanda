@@ -8,7 +8,7 @@ clear;
 startdate = '2003-01-01';
 
 % Load the data
-data = readmatrix('ms_data/2024/datasets/rwa-pfpr-constant.csv');
+data = readmatrix('data/datasets/rwa-baseline.csv');
 
 % Plot the district data for Gasabo
 subplot(2, 2, 1);

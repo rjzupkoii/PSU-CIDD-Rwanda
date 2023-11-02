@@ -74,7 +74,7 @@ raster_db:
   pr_treatment_over5: "rwa_treatment.asc" 
 
   # Raster file containing the calibrated beta value
-  beta_raster: "rwa_beta_incidence.asc"
+  beta_raster: "rwa_beta.asc"
   
   # Set the cell size used by raster, in sq.km
   cell_size: 5
@@ -224,6 +224,7 @@ events:
         fraction: 0.06
         locus: 2
         mutant_allele: 1
+
   - name: update_beta_raster_event
     info: 
       - day: 2021/01/01

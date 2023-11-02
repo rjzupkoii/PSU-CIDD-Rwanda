@@ -21,3 +21,6 @@
 
 # Ignore the local working directory
 local
+
+# Ignore compressed file
+*.zip

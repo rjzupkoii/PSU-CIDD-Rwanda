@@ -3,7 +3,7 @@
 % Calculate the 561H frequency for the the last 11 years of the study.
 clear;
 
-calculate('2003-01-01', 'ms_data/2024/datasets/rwa-pfpr-constant.csv');
+calculate('2003-01-01', 'data/datasets/rwa-baseline.csv');
 
 function [] = calculate(model_start, filename)
     REPLICATE = 2; DAYSELAPSED = 3; INFECTIONS = 5; WEIGHTED = 9;

@@ -66,6 +66,14 @@ function [] = endpoints(filename, scaling, study, output)
         % Filter on the dates
         days = unique(data(:, DAYSELAPSED));
         days = days(end - (11 + 12 * offset):end - (12 * offset));
+
+        model_start = '2003-01-01';
+        fprintf('%d, %s - %s; %s\n', ...
+            11 - offset, ...
+            datestr(datetime(model_start) + days(1), 'yyyy-mm-dd'), ...
+            datestr(datetime(model_start) + days(12), 'yyyy-mm-dd'), ...
+            datestr(datetime(model_start) + days(12), 'yyyy-mm-dd'));
+
         filtered = data(ismember(data(:, DAYSELAPSED), days), :);
         
         % Prepare our data 
