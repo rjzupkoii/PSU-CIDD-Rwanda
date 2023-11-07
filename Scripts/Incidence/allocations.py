@@ -4,10 +4,7 @@
 #
 # Generate the allocations for drug policy interventions based upon the projected
 # incidence, PfPR, and 561H frequency by district.
-import argparse
-import os
 import pandas as pd
-
 import sys
 
 # Import our libraries
@@ -20,10 +17,11 @@ CONNECTION = 'host=masimdb.vmhost.psu.edu dbname=rwanda user=sim password=sim co
 # The filename that the results are written to
 FILENAME = 'results.yml'
 
+# The file that contains the mapping of the district names to IDs
+MAPPING = '../../GIS/rwa_districts.csv'
+
 
 # Return all of the replicate data for the given configuration and model days elapsed.
-# 
-# Sample data - configuration: 11429, startdate: 7701, enddate: 8036
 def get_status_quo(configurationid, startdate, enddate, genotype='^.....H.'):
   sql = """
         SELECT one.id, one.location, 
@@ -73,8 +71,8 @@ def get_frequency(configurationid, dayselapsed, location, genotype='^.....H.'):
         """
   return db.select(CONNECTION, sql, {'configurationid': configurationid, 'dayselapsed': dayselapsed, 'location': location, 'genotype': genotype})
 
-
-def generate(df, by, percentage):
+# Allocate the districts by the metric and percentage indicated.
+def allocate(df, by, percentage):
   # Sort the data and prepare the data structure
   df = df.sort_values(by=[by], ascending=False)
   top, bottom = [], []
@@ -95,8 +93,8 @@ def generate(df, by, percentage):
     out.write('\ttop: {}\n'.format(top))
     out.write('\tbottom: {}\n'.format(bottom))
 
-
-def main(args):
+# Load the status quo replicates from the database and calculate the median values
+def process(args):
   # Get the reference frequency data
   frequencies = pd.DataFrame(columns=['replicate', 'frequency'])
   for row in get_frequency(args['configuration'], args['dayselapsed'], args['location']):
@@ -117,9 +115,6 @@ def main(args):
   ids = frequencies[frequencies.frequency > args['threshold']].replicate
   replicates = replicates[replicates.replicate.isin(ids)]
 
-  # Let the user know the number of replicates we are using for the median
-  print('Using {} replicates to compute median district values...'.format(len(replicates.replicate.unique())))
-
   # Compute the median for each of the districts
   districts = pd.DataFrame(columns=['district', 'incidence', 'pfpr2to10', 'frequency'])
   for id in replicates.district.unique():
@@ -131,12 +126,43 @@ def main(args):
       'frequency': filtered.median().frequency
     }, ignore_index=True)
 
+  # Return the results for the districts
+  return districts, len(replicates.replicate.unique())
+
+# Print the summary metrics for each fo the districts 
+def summarize(df, n):
+  # Prepare the summary table
+  summary = df.astype({'district': 'int'})
+  summary = summary.sort_values(by=['district'])
+  summary = summary.rename(columns={'district': 'ID', 'incidence': 'Incidence', 'pfpr2to10': 'PfPR 2-10', 'frequency': '561H Frequency'})
+
+  # Read the district names
+  names = pd.read_csv(MAPPING)
+  names = names.rename(columns={'DISTRICT': 'ID', 'NAME': 'District'})
+
+  # Join the names, reorder the columns, and print
+  summary['District'] = summary.ID.map(names.set_index('ID')['District'])
+  cols = summary.columns.tolist()
+  cols = cols[-1:] + cols[:-1]
+  summary = summary[cols]
+  print(summary.to_string(index=False))
+  print('\n\tWhere n = {} replicates'.format(n))
+
+
+def main(args):
+  # TODO Update the script to take command line arguments and parse them into a dictionary
+
+  # Load the district data from the database
+  df, n = process(args)
+  
   # Prepare configurations for the top 25%, 50%, 75%
-  print('Computing configurations...')
   for percentile in [0.25, 0.5, 0.75]:
-    generate(districts, 'incidence', percentile)
-    generate(districts, 'pfpr2to10', percentile)
-    generate(districts, 'frequency', percentile)
+    allocate(df, 'incidence', percentile)
+    allocate(df, 'pfpr2to10', percentile)
+    allocate(df, 'frequency', percentile)
+
+  # Print the summary metrics for the user
+  summarize(df, n)
 
 
 if __name__ == "__main__":
