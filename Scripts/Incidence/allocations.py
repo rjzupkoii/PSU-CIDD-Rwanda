@@ -20,6 +20,9 @@ FILENAME = 'results.yml'
 # The file that contains the mapping of the district names to IDs
 MAPPING = '../../GIS/rwa_districts.csv'
 
+# The reference incidence data
+REFERENCE_INCIDENCE = '../../GIS/rwa_district_incidence_2020.csv'
+
 
 # Return all of the replicate data for the given configuration and model days elapsed.
 def get_status_quo(configurationid, startdate, enddate, genotype='^.....H.'):
@@ -70,6 +73,7 @@ def get_frequency(configurationid, dayselapsed, location, genotype='^.....H.'):
         GROUP BY r.id, msd.infectedindividuals
         """
   return db.select(CONNECTION, sql, {'configurationid': configurationid, 'dayselapsed': dayselapsed, 'location': location, 'genotype': genotype})
+
 
 # Allocate the districts by the metric and percentage indicated.
 def allocate(df, by, percentage):
@@ -130,10 +134,9 @@ def process(args):
   return districts, len(replicates.replicate.unique())
 
 # Print the summary metrics for each fo the districts 
-def summarize(df, n):
+def summarize(df):
   # Prepare the summary table
   summary = df.astype({'district': 'int'})
-  summary = summary.sort_values(by=['district'])
   summary = summary.rename(columns={'district': 'ID', 'incidence': 'Incidence', 'pfpr2to10': 'PfPR 2-10', 'frequency': '561H Frequency'})
 
   # Read the district names
@@ -142,27 +145,54 @@ def summarize(df, n):
 
   # Join the names, reorder the columns, and print
   summary['District'] = summary.ID.map(names.set_index('ID')['District'])
+  summary = summary.sort_values(by=['District'])
   cols = summary.columns.tolist()
   cols = cols[-1:] + cols[:-1]
   summary = summary[cols]
   print(summary.to_string(index=False))
-  print('\n\tWhere n = {} replicates'.format(n))
+
+def validate(df, tolerance = 0.1):
+  PASS = '\033[92m'
+  FAIL = '\033[91m'
+  CLEAR = '\033[0m'
+
+  # Read the reference data, compute the bounds
+  reference = pd.read_csv(REFERENCE_INCIDENCE)
+  reference['lower'] = reference['Incidence'] * (1 - tolerance)
+  reference['upper'] = reference['Incidence'] * (1 + tolerance)
+  
+  # Join the median incidence to the reference data
+  reference['computed'] = reference.OBJECTID.map(df.set_index('district')['incidence'])
+  reference = reference.sort_values(by=['ADM2_EN'])
+
+  # Print the summary results
+  print("{:11}: {:6} v. {:6}".format('District', '  Ref.', 'Proj.'))
+  count, failed = 0, 0
+  for index, row in reference.iterrows():
+    status = PASS + 'PASS' + CLEAR
+    if row.computed < row.lower or row.computed > row.upper:
+      failed += 1
+      status = FAIL + 'FAIL' + CLEAR    
+    count += 1
+    print("{:11}: {:6} v. {:6} [{}]".format(row.ADM2_EN, row.Incidence, row.computed, status))
+  print('{} passing districts out of {}'.format(count - failed, count))
 
 
 def main(args):
   # TODO Update the script to take command line arguments and parse them into a dictionary
 
   # Load the district data from the database
+  print('Loading and checking status quo data...\n')
   df, n = process(args)
-  
-  # Prepare configurations for the top 25%, 50%, 75%
+  validate(df)
+
+  # Generate the allocations and prepare a summary report
+  print('\nUsing {} replicates to prepare allocations...\n'.format(n))
   for percentile in [0.25, 0.5, 0.75]:
     allocate(df, 'incidence', percentile)
     allocate(df, 'pfpr2to10', percentile)
     allocate(df, 'frequency', percentile)
-
-  # Print the summary metrics for the user
-  summarize(df, n)
+  summarize(df)
 
 
 if __name__ == "__main__":
