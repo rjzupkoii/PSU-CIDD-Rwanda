@@ -31,7 +31,7 @@ def get_status_quo(configurationid, startdate, enddate, genotype='^.....H.'):
         FROM (
           SELECT r.id, msd.location,
             sum(msd.infectedindividuals) AS infectedindividiuals,
-            sum(msd.clinicalepisodes) / (sum(msd.population) / 1000.0) AS incidence,
+            sum(msd.clinicalepisodes) / (max(msd.population) / 1000.0) AS incidence,
             sum(msd.pfpr2to10 * msd.population) / sum(msd.population) AS pfpr2to10
           FROM sim.replicate r
             INNER JOIN sim.monthlydata md ON md.replicateid = r.id
@@ -87,7 +87,7 @@ def allocate(df, by, percentage):
       bottom.append(int(row.district))
 
   # Write the results
-  with open(FILENAME, 'a') as out:
+  with open(FILENAME, 'w') as out:
     out.write('# Top {:.0%} by {}\n'.format(percentage, by))
     out.write('allocation:\n')
     out.write('\ttop: {}\n'.format(top))
