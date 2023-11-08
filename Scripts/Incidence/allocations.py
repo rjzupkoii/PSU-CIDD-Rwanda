@@ -4,6 +4,7 @@
 #
 # Generate the allocations for drug policy interventions based upon the projected
 # incidence, PfPR, and 561H frequency by district.
+import os
 import pandas as pd
 import sys
 
@@ -15,7 +16,7 @@ import database as db
 CONNECTION = 'host=masimdb.vmhost.psu.edu dbname=rwanda user=sim password=sim connect_timeout=60'
 
 # The filename that the results are written to
-FILENAME = 'results.yml'
+FILENAME = 'out/results.yml'
 
 # The file that contains the mapping of the district names to IDs
 MAPPING = '../../GIS/rwa_districts.csv'
@@ -91,7 +92,7 @@ def allocate(df, by, percentage):
       bottom.append(int(row.district))
 
   # Write the results
-  with open(FILENAME, 'w') as out:
+  with open(FILENAME, 'a') as out:
     out.write('# Top {:.0%} by {}\n'.format(percentage, by))
     out.write('allocation:\n')
     out.write('\ttop: {}\n'.format(top))
@@ -100,6 +101,8 @@ def allocate(df, by, percentage):
 # Load the status quo replicates from the database and calculate the median values
 def process(args):
   # Get the reference frequency data
+  print('Loading and checking status quo data...', end='')
+  sys.stdout.flush()
   frequencies = pd.DataFrame(columns=['replicate', 'frequency'])
   for row in get_frequency(args['configuration'], args['dayselapsed'], args['location']):
     frequencies = frequencies.append({'replicate': row[0], 'frequency': row[1]}, ignore_index=True)
@@ -131,7 +134,8 @@ def process(args):
     }, ignore_index=True)
 
   # Return the results for the districts
-  return districts, len(replicates.replicate.unique())
+  print(' {} replicates loaded.\n'.format(len(replicates.replicate.unique())))
+  return districts
 
 # Print the summary metrics for each fo the districts 
 def summarize(df):
@@ -175,19 +179,19 @@ def validate(df, tolerance = 0.1):
       status = FAIL + 'FAIL' + CLEAR    
     count += 1
     print("{:11}: {:6} v. {:6} [{}]".format(row.ADM2_EN, row.Incidence, row.computed, status))
-  print('{} passing districts out of {}'.format(count - failed, count))
+  print('{} passing districts out of {}\n'.format(count - failed, count))
 
 
 def main(args):
   # TODO Update the script to take command line arguments and parse them into a dictionary
 
   # Load the district data from the database
-  print('Loading and checking status quo data...\n')
-  df, n = process(args)
+  df = process(args)
   validate(df)
 
   # Generate the allocations and prepare a summary report
-  print('\nUsing {} replicates to prepare allocations...\n'.format(n))
+  if os.path.isfile(FILENAME): os.unlink(FILENAME)
+  os.makedirs('out', exist_ok=True)
   for percentile in [0.25, 0.5, 0.75]:
     allocate(df, 'incidence', percentile)
     allocate(df, 'pfpr2to10', percentile)
