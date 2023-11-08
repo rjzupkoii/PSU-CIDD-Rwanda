@@ -139,14 +139,14 @@ def prepare_replicates(path, studyid, count):
   template = template.replace('#STUDYID#', str(studyid))
 
   # Loop over all of the files in the directory
-  for filename in os.listdir(path):
-    if not filename.endswith('.yml'): continue
-    filename = filename.replace('.yml', '.job')
+  for file in os.listdir(path):
+    if not file.endswith('.yml'): continue
+    filename = file.replace('.yml', '.job')
     bootstrap.write('{},1\n'.format(filename))
     replicates.write('{},{}\n'.format(filename, count))
 
     # Write the job file out to disk
-    job = template.replace('#FILENAME#', filename)
+    job = template.replace('#FILENAME#', file)
     with open('out/{}'.format(filename), 'w') as out:
       out.write(job)
 

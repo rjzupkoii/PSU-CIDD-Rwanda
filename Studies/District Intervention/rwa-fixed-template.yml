@@ -215,8 +215,7 @@ events:
       # Lumefantrine (all configurations)
       - day: 2014/1/1
         drug_id: 1
-        mutation_probability: 0.001983 
-              
+        mutation_probability: 0.001983   
   - name: introduce_mutant_event
     info:
       - day: 2004/09/30
@@ -224,11 +223,14 @@ events:
         fraction: 0.06
         locus: 2
         mutant_allele: 1
-
   - name: update_beta_raster_event
     info: 
       - day: 2021/01/01
         beta_raster: "rwa_beta_incidence.asc"
+  - name: change_treatment_strategy
+    info:
+      - day: 2025/1/1
+        strategy_id: 1
 
 
 # Drug Information
@@ -376,7 +378,7 @@ strategy_db:
   1:
     name: Rwanda-District-Fixed
     type: DistrictMFT
-    definition:
+    definitions:
       0: 
         district_ids: #TOP#
         therapy_ids: #TOPTHERAPY#

@@ -4,8 +4,7 @@
 #SBATCH --ntasks=1
 #SBATCH --mem=16gb
 #SBATCH --time=8:00:00
-#SBATCH --partition=sla-prio
-#SBATCH --account=mfb9
+#SBATCH --partition=open
 
 cd $SLURM_SUBMIT_DIR
 ./MaSim -i #FILENAME# -s #STUDYID# -r DbReporterDistrict
