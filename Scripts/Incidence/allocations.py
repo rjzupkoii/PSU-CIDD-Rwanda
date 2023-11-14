@@ -5,6 +5,7 @@
 # Generate the allocations for drug policy interventions based upon the projected
 # incidence, PfPR, and 561H frequency by district.
 import argparse
+import numpy as np
 import os
 import pandas as pd
 import sys
@@ -38,12 +39,14 @@ def get_status_quo(configurationid, startdate, enddate, genotype='^.....H.'):
         SELECT one.id, one.location, 
           round(one.incidence, 2) AS incidence,
           round(CAST(one.pfpr2to10 AS numeric), 2) AS pfpr2to10,
-          round(CAST(two.weightedoccurrences / one.infectedindividiuals AS numeric), 4) AS frequency
+          round(CAST(two.weightedoccurrences / one.infectedindividiuals AS numeric), 4) AS frequency,
+          one.clinicalepisodes
         FROM (
           SELECT r.id, msd.location,
             sum(msd.infectedindividuals) AS infectedindividiuals,
             sum(msd.clinicalepisodes) / (max(msd.population) / 1000.0) AS incidence,
-            sum(msd.pfpr2to10 * msd.population) / sum(msd.population) AS pfpr2to10
+            sum(msd.pfpr2to10 * msd.population) / sum(msd.population) AS pfpr2to10,
+            sum(msd.clinicalepisodes) as clinicalepisodes
           FROM sim.replicate r
             INNER JOIN sim.monthlydata md ON md.replicateid = r.id
             INNER JOIN sim.monthlysitedata msd ON msd.monthlydataid = md.id
@@ -89,12 +92,22 @@ def allocate(df, by, percentage, therapies, summarize):
   df = df.sort_values(by=[by], ascending=False)
   top, bottom = [], []
 
+  ## Version one of the allocations, simple selection of districts
+  # # Allocate the top, bottom
+  # target, count = int(round(len(df) * percentage, 0)), 0
+  # for index, row in df.iterrows():
+  #   if count < target:
+  #     top.append(int(row.district))
+  #     count += 1
+  #   else:
+  #     bottom.append(int(row.district))
+
   # Allocate the top, bottom
-  target, count = int(round(len(df) * percentage, 0)), 0
+  target, count = round(np.sum(df.clinical) * percentage, 0), 0
   for index, row in df.iterrows():
     if count < target:
       top.append(int(row.district))
-      count += 1
+      count += row.clinical
     else:
       bottom.append(int(row.district))
 
@@ -172,7 +185,8 @@ def process(args):
       'district': row[1],
       'incidence': row[2],
       'pfpr2to10': row[3],
-      'frequency': row[4]
+      'frequency': row[4],
+      'clinical': row[5]
     }, ignore_index=True)
   
   # Filter out all of the replicates with a frequency above our reference
@@ -187,7 +201,8 @@ def process(args):
       'district': id,
       'incidence': filtered.median().incidence,
       'pfpr2to10': filtered.median().pfpr2to10,
-      'frequency': filtered.median().frequency
+      'frequency': filtered.median().frequency,
+      'clinical': np.sum(filtered.clinical)
     }, ignore_index=True)
 
   # Return the results for the districts
@@ -265,7 +280,7 @@ if __name__ == "__main__":
   parameters = {
     'configuration': 11429, 'startdate': 7701, 'enddate': 8036,
     'location': 8, 'dayselapsed': 4261, 'threshold': 0.01,
-    'studyid': 26, 'replicates': 74
+    'replicates': 74
   }
 
   # TODO Shift these to a configuration file
@@ -276,10 +291,12 @@ if __name__ == "__main__":
 
   # Parse the command line arguments
   parser = argparse.ArgumentParser()
-  parser.add_argument('-s', action='store_true', dest='summarize', help='Include to print the median district values')
-  parser.add_argument('-v', action='store_true', dest='validate', help='Include to print the validation information')
+  parser.add_argument('-s', action='store', dest='studyid', required=True, help='Study ID to assign the jobs')
+  parser.add_argument('--summarize', action='store_true', dest='summarize', help='Include to print the median district values')
+  parser.add_argument('--validate', action='store_true', dest='validate', help='Include to print the validation information')
   args = parser.parse_args()
 
   # Run the main script
+  parameters['studyid'] = int(args.studyid)
   main(parameters, args.validate, args.summarize)
   
