@@ -9,6 +9,13 @@ where r.endtime is null
 group by c.id, filename, replicateid, starttime
 order by modeldays desc
 
+select c.filename, count(r.id), 75 - count(r.id)
+from sim.configuration c
+  inner join sim.replicate r on r.configurationid = c.id
+where c.studyid = 26
+group by c.filename
+order by c.filename
+
 -- Status of replicates for manuscript revisions
 select configurationid, studyid, filename, 
   count(id) as total,

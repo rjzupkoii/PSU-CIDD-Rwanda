@@ -242,7 +242,7 @@ def process_datasets():
     progressBar(count, len(configurations))
 
 
-def process_final_datasets(date, path, results):
+def process_final_datasets(date, path, results, count):
   print("Preparing data sets...")
   replicates = pd.read_csv(REPLICATES_LIST, header=None)
   configurations = replicates[2].unique()
@@ -253,9 +253,10 @@ def process_final_datasets(date, path, results):
       continue
 
     # Set the target count
-    target = REPLICATE_COUNT
+    target = count
     if configuration == 'rwa-561h-verification.yml':
-      target /= 2
+      # TODO Introduce a better way of doing this
+      target = 50
 
     # Filter the replicates specific to this configuration
     data = replicates[replicates[2] == configuration]
@@ -317,7 +318,7 @@ def check_replicate(filename):
   return True
 
 
-def process_genotype(date, studyId):
+def process_genotype(date, studyId, count):
   GENOTYPE_DATASET = 'data/genotype_dataset'
   GENOTYPE_DIRECTORY = 'data/genotype'
   FILENAMES = ['rwa-ae-al-5.yml', 
@@ -364,7 +365,7 @@ def process_genotype(date, studyId):
 
   # Merge the data sets if they need to be finalized
   if finalize: 
-    process_final_datasets(date, GENOTYPE_DIRECTORY, GENOTYPE_DATASET)
+    process_final_datasets(date, GENOTYPE_DIRECTORY, GENOTYPE_DATASET, count)
 
 
 # Process the replicates to make sure we have all of the data we need locally
@@ -408,7 +409,7 @@ def save_csv(filename, data):
       writer.writerow(row)
 
 
-def main(date, studyId, manuscript):
+def main(args):
   if not os.path.exists(REPLICATE_DIRECTORY): os.makedirs(REPLICATE_DIRECTORY)
   if not os.path.exists(DATASET_DIRECTORY): os.makedirs(DATASET_DIRECTORY)
 
@@ -416,10 +417,10 @@ def main(date, studyId, manuscript):
   # relevant replicates to the side as the data set for plotting. Since the 
   # project is iterating quickly this will save on needing to clean-up the 
   # database.
-  process_replicates(date, studyId)
+  process_replicates(args.filter_date, int(args.study_id))
 
-  if manuscript: 
-    process_final_datasets(date, REPLICATE_DIRECTORY, DATASET_DIRECTORY)
+  if args.manuscript: 
+    process_final_datasets(args.filter_date, REPLICATE_DIRECTORY, DATASET_DIRECTORY, int(args.count))
   else:
     process_datasets()
 
@@ -427,11 +428,12 @@ def main(date, studyId, manuscript):
 if __name__ == '__main__':
   # Parse the arguments
   parser = argparse.ArgumentParser()
+  parser.add_argument('-c', action='store', dest='count', default=REPLICATE_COUNT, help='The number of replicates to include in a dataset, default {}'.format(REPLICATE_COUNT))
   parser.add_argument('-d', action='store', dest='filter_date', default='2022-09-01', help='The date to filter the replicates on')
   parser.add_argument('-m', action='store_true', dest='manuscript', help='Flag to select dataset processing type')
   parser.add_argument('-s', action='store', dest='study_id', required=True, help='The id of the study to get the replicates for')
   args = parser.parse_args()
   
   print("Filter: {}, Study: {}".format(args.filter_date, args.study_id))
-  main(args.filter_date, args.study_id, args.manuscript)
-  process_genotype(args.filter_date, args.study_id)
+  main(args)
+  process_genotype(args.filter_date, args.study_id, args.count)
