@@ -9,10 +9,11 @@ where r.endtime is null
 group by c.id, filename, replicateid, starttime
 order by modeldays desc
 
+-- Basic monitoring query with aggregation
 select c.filename, count(r.id), 75 - count(r.id)
 from sim.configuration c
   inner join sim.replicate r on r.configurationid = c.id
-where c.studyid = 26
+where c.studyid = 27
 group by c.filename
 order by c.filename
 
