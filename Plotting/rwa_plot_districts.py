@@ -32,6 +32,7 @@ ENDPOINTS = {
 }
 
 LABELS = {
+  'baseline': ['Status Quo', '#bdd7e7'],
   'fixed-frequency-0.25-al': ['By frequency, 25% AL', '#6baed6'],
   'fixed-frequency-0.5-al': ['50% AL', '#6baed6'],
   'fixed-frequency-0.75-al': ['75% AL', '#6baed6'],
@@ -66,6 +67,7 @@ def load_dataset(filename):
   # Check to see if the cache exists, load and return if it does
   cache = os.path.join(CACHE_DIRECTORY, os.path.split(filename)[-1].replace('.csv', '') + '-cache.csv')
   if os.path.exists(cache):
+    print('Loading cache for {} ...'.format(filename))
     return pd.read_csv(cache)
 
   # Inform the user
