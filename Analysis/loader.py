@@ -31,7 +31,7 @@ from database import select
 from utility import progressBar
 
 # From the Plotting directory
-sys.path.insert(1, '../Ploting')
+sys.path.insert(1, '../Plotting')
 import rwanda
 
 # Connection string for the database
