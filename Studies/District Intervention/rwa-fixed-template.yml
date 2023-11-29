@@ -212,10 +212,14 @@ events:
       - day: 2003/1/1
   - name: turn_on_mutation
     info:
-      # Lumefantrine (all configurations)
+      # Lumefantrine (baseline, MFT interventions)
       - day: 2014/1/1
         drug_id: 1
-        mutation_probability: 0.001983   
+        mutation_probability: 0.001983
+      # Piperaquine (MFT interventions)
+      - day: 2014/1/1
+        drug_id: 3
+        mutation_probability: 0.001983          
   - name: introduce_mutant_event
     info:
       - day: 2004/09/30
