@@ -153,7 +153,10 @@ def prepare_replicates(path, studyid, count):
 
   # Loop over all of the files in the directory
   for file in os.listdir(path):
+    # Skip files that are configurations, or the reference YAML of all of the allocations
     if not file.endswith('.yml'): continue
+    if file == 'results.yml': continue
+    
     filename = file.replace('.yml', '.job')
     bootstrap.write('{},1\n'.format(filename))
     replicates.write('{},{}\n'.format(filename, count))
