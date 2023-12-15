@@ -31,7 +31,7 @@ ENDPOINTS = {
   'Ten'   : [-12, None, 10]
 }
 
-LABELS = {
+FIXED_LABELS = {
   'baseline': ['Status Quo', '#bdd7e7'],
   'fixed-frequency-0.25-al': ['By frequency, 25% AL', '#6baed6'],
   'fixed-frequency-0.5-al': ['50% AL', '#6baed6'],
@@ -53,10 +53,33 @@ LABELS = {
   'fixed-pfpr2to10-0.75-dhappq': ['75% DHA-PPQ', '#df65b0'],
 }
 
+ROTATION_LABELS = {
+  'baseline': ['Status Quo', '#bdd7e7'],
+  'rotation-frequency-0.25-al': ['By frequency, 25% AL', '#6baed6'],
+  'rotation-frequency-0.5-al': ['50% AL', '#6baed6'],
+  'rotation-frequency-0.75-al': ['75% AL', '#6baed6'],
+  'rotation-frequency-0.25-dhappq': ['25% DHA-PPQ', '#6baed6'],
+  'rotation-frequency-0.5-dhappq': ['50% DHA-PPQ', '#6baed6'],
+  'rotation-frequency-0.75-dhappq': ['75% DHA-PPQ', '#6baed6'],
+  'rotation-incidence-0.25-al': ['By incidence, 25% AL', '#bae4b3'],
+  'rotation-incidence-0.5-al': ['50% AL', '#bae4b3'],
+  'rotation-incidence-0.75-al': ['75% AL', '#bae4b3'],
+  'rotation-incidence-0.25-dhappq': ['25% DHA-PPQ', '#bae4b3'],
+  'rotation-incidence-0.5-dhappq': ['50% DHA-PPQ', '#bae4b3'],
+  'rotation-incidence-0.75-dhappq': ['75% DHA-PPQ', '#bae4b3'],
+  'rotation-pfpr2to10-0.25-al': ['By PfPR 2-10, 25% AL', '#df65b0'],
+  'rotation-pfpr2to10-0.5-al': ['50% AL', '#df65b0'],
+  'rotation-pfpr2to10-0.75-al': ['75% AL', '#df65b0'],
+  'rotation-pfpr2to10-0.25-dhappq': ['25% DHA-PPQ', '#df65b0'],
+  'rotation-pfpr2to10-0.5-dhappq': ['50% DHA-PPQ', '#df65b0'],
+  'rotation-pfpr2to10-0.75-dhappq': ['75% DHA-PPQ', '#df65b0'],
+}
 
-def load_all_datasets():
+
+def load_datasets(prefix):
   datasets = {}
   for file in os.listdir(DATASETS_PATH):  
+    if 'baseline' not in file and prefix not in file: continue
     key = file.replace('rwa-', '').replace('.csv', '')
     datasets[key] = load_dataset(os.path.join(DATASETS_PATH, file))
   return datasets, datasets[key].days.unique()
@@ -103,9 +126,11 @@ def load_dataset(filename):
   return df        
 
 
-def annual(field):
-  print('Preparing annual data on field, {}'.format(field))
-  data, dates = load_all_datasets()
+def annual(field, prefix, report):
+  # Load the data that we need
+  data, dates = load_datasets(prefix)
+
+  print('Preparing {} annual data on field, {}'.format(prefix, field))
   for endpoint, bounds in ENDPOINTS.items():
     range = dates[bounds[0]:bounds[1]]
     
@@ -116,16 +141,17 @@ def annual(field):
       date + datetime.timedelta(days=int(range[-1]))))
     
     # Prepare the actual plot
-    filename = '{}-{}-year.png'.format(field, bounds[2])
+    title = '{} Strategy'.format(prefix.capitalize())
+    filename = '{}-{}-{}-year.png'.format(prefix, field, bounds[2])
     if field == 'percent-failures':
-      plot_percent_failures(data, range, filename)
+      plot_percent_failures(data, range, title, filename, report)
     else:
-      plot_field(data, range, field, filename)
+      plot_field(data, range, field, title, filename, report)
 
-def plot_percent_failures(data, dates, filename):
+def plot_percent_failures(data, dates, title, filename, report):
   # Start by generating the plot data
   records, labels, colors = [], [], []
-  for key, format in LABELS.items():
+  for key, format in report.items():
     # Process each replicate
     row = []
     for replicate in data[key].replicate.unique():
@@ -150,6 +176,7 @@ def plot_percent_failures(data, dates, filename):
   for item in violin.collections: item.set_alpha(0.5)
   
   # Format the plot for the data
+  plt.title(title)
   axis.set_yticklabels(labels)
   axis.xaxis.set_major_formatter(ticker.PercentFormatter())      
   axis.set_xlabel('Percent Treatment Failure')
@@ -158,10 +185,10 @@ def plot_percent_failures(data, dates, filename):
   plt.savefig(os.path.join(PLOTS_DIRECTORY, filename))
   plt.close()  
 
-def plot_field(data, dates, field, filename):
+def plot_field(data, dates, field, title, filename, report):
   # Start by generating the plot data
   records, labels, colors = [], [], []
-  for key, format in LABELS.items():
+  for key, format in report.items():
     # Process each replicate
     row = []
     for replicate in data[key].replicate.unique():
@@ -184,6 +211,7 @@ def plot_field(data, dates, field, filename):
   for item in violin.collections: item.set_alpha(0.5)
   
   # Format the plot for the data
+  plt.title(title)
   axis.set_yticklabels(labels)
   axis.set_xlabel(field.capitalize())
   
@@ -192,9 +220,11 @@ def plot_field(data, dates, field, filename):
   plt.close()  
 
 
-def frequencies():
-  print('Preparing 561H frequencies...')
-  data, dates = load_all_datasets()
+def frequencies(prefix, report):
+  # Load the data that we need
+  data, dates = load_datasets(prefix)
+
+  print('Preparing {} 561H frequencies...'.format(prefix))
   for endpoint, bounds in ENDPOINTS.items():
     range = dates[bounds[0]:bounds[1]]
 
@@ -203,13 +233,14 @@ def frequencies():
     print('{} Year: {:%Y-%m}'.format(endpoint, date + datetime.timedelta(days=int(range[-1]))))        
 
     # Prepare the actual plot
-    filename = 'frequency-{}-year.png'.format(bounds[2])
-    plot_frequencies(data, range[-1], filename)
+    title = '{} Strategy'.format(prefix.capitalize())
+    filename = '{}-frequency-{}-year.png'.format(prefix, bounds[2])
+    plot_frequencies(data, range[-1], title, filename, report)
 
-def plot_frequencies(data, date, filename):
+def plot_frequencies(data, date, title, filename, report):
   # Start by generating the data to plot
   records, labels, colors = [], [], []
-  for key, format in LABELS.items():
+  for key, format in report.items():
     data[key]['frequency'] = data[key].weighted / data[key].infections
     records.append(data[key][data[key].days == date].frequency)
     labels.append(format[0])
@@ -226,6 +257,7 @@ def plot_frequencies(data, date, filename):
   for item in violin.collections: item.set_alpha(0.5)
 
   # Format the plot for the data
+  plt.title(title)
   axis.set_xlim([0, 1])
   axis.set_xlabel('561H Frequency')
   axis.set_yticklabels(labels)
@@ -238,6 +270,13 @@ def plot_frequencies(data, date, filename):
 if __name__ == '__main__':
   os.makedirs(CACHE_DIRECTORY, exist_ok=True)
   os.makedirs(PLOTS_DIRECTORY, exist_ok=True)
-  frequencies()
-  annual('treatments')
-  annual('percent-failures')
+
+  # Generate the fixed plots
+  frequencies('fixed', FIXED_LABELS)
+  annual('treatments', 'fixed', FIXED_LABELS)
+  annual('percent-failures', 'fixed', FIXED_LABELS)
+
+  # Generate the rotation plots
+  frequencies('rotation', ROTATION_LABELS)
+  annual('treatments', 'rotation', ROTATION_LABELS)
+  annual('percent-failures', 'rotation', ROTATION_LABELS)  
