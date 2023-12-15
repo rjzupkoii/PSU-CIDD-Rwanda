@@ -175,6 +175,9 @@ def plot_percent_failures(data, dates, title, filename, report):
   # Scale the alpha channel for the violin plot
   for item in violin.collections: item.set_alpha(0.5)
   
+  # Set the x-bounds of the plot, this manually set via earlier plots
+  axis.set_xbound([0.0, 50.0])
+
   # Format the plot for the data
   plt.title(title)
   axis.set_yticklabels(labels)
@@ -209,11 +212,14 @@ def plot_field(data, dates, field, title, filename, report):
   
   # Scale the alpha channel for the violin plot
   for item in violin.collections: item.set_alpha(0.5)
-  
+
+  # Set the x-bounds of the plot, this manually set via earlier plots
+  if field == 'treatments': axis.set_xbound([300000, 525000])
+
   # Format the plot for the data
   plt.title(title)
   axis.set_yticklabels(labels)
-  axis.set_xlabel(field.capitalize())
+  axis.set_xlabel(field.capitalize() + ' (12-month sum)')
   
   # Save the plot
   plt.savefig(os.path.join(PLOTS_DIRECTORY, filename))
