@@ -29,6 +29,9 @@ REFERENCE_INCIDENCE = '../../GIS/rwa_district_incidence_2020.csv'
 # Path to the fixed intervention template
 FIXED_TEMPLATE = '../../Studies/District Intervention/rwa-fixed-template.yml'
 
+# Path to the rotated intervention template
+ROTATION_TEMPLATE = '../../Studies/District Intervention/rwa-rotate-template.yml'
+
 # Path to the replicate job template
 REPLICATE_TEMPLATE = '../../Studies/District Intervention/rwa-template.job'
 
@@ -88,19 +91,51 @@ def get_frequency(configurationid, dayselapsed, location, genotype='^.....H.'):
 
 # Allocate the districts by the metric and percentage indicated.
 def allocate(df, by, percentage, therapies, summarize):
+  def generate_fixed():
+    # Read the template file
+    with open(FIXED_TEMPLATE, 'r') as read:
+      text = read.read()
+
+    # Update the district allocation
+    text = text.replace('#TOP#', '{}'.format(top))
+    text = text.replace('#BOTTOM#', '{}'.format(bottom))
+
+    for therapy, value in therapies.items():
+      # Update the therapy
+      final = text.replace('#TOPTHERAPY#', value[0])
+      final = final.replace('#BOTTOMTHERAPY#', value[1])
+
+      # Write the configuration to disk
+      filename = 'out/rwa-fixed-{}-{}-{}.yml'.format(by, percentage, therapy)
+      with open(filename, 'w') as out:
+        out.write(final)    
+
+  def generate_rotation():
+    # Read the rotation file
+    with open(ROTATION_TEMPLATE, 'r') as read:
+      text = read.read()
+
+    for therapy, value in therapies.items():
+      # Update the initial allocation
+      configuration = text.replace('#INITIAL_TOP#', '{}'.format(top))
+      configuration = configuration.replace('#INITIAL_BOTTOM#', '{}'.format(bottom))
+
+      # Update the rotated allocation
+      configuration = configuration.replace('#ROTATED_TOP#', '{}'.format(bottom))
+      configuration = configuration.replace('#ROTATED_BOTTOM#', '{}'.format(top))
+
+      # Update the therapy
+      configuration = configuration.replace('#TOP_THERAPY#', value[0])
+      configuration = configuration.replace('#BOTTOM_THERAPY#', value[1])
+
+      # Write the configuration to disk
+      filename = 'out/rwa-rotation-{}-{}-{}.yml'.format(by, percentage, therapy)
+      with open(filename, 'w') as out:
+        out.write(configuration)  
+
   # Sort the data and prepare the data structure
   df = df.sort_values(by=[by], ascending=False)
   top, bottom = [], []
-
-  ## Version one of the allocations, simple selection of districts
-  # # Allocate the top, bottom
-  # target, count = int(round(len(df) * percentage, 0)), 0
-  # for index, row in df.iterrows():
-  #   if count < target:
-  #     top.append(int(row.district))
-  #     count += 1
-  #   else:
-  #     bottom.append(int(row.district))
 
   # Allocate the top, bottom
   target, count = round(np.sum(df.clinical) * percentage, 0), 0
@@ -111,23 +146,9 @@ def allocate(df, by, percentage, therapies, summarize):
     else:
       bottom.append(int(row.district))
 
-  # Read the template file
-  with open(FIXED_TEMPLATE, 'r') as read:
-    text = read.read()
-
-  # Update the district allocation
-  text = text.replace('#TOP#', '{}'.format(top))
-  text = text.replace('#BOTTOM#', '{}'.format(bottom))
-
-  for therapy, value in therapies.items():
-    # Update the therapy
-    final = text.replace('#TOPTHERAPY#', value[0])
-    final = final.replace('#BOTTOMTHERAPY#', value[1])
-
-    # Write the configuration to disk
-    filename = 'out/rwa-fixed-{}-{}-{}.yml'.format(by, percentage, therapy)
-    with open(filename, 'w') as out:
-      out.write(final)
+  # Generated the fixed and rotation configurations
+  generate_fixed()
+  generate_rotation()
 
   # Update the YAML file with the summary results
   if not summarize: return
