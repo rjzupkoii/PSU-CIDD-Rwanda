@@ -8,6 +8,7 @@ import argparse
 import numpy as np
 import os
 import pandas as pd
+import random
 import sys
 
 # Import our libraries
@@ -110,29 +111,6 @@ def allocate(df, by, percentage, therapies, summarize):
       with open(filename, 'w') as out:
         out.write(final)    
 
-  def generate_rotation():
-    # Read the rotation file
-    with open(ROTATION_TEMPLATE, 'r') as read:
-      text = read.read()
-
-    for therapy, value in therapies.items():
-      # Update the initial allocation
-      configuration = text.replace('#INITIAL_TOP#', '{}'.format(top))
-      configuration = configuration.replace('#INITIAL_BOTTOM#', '{}'.format(bottom))
-
-      # Update the rotated allocation
-      configuration = configuration.replace('#ROTATED_TOP#', '{}'.format(bottom))
-      configuration = configuration.replace('#ROTATED_BOTTOM#', '{}'.format(top))
-
-      # Update the therapy
-      configuration = configuration.replace('#TOP_THERAPY#', value[0])
-      configuration = configuration.replace('#BOTTOM_THERAPY#', value[1])
-
-      # Write the configuration to disk
-      filename = 'out/rwa-rotation-{}-{}-{}.yml'.format(by, percentage, therapy)
-      with open(filename, 'w') as out:
-        out.write(configuration)  
-
   # Sort the data and prepare the data structure
   df = df.sort_values(by=[by], ascending=False)
   top, bottom = [], []
@@ -148,7 +126,8 @@ def allocate(df, by, percentage, therapies, summarize):
 
   # Generated the fixed and rotation configurations
   generate_fixed()
-  generate_rotation()
+  filename = 'out/rwa-rotation-{}-{}'.format(by, percentage) + '-{}.yml'
+  write_rotation(top, bottom, therapies, filename)
 
   # Update the YAML file with the summary results
   if not summarize: return
@@ -157,6 +136,48 @@ def allocate(df, by, percentage, therapies, summarize):
     out.write('allocation:\n')
     out.write('\ttop: {}\n'.format(top))
     out.write('\tbottom: {}\n'.format(bottom))      
+
+
+# Generate a random allocation of districts based upon the percentage using the 
+# rotation template. The fixed template is not used since we want things to be
+# as stochastic as possible for the parasite. 
+def generate_random(df, percentage, therapies):
+  # Get the list and shuffle it
+  districts = df.district.tolist()
+  districts = [int(value) for value in districts]
+  random.shuffle(districts)
+
+  # Split the districts into two parts
+  target = int(len(districts) * percentage)
+  first = districts[:target]
+  second = districts[target:]
+  
+  # Write the districts to the rotation template
+  filename = 'out/rwa-rotation-random-{}'.format(percentage) + '-{}.yml'
+  write_rotation(first, second, therapies, filename)
+  
+
+def write_rotation(top, bottom, therapies, filename):
+  # Read the rotation file
+  with open(ROTATION_TEMPLATE, 'r') as read:
+    text = read.read()
+
+  for therapy, value in therapies.items():
+    # Update the initial allocation
+    configuration = text.replace('#INITIAL_TOP#', '{}'.format(top))
+    configuration = configuration.replace('#INITIAL_BOTTOM#', '{}'.format(bottom))
+
+    # Update the rotated allocation
+    configuration = configuration.replace('#ROTATED_TOP#', '{}'.format(bottom))
+    configuration = configuration.replace('#ROTATED_BOTTOM#', '{}'.format(top))
+
+    # Update the therapy
+    configuration = configuration.replace('#TOP_THERAPY#', value[0])
+    configuration = configuration.replace('#BOTTOM_THERAPY#', value[1])
+
+    # Write the configuration to disk
+    with open(filename.format(therapy), 'w') as out:
+      out.write(configuration)  
 
 
 # Scan the path provided and generate job files for all of the configurations as 
@@ -294,6 +315,7 @@ def main(args, showValidation, showSummary):
     allocate(df, 'incidence', percentile, args['therapies'], showSummary)
     allocate(df, 'pfpr2to10', percentile, args['therapies'], showSummary)
     allocate(df, 'frequency', percentile, args['therapies'], showSummary)
+    generate_random(df, percentile, args['therapies'])
   if showSummary: summarize(df)
 
   # Generate the relevant replicate scripts
