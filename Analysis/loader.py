@@ -430,7 +430,7 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('-c', action='store', dest='count', default=REPLICATE_COUNT, help='The number of replicates to include in a dataset, default {}'.format(REPLICATE_COUNT))
   parser.add_argument('-d', action='store', dest='filter_date', default='2022-09-01', help='The date to filter the replicates on')
-  parser.add_argument('-m', action='store_true', dest='manuscript', help='Flag to select dataset processing type')
+  parser.add_argument('-m', action='store_true', dest='manuscript', help='Flag to select the manuscript dataset processing type')
   parser.add_argument('-s', action='store', dest='study_id', required=True, help='The id of the study to get the replicates for')
   args = parser.parse_args()
   
