@@ -141,7 +141,7 @@ def annual(field, prefix, report):
       date + datetime.timedelta(days=int(range[-1]))))
     
     # Prepare the actual plot
-    title = '{} Strategy'.format(prefix.capitalize())
+    title = '{} Strategy - {} Years'.format(prefix.capitalize(), endpoint)
     filename = '{}-{}-{}-year.png'.format(prefix, field, bounds[2])
     if field == 'percent-failures':
       plot_percent_failures(data, range, title, filename, report)
@@ -233,7 +233,7 @@ def frequencies(prefix, report):
     print('{} Year: {:%Y-%m}'.format(endpoint, date + datetime.timedelta(days=int(range[-1]))))        
 
     # Prepare the actual plot
-    title = '{} Strategy'.format(prefix.capitalize())
+    title = '{} Strategy - {} Years'.format(prefix.capitalize(), endpoint)
     filename = '{}-frequency-{}-year.png'.format(prefix, bounds[2])
     plot_frequencies(data, range[-1], title, filename, report)
 
