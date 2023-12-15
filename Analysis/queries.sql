@@ -9,6 +9,15 @@ where r.endtime is null
 group by c.id, filename, replicateid, starttime
 order by modeldays desc
 
+-- Time comparison query
+select c.studyid, c.filename, avg(endtime - starttime) as runningtime
+from sim.replicate r
+  inner join sim.configuration c on c.id = r.configurationid
+where r.endtime is not null
+  and c.studyid >= 25
+group by c.studyid, c.filename
+order by c.studyid, c.filename
+
 -- Basic monitoring query with aggregation
 select c.filename, count(r.id), 75 - count(r.id)
 from sim.configuration c
