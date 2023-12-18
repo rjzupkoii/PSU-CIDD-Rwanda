@@ -53,6 +53,16 @@ FIXED_LABELS = {
   'fixed-pfpr2to10-0.75-dhappq': ['75% DHA-PPQ', '#df65b0'],
 }
 
+RANDOM_LABELS = {
+  'baseline': ['Status Quo', '#bdd7e7'],
+  'rotation-random-0.25-al': ['Random Allocation, 25% AL', '#6baed6'],
+  'rotation-random-0.5-al': ['50% AL', '#6baed6'],
+  'rotation-random-0.75-al': ['75% AL', '#6baed6'],
+  'rotation-random-0.25-dhappq': ['25% DHA-PPQ', '#6baed6'],
+  'rotation-random-0.5-dhappq': ['50% DHA-PPQ', '#6baed6'],
+  'rotation-random-0.75-dhappq': ['75% DHA-PPQ', '#6baed6'],
+}
+
 ROTATION_LABELS = {
   'baseline': ['Status Quo', '#bdd7e7'],
   'rotation-frequency-0.25-al': ['By frequency, 25% AL', '#6baed6'],
@@ -286,3 +296,8 @@ if __name__ == '__main__':
   frequencies('rotation', ROTATION_LABELS)
   annual('treatments', 'rotation', ROTATION_LABELS)
   annual('percent-failures', 'rotation', ROTATION_LABELS)  
+
+  # Generate the random plots
+  frequencies('random', RANDOM_LABELS)
+  annual('treatments', 'random', RANDOM_LABELS)
+  annual('percent-failures', 'random', RANDOM_LABELS)
