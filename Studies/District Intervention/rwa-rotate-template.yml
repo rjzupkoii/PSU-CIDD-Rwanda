@@ -2,8 +2,8 @@
 #
 # Boni Lab
 #
-# Baseline RWANDA model configuration, used for verification of 
-# 561H spiking of the population.
+# Template for the Rwanda district MFT strategy, note that the
+# number of years between drug rotations needs to be supplied.
 #
 # ---------------------------------------------------------------
 
@@ -236,7 +236,7 @@ events:
   - name: rotate_treatment_strategy_event
     info:
       - day: 2025/1/1
-        years: 2
+        years: #YEARS#
         first_strategy_id: 1
         second_strategy_id: 2
 

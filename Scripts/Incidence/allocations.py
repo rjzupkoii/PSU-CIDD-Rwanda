@@ -91,7 +91,7 @@ def get_frequency(configurationid, dayselapsed, location, genotype='^.....H.'):
 
 
 # Allocate the districts by the metric and percentage indicated.
-def allocate(df, by, percentage, therapies, summarize):
+def allocate(df, by, percentage, therapies, years, summarize):
   def generate_fixed():
     # Read the template file
     with open(FIXED_TEMPLATE, 'r') as read:
@@ -126,8 +126,8 @@ def allocate(df, by, percentage, therapies, summarize):
 
   # Generated the fixed and rotation configurations
   generate_fixed()
-  filename = 'out/rwa-rotation-{}-{}'.format(by, percentage) + '-{}.yml'
-  write_rotation(top, bottom, therapies, filename)
+  filename = 'out/rwa-rotation-{}-{}'.format(by, percentage) + '-{}-{}y.yml'
+  write_rotation(top, bottom, therapies, years, filename)
 
   # Update the YAML file with the summary results
   if not summarize: return
@@ -141,7 +141,7 @@ def allocate(df, by, percentage, therapies, summarize):
 # Generate a random allocation of districts based upon the percentage using the 
 # rotation template. The fixed template is not used since we want things to be
 # as stochastic as possible for the parasite. 
-def generate_random(df, percentage, therapies):
+def generate_random(df, percentage, therapies, years):
   # Get the list and shuffle it
   districts = df.district.tolist()
   districts = [int(value) for value in districts]
@@ -154,17 +154,20 @@ def generate_random(df, percentage, therapies):
   
   # Write the districts to the rotation template
   filename = 'out/rwa-rotation-random-{}'.format(percentage) + '-{}.yml'
-  write_rotation(first, second, therapies, filename)
+  write_rotation(first, second, therapies, years, filename)
   
 
-def write_rotation(top, bottom, therapies, filename):
+def write_rotation(top, bottom, therapies, years, filename):
   # Read the rotation file
   with open(ROTATION_TEMPLATE, 'r') as read:
     text = read.read()
 
   for therapy, value in therapies.items():
+    # Write the number of years
+    configuration = text.replace('#YEARS#', years)
+
     # Update the initial allocation
-    configuration = text.replace('#INITIAL_TOP#', '{}'.format(top))
+    configuration = configuration.replace('#INITIAL_TOP#', '{}'.format(top))
     configuration = configuration.replace('#INITIAL_BOTTOM#', '{}'.format(bottom))
 
     # Update the rotated allocation
@@ -176,7 +179,7 @@ def write_rotation(top, bottom, therapies, filename):
     configuration = configuration.replace('#BOTTOM_THERAPY#', value[1])
 
     # Write the configuration to disk
-    with open(filename.format(therapy), 'w') as out:
+    with open(filename.format(therapy, years), 'w') as out:
       out.write(configuration)  
 
 
@@ -312,10 +315,10 @@ def main(args, showValidation, showSummary):
   if os.path.isfile(FILENAME): os.unlink(FILENAME)
   os.makedirs('out', exist_ok=True) 
   for percentile in [0.25, 0.5, 0.75]:
-    allocate(df, 'incidence', percentile, args['therapies'], showSummary)
-    allocate(df, 'pfpr2to10', percentile, args['therapies'], showSummary)
-    allocate(df, 'frequency', percentile, args['therapies'], showSummary)
-    generate_random(df, percentile, args['therapies'])
+    allocate(df, 'incidence', percentile, args['therapies'], args['years'], showSummary)
+    allocate(df, 'pfpr2to10', percentile, args['therapies'], args['years'], showSummary)
+    allocate(df, 'frequency', percentile, args['therapies'], args['years'], showSummary)
+    generate_random(df, percentile, args['therapies'], args['years'])
   if showSummary: summarize(df)
 
   # Generate the relevant replicate scripts
@@ -338,11 +341,21 @@ if __name__ == "__main__":
   # Parse the command line arguments
   parser = argparse.ArgumentParser()
   parser.add_argument('-s', action='store', dest='studyid', required=True, help='Study ID to assign the jobs')
+  parser.add_argument('-y', action='store', dest='years', required=True, help='The number of years between drug rotations')
   parser.add_argument('--summarize', action='store_true', dest='summarize', help='Include to print the median district values')
   parser.add_argument('--validate', action='store_true', dest='validate', help='Include to print the validation information')
   args = parser.parse_args()
 
+  # Make sure the years are reasonable
+  years = int(args.years)
+  if years < 1: 
+    print('The number of years must be at least one, got {}'.format(args.years))
+    sys.exit(1)
+  elif years > 3:
+    print('Warning: more than three years between drug rotations is atypical')
+
   # Run the main script
   parameters['studyid'] = int(args.studyid)
+  parameters['years'] = args.years
   main(parameters, args.validate, args.summarize)
   
