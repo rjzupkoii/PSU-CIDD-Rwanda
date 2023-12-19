@@ -33,6 +33,7 @@ ENDPOINTS = {
 
 FIXED_LABELS = {
   'baseline': ['Status Quo', '#bdd7e7'],
+  'mft-al-dhappq-0.25': ['75% AL, 25% DHA-PPQ', '#bdd7e7'],
   'fixed-frequency-0.25-al': ['By frequency, 25% AL', '#6baed6'],
   'fixed-frequency-0.5-al': ['50% AL', '#6baed6'],
   'fixed-frequency-0.75-al': ['75% AL', '#6baed6'],
@@ -55,6 +56,7 @@ FIXED_LABELS = {
 
 RANDOM_LABELS = {
   'baseline': ['Status Quo', '#bdd7e7'],
+  'mft-al-dhappq-0.25': ['75% AL, 25% DHA-PPQ', '#bdd7e7'],
   'rotation-random-0.25-al': ['Random Allocation, 25% AL', '#6baed6'],
   'rotation-random-0.5-al': ['50% AL', '#6baed6'],
   'rotation-random-0.75-al': ['75% AL', '#6baed6'],
@@ -65,6 +67,7 @@ RANDOM_LABELS = {
 
 ROTATION_LABELS = {
   'baseline': ['Status Quo', '#bdd7e7'],
+  'mft-al-dhappq-0.25': ['75% AL, 25% DHA-PPQ', '#bdd7e7'],
   'rotation-frequency-0.25-al': ['By frequency, 25% AL', '#6baed6'],
   'rotation-frequency-0.5-al': ['50% AL', '#6baed6'],
   'rotation-frequency-0.75-al': ['75% AL', '#6baed6'],
@@ -89,7 +92,7 @@ ROTATION_LABELS = {
 def load_datasets(prefix):
   datasets = {}
   for file in os.listdir(DATASETS_PATH):  
-    if 'baseline' not in file and prefix not in file: continue
+    if not any(value in file for value in ['baseline', 'mft']) and prefix not in file: continue
     key = file.replace('rwa-', '').replace('.csv', '')
     datasets[key] = load_dataset(os.path.join(DATASETS_PATH, file))
   return datasets, datasets[key].days.unique()
