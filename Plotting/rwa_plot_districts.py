@@ -100,10 +100,16 @@ def load_datasets(prefix):
 def load_dataset(filename):
   REPLICATES, DATES, INFECTIONS, WEIGHTED, TREATMENTS, FAILURES = 1, 2, 4, 8, 9, 10
 
+  # Track what we've loaded while the program is running to reduce the amount of output
+  if not hasattr(load_dataset, "loaded"):
+    load_dataset.loaded = []
+
   # Check to see if the cache exists, load and return if it does
   cache = os.path.join(CACHE_DIRECTORY, os.path.split(filename)[-1].replace('.csv', '') + '-cache.csv')
   if os.path.exists(cache):
-    print('Loading cache for {} ...'.format(filename))
+    if not cache in load_dataset.loaded:
+      print('Loading cache for {} ...'.format(filename))
+      load_dataset.loaded.append(cache)
     return pd.read_csv(cache)
 
   # Inform the user
@@ -209,7 +215,7 @@ def plot_field(data, dates, field, title, filename, report):
     row = []
     for replicate in data[key].replicate.unique():
       subset = data[key][data[key].replicate == replicate]
-      row.append(np.sum(subset[(subset.days >= dates[0]) & (subset.days <= dates[-1])][field]))
+      row.append(np.sum(subset[(subset.days >= dates[0]) & (subset.days <= dates[-1])][field]) / 12)
     
     # Append the processed data
     labels.append(format[0])
@@ -227,12 +233,12 @@ def plot_field(data, dates, field, title, filename, report):
   for item in violin.collections: item.set_alpha(0.5)
 
   # Set the x-bounds of the plot, this manually set via earlier plots
-  if field == 'treatments': axis.set_xbound([300000, 525000])
+  if field == 'treatments': axis.set_xbound([26000, 43000])
 
   # Format the plot for the data
   plt.title(title)
   axis.set_yticklabels(labels)
-  axis.set_xlabel(field.capitalize() + ' (12-month sum)')
+  axis.set_xlabel(field.capitalize() + ' (12-month average)')
   
   # Save the plot
   plt.savefig(os.path.join(PLOTS_DIRECTORY, filename))
