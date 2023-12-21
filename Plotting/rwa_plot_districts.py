@@ -3,6 +3,10 @@
 # rwa_plot_districts.py
 #
 # Basic plotter for district policy interventions.
+# 
+# There's a lot of cut-and-paste code taking place here around setting the 
+# plots up - longer term it should be refactored to something a bit more
+# streamlined.
 import datetime
 import matplotlib
 import matplotlib.pyplot as plt
@@ -52,6 +56,52 @@ FIXED_LABELS = {
   'fixed-pfpr2to10-0.25-dhappq': ['25% DHA-PPQ', '#df65b0'],
   'fixed-pfpr2to10-0.5-dhappq': ['50% DHA-PPQ', '#df65b0'],
   'fixed-pfpr2to10-0.75-dhappq': ['75% DHA-PPQ', '#df65b0'],
+}
+
+ONE_YEAR_ROTATION_LABELS = {
+  'baseline': ['Status Quo', '#bdd7e7'],
+  'mft-al-dhappq-0.25': ['75% AL, 25% DHA-PPQ', '#bdd7e7'],
+  'rotation-frequency-0.25-al-1y': ['By frequency, 25% AL', '#6baed6'],
+  'rotation-frequency-0.5-al-1y': ['50% AL', '#6baed6'],
+  'rotation-frequency-0.75-al-1y': ['75% AL', '#6baed6'],
+  'rotation-frequency-0.25-dhappq-1y': ['25% DHA-PPQ', '#6baed6'],
+  'rotation-frequency-0.5-dhappq-1y': ['50% DHA-PPQ', '#6baed6'],
+  'rotation-frequency-0.75-dhappq-1y': ['75% DHA-PPQ', '#6baed6'],
+  'rotation-incidence-0.25-al-1y': ['By incidence, 25% AL', '#bae4b3'],
+  'rotation-incidence-0.5-al-1y': ['50% AL', '#bae4b3'],
+  'rotation-incidence-0.75-al-1y': ['75% AL', '#bae4b3'],
+  'rotation-incidence-0.25-dhappq-1y': ['25% DHA-PPQ', '#bae4b3'],
+  'rotation-incidence-0.5-dhappq-1y': ['50% DHA-PPQ', '#bae4b3'],
+  'rotation-incidence-0.75-dhappq-1y': ['75% DHA-PPQ', '#bae4b3'],
+  'rotation-pfpr2to10-0.25-al-1y': ['By PfPR 2-10, 25% AL', '#df65b0'],
+  'rotation-pfpr2to10-0.5-al-1y': ['50% AL', '#df65b0'],
+  'rotation-pfpr2to10-0.75-al-1y': ['75% AL', '#df65b0'],
+  'rotation-pfpr2to10-0.25-dhappq-1y': ['25% DHA-PPQ', '#df65b0'],
+  'rotation-pfpr2to10-0.5-dhappq-1y': ['50% DHA-PPQ', '#df65b0'],
+  'rotation-pfpr2to10-0.75-dhappq-1y': ['75% DHA-PPQ', '#df65b0'],
+  'rotation-random-0.25-al-1y': ['Random Allocation, 25% AL', '#6baed6'],
+  'rotation-random-0.5-al-1y': ['50% AL', '#6baed6'],
+  'rotation-random-0.75-al-1y': ['75% AL', '#6baed6'],
+  'rotation-random-0.25-dhappq-1y': ['25% DHA-PPQ', '#6baed6'],
+  'rotation-random-0.5-dhappq-1y': ['50% DHA-PPQ', '#6baed6'],
+  'rotation-random-0.75-dhappq-1y': ['75% DHA-PPQ', '#6baed6'],  
+}
+
+ONE_YEAR_POLICY_OPTIONS_LABELS = {
+  'baseline': ['Status Quo', '#bdd7e7'],
+  'mft-al-dhappq-0.25': ['75% AL, 25% DHA-PPQ', '#bdd7e7'],
+  'rotation-incidence-0.25-al-1y': ['By incidence, 25% AL', '#bae4b3'],
+  'rotation-incidence-0.5-al-1y': ['50% AL', '#bae4b3'],
+  'rotation-incidence-0.75-al-1y': ['75% AL', '#bae4b3'],
+  'rotation-incidence-0.25-dhappq-1y': ['25% DHA-PPQ', '#bae4b3'],
+  'rotation-incidence-0.5-dhappq-1y': ['50% DHA-PPQ', '#bae4b3'],
+  'rotation-incidence-0.75-dhappq-1y': ['75% DHA-PPQ', '#bae4b3'],
+  'rotation-random-0.25-al-1y': ['Random Allocation, 25% AL', '#6baed6'],
+  'rotation-random-0.5-al-1y': ['50% AL', '#6baed6'],
+  'rotation-random-0.75-al-1y': ['75% AL', '#6baed6'],
+  'rotation-random-0.25-dhappq-1y': ['25% DHA-PPQ', '#6baed6'],
+  'rotation-random-0.5-dhappq-1y': ['50% DHA-PPQ', '#6baed6'],
+  'rotation-random-0.75-dhappq-1y': ['75% DHA-PPQ', '#6baed6'],  
 }
 
 RANDOM_LABELS = {
@@ -296,17 +346,27 @@ if __name__ == '__main__':
   os.makedirs(CACHE_DIRECTORY, exist_ok=True)
   os.makedirs(PLOTS_DIRECTORY, exist_ok=True)
 
-  # Generate the fixed plots
-  frequencies('fixed', FIXED_LABELS)
-  annual('treatments', 'fixed', FIXED_LABELS)
-  annual('percent-failures', 'fixed', FIXED_LABELS)
+  # # Generate the fixed plots
+  # frequencies('fixed', FIXED_LABELS)
+  # annual('treatments', 'fixed', FIXED_LABELS)
+  # annual('percent-failures', 'fixed', FIXED_LABELS)
 
-  # Generate the rotation plots
-  frequencies('rotation', ROTATION_LABELS)
-  annual('treatments', 'rotation', ROTATION_LABELS)
-  annual('percent-failures', 'rotation', ROTATION_LABELS)  
+  # # Generate the rotation plots
+  # frequencies('rotation', ROTATION_LABELS)
+  # annual('treatments', 'rotation', ROTATION_LABELS)
+  # annual('percent-failures', 'rotation', ROTATION_LABELS)  
 
-  # Generate the random plots
-  frequencies('random', RANDOM_LABELS)
-  annual('treatments', 'random', RANDOM_LABELS)
-  annual('percent-failures', 'random', RANDOM_LABELS)
+  # # Generate the random plots
+  # frequencies('random', RANDOM_LABELS)
+  # annual('treatments', 'random', RANDOM_LABELS)
+  # annual('percent-failures', 'random', RANDOM_LABELS)
+
+  # # Generate all the one year rotation plots
+  # frequencies('rotation', ONE_YEAR_ROTATION_LABELS)
+  # annual('treatments', 'rotation', ONE_YEAR_ROTATION_LABELS)
+  # annual('percent-failures', 'rotation', ONE_YEAR_ROTATION_LABELS)
+
+  # Generate all the realistic policy option plots
+  frequencies('rotation', ONE_YEAR_POLICY_OPTIONS_LABELS)
+  annual('treatments', 'rotation', ONE_YEAR_POLICY_OPTIONS_LABELS)
+  annual('percent-failures', 'rotation', ONE_YEAR_POLICY_OPTIONS_LABELS)
