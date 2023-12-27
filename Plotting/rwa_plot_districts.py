@@ -58,6 +58,17 @@ FIXED_LABELS = {
   'fixed-pfpr2to10-0.75-dhappq': ['75% DHA-PPQ', '#df65b0'],
 }
 
+FIXED_INCIDENCE_SENSITIVITY = {
+  'baseline': ['Status Quo', '#bdd7e7'],
+  'mft-al-dhappq-0.25': ['75% AL, 25% DHA-PPQ', '#bdd7e7'],
+  'fixed-incidence-0.75-al': ['75% AL (1x)', '#bae4b3'],
+  'fixed-incidence-0.75-al-10x': ['75% AL (10x)', '#bae4b3'],
+  'fixed-incidence-0.75-al-100x': ['75% AL (100x)', '#bae4b3'],
+  'fixed-incidence-0.25-dhappq': ['25% DHA-PPQ (1x)', '#df65b0'],
+  'fixed-incidence-0.25-dhappq-10x': ['25% DHA-PPQ (10x)', '#df65b0'],
+  'fixed-incidence-0.25-dhappq-100x': ['25% DHA-PPQ (100x)', '#df65b0'],
+}
+
 ONE_YEAR_ROTATION_LABELS = {
   'baseline': ['Status Quo', '#bdd7e7'],
   'mft-al-dhappq-0.25': ['75% AL, 25% DHA-PPQ', '#bdd7e7'],
@@ -283,7 +294,7 @@ def plot_field(data, dates, field, title, filename, report):
   for item in violin.collections: item.set_alpha(0.5)
 
   # Set the x-bounds of the plot, this manually set via earlier plots
-  if field == 'treatments': axis.set_xbound([26000, 43000])
+  if field == 'treatments': axis.set_xbound([10000, 43000])
 
   # Format the plot for the data
   plt.title(title)
@@ -366,7 +377,12 @@ if __name__ == '__main__':
   # annual('treatments', 'rotation', ONE_YEAR_ROTATION_LABELS)
   # annual('percent-failures', 'rotation', ONE_YEAR_ROTATION_LABELS)
 
-  # Generate all the realistic policy option plots
-  frequencies('rotation', ONE_YEAR_POLICY_OPTIONS_LABELS)
-  annual('treatments', 'rotation', ONE_YEAR_POLICY_OPTIONS_LABELS)
-  annual('percent-failures', 'rotation', ONE_YEAR_POLICY_OPTIONS_LABELS)
+  # # Generate all the realistic policy option plots
+  # frequencies('rotation', ONE_YEAR_POLICY_OPTIONS_LABELS)
+  # annual('treatments', 'rotation', ONE_YEAR_POLICY_OPTIONS_LABELS)
+  # annual('percent-failures', 'rotation', ONE_YEAR_POLICY_OPTIONS_LABELS)
+
+  # Generate all the movement sensitivity plots
+  frequencies('incidence', FIXED_INCIDENCE_SENSITIVITY)
+  annual('treatments', 'incidence', FIXED_INCIDENCE_SENSITIVITY)
+  annual('percent-failures', 'incidence', FIXED_INCIDENCE_SENSITIVITY)
